@@ -1,0 +1,41 @@
+html,
+body {
+  min-height: 100vh;
+  font-family: @primary-font;
+  font-size: @font-size;
+  font-weight: 300;
+}
+
+.container {
+  width: 100%;
+}
+
+.site-wrapper {
+  background-color: @color-lgreen;
+}
+
+.site-wrapper-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  padding-top: 150px;
+  padding-bottom: 50px;
+}
+
+.small-footer{
+  width: 100%;
+  position: fixed;
+  bottom: 0px;
+  display: inline-block;
+  padding: 0 !important;
+  background-color: rgba(76, 146, 116, 0.7);
+  p {
+    margin-bottom: 0;
+  }
+  z-index: 5;
+}
+/* adding this to prevent showing hidden tags while requirejs does its work*/
+[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}
+

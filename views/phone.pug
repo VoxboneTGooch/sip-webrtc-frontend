@@ -1,0 +1,24 @@
+extends layout
+
+append head
+  script.
+    require([
+      'angular',
+      'controllers/phone'
+    ],
+    function (angular, PhoneController, jQueryMask) {
+      angular.module('sip-webrtc-frontend', [])
+        .controller('PhoneController', PhoneController);
+      angular.bootstrap(document, ['sip-webrtc-frontend']);
+    });
+
+block content
+  .site-wrapper-inner.home-wrap
+    .container(ng-controller="PhoneController")
+      .register-content.ng-cloak.col-md-8.col-md-offset-2
+        .text-center
+          .well.call-info Receiving call from emilianop11@sip.linphone.org
+          img(src="/images/phone-receiver.png")
+        button.btn.btn-default-custom.pull-right.button-block(ng-click="skipURI('/edit-bridge')" name="skipBtn") Answer
+
+

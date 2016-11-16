@@ -1,0 +1,64 @@
+.navbar-inverse {
+  background: @nav-color;
+  border-bottom: 1px solid @nav-border;
+  padding-top: 15px;
+  padding-bottom: 15px;
+
+}
+
+.logo-web {
+  color: @color-lblue;
+}
+
+.logo-rtc {
+  color: @color-lgreen;
+}
+
+.navbar-inverse {
+  .navbar-nav {
+    >li {
+      >a {
+        color: @color-white;
+        font-size: 18px;
+        line-height: 56px;
+        text-decoration: none;
+        font-weight: normal;
+        &:hover {
+          color: @color-light-brown;
+        }
+      }
+      &.active {
+        a {
+          color: @color-light-brown;
+        }
+      }
+    }
+  }
+}
+
+.navbar-toggler {
+  margin-top: 15px;
+  color: @color-white;
+  border: 1px solid @color-dark-grey;
+  &:hover {
+    background: @nav-color;
+  }
+}
+
+.gravatar {
+  height: 20px;
+  width: 20px;
+}
+
+.page-title {
+  font-family: "Kaleko205W00-Heavy";
+  a {
+    text-decoration: none;
+    color: white;
+    font-size: 40px;
+  }
+  background-image: url('../images/by_voxbone.png');
+  background-repeat: no-repeat;
+  background-position: 0px 35px;
+  height:70px;
+}
