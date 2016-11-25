@@ -4,6 +4,21 @@ var router = express.Router();
 var utils = require('./utils');
 var Account = require('../models/account');
 var request = require('request');
+var Voxbone = require('voxbone-webrtc');
+
+//Your Voxbone WebRTC credentials
+var voxrtc_username = process.env.VOXBONE_WEBRTC_USERNAME;
+var voxrtc_secret = process.env.VOXBONE_WEBRTC_PASSWORD;
+
+//Agent WebRTC credentials
+var agent_username = process.env.AGENT_WEBRTC_USERNAME;
+var agent_password = process.env.AGENT_WEBRTC_PASSWORD;
+
+//New Voxbone Object used for authentication
+var voxbone = new Voxbone({
+    voxrtcUsername: voxrtc_username,
+    voxrtcSecret: voxrtc_secret
+});
 
 // Redirects if not HTTPS
 router.get('*', function (req, res, next) {
@@ -30,7 +45,13 @@ router.get('/edit-notifications', utils.isLoggedIn, function (req, res, next) {
 });
 
 router.get('/phone', utils.isLoggedIn, function (req, res, next) {
-  res.render('phone');
+  voxrtc_config = voxbone.generate();
+  vox_username = voxrtc_username;
+  vox_password = voxrtc_secret;
+  res.render('phone', {
+    agent_username: agent_username,
+    agent_password: agent_password
+  });
 });
 
 module.exports = router;

@@ -46,7 +46,8 @@
     "sendgrid": "^2.0.0",
     "serve-favicon": "~2.3.0",
     "strong-params": "^0.7.0",
-    "underscore": "latest"
+    "underscore": "latest",
+    "voxbone-webrtc": "~0.0.8"
   },
   "devDependencies": {
     "chai": "^3.5.0",

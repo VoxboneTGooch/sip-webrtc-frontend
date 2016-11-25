@@ -14,11 +14,13 @@ append head
 
 block content
   .site-wrapper-inner.home-wrap
-    .container(ng-controller="PhoneController")
+    .container(ng-controller="PhoneController" ng-init=`init("${agent_username}", "${agent_password}", "${vox_username}", "${vox_password}")`)
       .register-content.ng-cloak.col-md-8.col-md-offset-2
         .text-center
-          .well.call-info Receiving call from emilianop11@sip.linphone.org
-          img(src="/images/phone-receiver.gif")
-        button.btn.btn-default-custom.pull-right.button-block(ng-click="skipURI('/edit-bridge')" name="skipBtn") Answer
+          .well.call-info {{callMsg}}
+          img(ng-src="{{phoneImg}}")
+        button.btn.btn-default-custom.pull-right.button-block(ng-show="callState == 'incoming'" ng-click="answerCall()") Answer
+        button.btn.btn-default-custom.pull-right.button-block(ng-show="callState == 'incoming'" ng-click="declineCall()") Decline
+        button.btn.btn-default-custom.pull-right.button-block(ng-show="callState == 'inCall'" ng-click="hangCall()") Hang
 
 

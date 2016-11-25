@@ -8,7 +8,6 @@ var title = 'SIP-WebRTC v' + pjson.version;
 
 var session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
-
 var params = require('strong-params');
 var passport = require('passport');
 var flash = require('connect-flash');
