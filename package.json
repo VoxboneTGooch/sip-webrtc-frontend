@@ -29,6 +29,7 @@
     "grunt-bower-requirejs": "^2.0.0",
     "grunt-nodemon": "^0.4.2",
     "lodash": "^4.16.4",
+    "moment": "^2.16.0",
     "mongoose": "^4.6.4",
     "morgan": "~1.6.1",
     "newrelic": "^1.32.0",
