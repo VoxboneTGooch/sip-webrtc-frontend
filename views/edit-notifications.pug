@@ -17,35 +17,34 @@ block content
     .container(ng-controller="EditNotificationsController" ng-init="init()")
       .register-content.ng-cloak.col-md-8.col-md-offset-2
         h4 Edit Notifications
-        hr
-        .text-center
-          .col-xs-6
-            .form-group
-              label Ring
-              select.form-control
-                option 1
-                option 2
-                option 3
-                option 4
-            .checkbox
-              label
-                input(type="checkbox" ng-model="bridge.recordNameOnEntry")
-                |Browser Notification
-                span.badge(data-toggle='tooltip' data-placement="right" title="Users can record their names before joining the conference") ?
-            .checkbox
-              label
-                input(type="checkbox" ng-model="bridge.recordNameOnEntryS")
-                |Auto Load
-                span.badge(data-toggle='tooltip' data-placement="right" title="Users can record their names before joining the conference") ?
+        .col-xs-4
+          .form-group
+            label Ring
+            select.form-control
+              option 1
+              option 2
+              option 3
+              option 4
+          .checkbox
+            label
+              input(type="checkbox" ng-model="bridge.recordNameOnEntry")
+              |Browser Notification
+              span.badge(data-toggle='tooltip' data-placement="right" title="Users can record their names before joining the conference") ?
 
-          .col-xs-6
-            .form-group
-              label Email &nbsp;
-                span.badge(data-toggle='tooltip' data-placement="right" title="Add an optional SIP URI to connect to your switch or endpoint") ?
-              input(type="text" class="form-control" ng-model="bridge.remoteSipUri" readonly)
+        .col-xs-4
+          .form-group
+            label Email &nbsp;
+              span.badge(data-toggle='tooltip' data-placement="right" title="Add an optional SIP URI to connect to your switch or endpoint") ?
+            input(type="text" class="form-control" ng-model="bridge.remoteSipUri" readonly)
+          .checkbox
+            label
+              input(type="checkbox" ng-model="bridge.recordNameOnEntryS")
+              |Auto Load
+              span.badge(data-toggle='tooltip' data-placement="right" title="Users can record their names before joining the conference") ?
 
-            .form-group
-              label SMS &nbsp;
-                span.badge(data-toggle='tooltip' data-placement="right" title="Add an optional SIP URI to connect to your switch or endpoint") ?
-              input(type="text" class="form-control" ng-model="bridge.remoteSipUri" readonly)
-        .clearfix
+        .col-xs-4
+          .form-group
+            label SMS &nbsp;
+              span.badge(data-toggle='tooltip' data-placement="right" title="Add an optional SIP URI to connect to your switch or endpoint") ?
+            input(type="text" class="form-control" ng-model="bridge.remoteSipUri" readonly)
+      .clearfix
