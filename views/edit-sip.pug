@@ -15,12 +15,12 @@ append head
 
 block content
   .site-wrapper-inner.home-wrap
-    .body(ng-controller='EditSIPController' ng-init="init()")
+    .body.edit-sip(ng-controller='EditSIPController' ng-init="init()")
       .container
         .col-xs-6
           .row
             .register-content.ng-cloak
-              h1 SIP Registrar
+              h4 SIP Registrar
               p Lorem ipsum dolor sit amet, consectetur adipiscing elit
               section
                 form(name="sip_form")
@@ -31,7 +31,7 @@ block content
                       input.form-control(type="text" name="remoteSipUri" ng-model="bridge.remoteSipUri" ng-pattern="/^[^@]+@[^@]+$/" check-allowed-sip auto-focus required placeholder= "SIP registrar")
           .row
             .register-content.ng-cloak
-              h1 Configuration
+              h4 Configuration
               p Lorem ipsum dolor sit amet, consectetur adipiscing elit
               section
                 form(name="sip_form")
@@ -50,7 +50,7 @@ block content
                       input.form-control(type="text" name="remoteSipUri" ng-model="bridge.remoteSipUri" ng-pattern="/^[^@]+@[^@]+$/" check-allowed-sip auto-focus required placeholder= "Sip password")
         .col-xs-6
           .register-content.ng-cloak
-            h1 Allowed IP addresses
+            h4 Allowed IP addresses
             p Lorem ipsum dolor sit amet, consectetur adipiscing elit
             section
               form(name="sip_form")

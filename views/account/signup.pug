@@ -30,14 +30,14 @@ block content
         .row
           .col-sm-12.col-md-7.col-lg-6
             .register-content
-              h1 Create Account
+              h4 Create Account
               if conference_name
                 h3 The conference #{conference_name} seems to be available. Signup and get it!
               #alert-error.alert.alert-danger.hidden
               #alert-info.alert.alert-info.hidden
 
               span.
-                #[b Note for current Voxbone customers:] you can login with your Voxbone portal account using the Voxbone button below. The DIDs and services used on VoxConf.me are indepedant of your Voxbone account. Please #[a(href="mailto:workshop@voxbone.com") contact us] to add conferencing to an existing Voxbone DID.
+                #[strong Note for current Voxbone customers:] you can login with your Voxbone portal account using the Voxbone button below. The DIDs and services used on VoxConf.me are indepedant of your Voxbone account. Please #[a(href="mailto:workshop@voxbone.com") contact us] to add conferencing to an existing Voxbone DID.
 
               .formWrap.oauth-wrap
                   h4.text-center Login with:
@@ -50,28 +50,28 @@ block content
                   input.form-control(type="hidden" id="ureference" name="ureference" ng-model="account.ureference" ng-init=`account.ureference='${reference || ""}'`)
                 .form-group
                   label.control-label First Name
-                  input.form-control(type="text" id="ufirstname" name="ufirstname" ng-model="account.ufirstname" required)
+                  input.form-control(placeholder="Name" type="text" id="ufirstname" name="ufirstname" ng-model="account.ufirstname" required)
                   .error-label(ng-show="create_account.$submitted || create_account.ufirstname.$touched")
                     .ng-hide(ng-show="create_account.ufirstname.$error.required") Please enter your first name
                 .form-group
                   label.control-label Last Name
-                  input.form-control(type="text" id="ulastname" name="ulastname" ng-model="account.ulastname" required)
+                  input.form-control(placeholder="Last Name" type="text" id="ulastname" name="ulastname" ng-model="account.ulastname" required)
                   .error-label(ng-show="create_account.$submitted || create_account.ulastname.$touched")
                     .ng-hide(ng-show="create_account.ulastname.$error.required") Please enter your last name
                 .form-group
                   label.control-label Company
-                  input.form-control(type="text" id="ucompany" name="ucompany" ng-model="account.ucompany")
+                  input.form-control(placeholder="Company" type="text" id="ucompany" name="ucompany" ng-model="account.ucompany")
                 .form-group
                   label.control-label Phone Number (optional)
-                  input.form-control(type="text" id="uphone" name="uphone" ng-model="account.uphone")
+                  input.form-control(placeholder="Phone Number" type="text" id="uphone" name="uphone" ng-model="account.uphone")
                 .form-group
                   label.control-label Email address
-                  input.form-control(type="text" id="uemail" name="uemail" ng-model="account.uemail" required)
+                  input.form-control(placeholder="email@example.com" type="text" id="uemail" name="uemail" ng-model="account.uemail" required)
                   .error-label(ng-show="create_account.$submitted || create_account.uemail.$touched")
                     .ng-hide(ng-show="create_account.uemail.$error.required") Email is required
                 .form-group
                   label.control-label Password
-                  input.form-control(type="password" id="upassword" name="upassword" ng-model="account.upassword" required password-strength="account.upassword")
+                  input.form-control(placeholder="Your password" type="password" id="upassword" name="upassword" ng-model="account.upassword" required password-strength="account.upassword")
                   .progress.passwordStrength.ng-hide(ng-show="create_account.upassword.$dirty")
                     .progress-bar(role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: {{strength_percent}}%" class="{{strength_class}}")
                       span Strength: {{strength}}!
@@ -80,7 +80,7 @@ block content
                     .ng-hide(ng-show="create_account.upassword.$error.minlength") Password must be at least 8 characters in length
                   .form-group
                     label.control-label Confirm Password
-                    input.form-control(type="password" id="confirmation" name="confirmation" ng-model="account.confirmation" required pw-check="upassword")
+                    input.form-control(placeholder="Repeat your password" type="password" id="confirmation" name="confirmation" ng-model="account.confirmation" required pw-check="upassword")
                     .error-label(ng-show="create_account.$submitted || create_account.confirmation.$touched")
                       .ng-hide(ng-show="create_account.confirmation.$error.pwmatch") Password confirmation does not match
 

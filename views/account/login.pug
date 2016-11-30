@@ -17,7 +17,7 @@ block content
         .row
           .col-sm-12.col-md-7.col-lg-6
             .register-content
-              h1 Login
+              h4 Login
 
               while m = message.shift()
                 #tokenError.alert(class='alert-' + m.type)
@@ -27,7 +27,7 @@ block content
               #alert-unverified.alert.alert-danger.hidden Unverified account. Please check your inbox to validate your email address.
 
               span.
-                #[b Note for current Voxbone customers:] you can login with your Voxbone portal account using the Voxbone button below. The DIDs and services used on VoxConf.me are indepedant of your Voxbone account. To add conferencing to an existing DID, please #[a(href="mailto://workshop@voxbone.com") contact us].
+                #[strong Note for current Voxbone customers:] you can login with your Voxbone portal account using the Voxbone button below. The DIDs and services used on VoxConf.me are indepedant of your Voxbone account. To add conferencing to an existing DID, please #[a(href="mailto://workshop@voxbone.com") contact us].
 
               .formWrap
                 .oauth-wrap
@@ -39,18 +39,18 @@ block content
                 form#login_form(ng-controller="LoginController" ng-init=`login.uemail='${email || ''}'` name="login_form" novalidate)
                   .form-group
                     label.control-label Email
-                    input.form-control(type="email" id="uemail" name="uemail" ng-model="login.uemail" required)
+                    input.form-control(placeholder="email@example.com" type="email" id="uemail" name="uemail" ng-model="login.uemail" required)
                     .ng-cloak(ng-show="login_form.$submitted || login_form.uemail.$touched")
                       .error-label(ng-show="login_form.uemail.$error.required") Email is required
                     .ng-cloak(ng-show="login_form.uemail.$dirty && login_form.uemail.$invalid")
                       .error-label(ng-show="login_form.uemail.$error.email") Email is invalid
                   .form-group
                     label.control-label Password
-                    input.form-control(type="password", id="upassword", name="upassword", ng-model="login.upassword", required)
+                    input.form-control(placeholder="Your password" type="password", id="upassword", name="upassword", ng-model="login.upassword", required)
                     .ng-cloak(ng-show="login_form.$submitted || login_form.upassword.$touched")
                       .error-label(ng-show="login_form.upassword.$error.required") Password is required
 
-                  button.btn.btn-default-custom.button-block#login(ng-disabled="login_form.$invalid" ng-click="login.processForm()") Login
+                  button.btn.btn-default-custom.btn-block#login(ng-disabled="login_form.$invalid" ng-click="login.processForm()") Login
                   span
                     a(href="/account/forgot") Forgot your password?
                     br

@@ -7,8 +7,8 @@ var request = require('request');
 var Voxbone = require('voxbone-webrtc');
 
 //Your Voxbone WebRTC credentials
-var voxrtc_username = process.env.VOXBONE_WEBRTC_USERNAME;
-var voxrtc_secret = process.env.VOXBONE_WEBRTC_PASSWORD;
+var voxrtc_username = 'san983';
+var voxrtc_secret = 'Click456!';
 
 //Agent WebRTC credentials
 var agent_username = process.env.AGENT_WEBRTC_USERNAME;
