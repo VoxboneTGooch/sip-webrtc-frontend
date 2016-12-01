@@ -20,6 +20,21 @@ define(['jquery', 'bootstrap'], function(jQuery) {
       jQuery('[data-toggle="tooltip"]').tooltip();
     };
 
+    $scope.addAllowedIp = function() {
+
+      if (jQuery("#allowed-ips").children().last().find("input").val()) {
+        jQuery.get("/html/allowed-ip.html", function (data) {
+          jQuery("#allowed-ips").append(data);
+        });
+      }
+
+    };
+
+    $scope.removeAllowedIp = function() {
+      if (jQuery("#allowed-ips").children().length > 1)
+        jQuery("#allowed-ips").children().last().remove();
+    };
+
     $scope.skipURI = function(redirect_to) {
       $window.location.href = redirect_to;
     };

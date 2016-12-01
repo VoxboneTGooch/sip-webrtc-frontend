@@ -54,11 +54,14 @@ block content
             p Lorem ipsum dolor sit amet, consectetur adipiscing elit
             section
               form(name="sip_form")
-                .boxPanel
+                .boxPanel#allowed-ips
                   .form-group
                     input.form-control(type="text" name="remoteSipUri" ng-model="bridge.remoteSipUri" ng-pattern="/^[^@]+@[^@]+$/" check-allowed-sip auto-focus required placeholder= "Allowed IP")
-                  .form-group
-                    input.form-control(type="text" name="remoteSipUri" ng-model="bridge.remoteSipUri" ng-pattern="/^[^@]+@[^@]+$/" check-allowed-sip auto-focus required placeholder= "Allowed IP")
+
+                button.btn.manage-ips(ng-click="addAllowedIp()")
+                  span.glyphicon.glyphicon-triangle-bottom
+                button.btn.manage-ips(ng-click="removeAllowedIp()")
+                  span.glyphicon.glyphicon-triangle-top
 
           .form-group(ng-cloak)
             button.btn.btn-default-custom.pull-right.button-block(ng-click="skipURI('/edit-bridge')" name="skipBtn") Save
