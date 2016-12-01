@@ -1,6 +1,7 @@
 define(['jquery', 'bootstrap'], function(jQuery) {
 
   var PhoneController = function($scope, $http, $window, $timeout) {
+    $scope.callMsg = "Waiting for registration...";
     var audio = new Audio('/audio/telephone-ring.ogg');
     $scope.callState = 'initial';
     $scope.phoneImg = '/images/vox-static-phone.png';
@@ -10,8 +11,6 @@ define(['jquery', 'bootstrap'], function(jQuery) {
 
       voxbone.WebRTC.username = agent_username;
       voxbone.WebRTC.password = agent_password;
-      voxbone.WebRTC.configuration.uri = 'sip:1686570@workshop-gateway.voxbone.com';
-      voxbone.WebRTC.configuration.ws_servers = ['wss://workshop-gateway.voxbone.com'];
       voxbone.WebRTC.basicAuthInit(vox_username, vox_password);
 
       voxbone.WebRTC.onCall = function (data, cb) {
@@ -33,7 +32,8 @@ define(['jquery', 'bootstrap'], function(jQuery) {
         $scope.declineCall = function () {
             $scope.callState = 'initial';
             $scope.phoneImg = '/images/vox-static-phone.png';
-            cb(false);
+            //cb(false);
+            $scope.callMsg = "Waiting for incoming call...";
             audio.pause();
             audio.currentTime = 0;
         };
