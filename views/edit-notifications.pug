@@ -27,7 +27,7 @@ block content
               option 4
           .checkbox
             label
-              input(type="checkbox" ng-model="bridge.recordNameOnEntry")
+              input(type="checkbox" ng-model="" disabled)
               |Browser Notification
               span.badge(data-toggle='tooltip' data-placement="right" title="Users can record their names before joining the conference") ?
 
@@ -35,10 +35,10 @@ block content
           .form-group
             label Email &nbsp;
               span.badge(data-toggle='tooltip' data-placement="right" title="Add an optional SIP URI to connect to your switch or endpoint") ?
-            input(type="text" class="form-control" ng-model="bridge.remoteSipUri" readonly)
+            input(type="text" class="form-control" ng-model="bridge.remoteSipUri" disabled)
           .checkbox
             label
-              input(type="checkbox" ng-model="bridge.recordNameOnEntryS")
+              input(type="checkbox" ng-model="" disabled)
               |Auto Load
               span.badge(data-toggle='tooltip' data-placement="right" title="Users can record their names before joining the conference") ?
 
@@ -46,5 +46,5 @@ block content
           .form-group
             label SMS &nbsp;
               span.badge(data-toggle='tooltip' data-placement="right" title="Add an optional SIP URI to connect to your switch or endpoint") ?
-            input(type="text" class="form-control" ng-model="bridge.remoteSipUri" readonly)
+            input(type="text" class="form-control" ng-model="bridge.remoteSipUri" disabled)
       .clearfix
