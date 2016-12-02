@@ -57,6 +57,10 @@ var accountSchema = new Schema({
   voxbone_token: String,
   voxbone_id: String,
   referrer: String,
+  ringtone: {
+    type: String,
+    default: "office"
+  },
 });
 
 accountSchema.pre('save', function (next) {

@@ -45,10 +45,12 @@ router.get('/edit-notifications', utils.isLoggedIn, function (req, res, next) {
 });
 
 router.get('/phone', utils.isLoggedIn, function (req, res, next) {
+  var ringtone = res.locals.currentUser.ringtone;
   voxrtc_config = voxbone.generate();
   vox_username = voxrtc_username;
   vox_password = voxrtc_secret;
   res.render('phone', {
+    ringtone: ringtone,
     agent_username: agent_username,
     agent_password: agent_password
   });
