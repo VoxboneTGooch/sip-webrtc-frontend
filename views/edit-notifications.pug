@@ -13,21 +13,27 @@ append head
     });
 
 block content
+  - var userData = JSON.stringify(currentUser)
   .site-wrapper-inner.home-wrap
-    .container(ng-controller="EditNotificationsController" ng-init="init()")
+    .container(ng-controller="EditNotificationsController" ng-init=`initData={account: ${userData}}`)
       .register-content.ng-cloak.col-md-8.col-md-offset-2
         h4 Edit Notifications
         .col-xs-4
           .form-group
-            label Ring
-            select.form-control
-              option 1
-              option 2
-              option 3
-              option 4
+
+            label Ringtone &nbsp;
+              button.btn(ng-show="!playing" ng-click="play()")
+                span.glyphicon.glyphicon-play
+              button.btn(ng-show="playing" ng-click="pause()")
+                span.glyphicon.glyphicon-pause
+            select.form-control(ng-model="account.ringtone")
+              option(value="office") Office
+              option(value="legacy") legacy
+              option(value="old") Old
+              option(value="crystal") Crystal
           .checkbox
             label
-              input(type="checkbox" ng-model="" disabled)
+              input(type="checkbox" disabled)
               |Browser Notification
               span.badge(data-toggle='tooltip' data-placement="right" title="Users can record their names before joining the conference") ?
 
@@ -35,10 +41,10 @@ block content
           .form-group
             label Email &nbsp;
               span.badge(data-toggle='tooltip' data-placement="right" title="Add an optional SIP URI to connect to your switch or endpoint") ?
-            input(type="text" class="form-control" ng-model="bridge.remoteSipUri" disabled)
+            input(type="text" class="form-control" disabled)
           .checkbox
             label
-              input(type="checkbox" ng-model="" disabled)
+              input(type="checkbox" disabled)
               |Auto Load
               span.badge(data-toggle='tooltip' data-placement="right" title="Users can record their names before joining the conference") ?
 
@@ -46,5 +52,10 @@ block content
           .form-group
             label SMS &nbsp;
               span.badge(data-toggle='tooltip' data-placement="right" title="Add an optional SIP URI to connect to your switch or endpoint") ?
-            input(type="text" class="form-control" ng-model="bridge.remoteSipUri" disabled)
-      .clearfix
+            input(type="text" class="form-control" disabled)
+
+          .form-group(ng-cloak)
+            button.btn.btn-default-custom.pull-right.button-block(ng-click="saveNotifications()" name="skipBtn") {{ saveButtonText }}
+
+        .text-center.error-label(ng-show="savingError") Your configuration cannot be saved. Please try again
+        .text-center.success-label(ng-show="savedSuccessfully") Your configuration has been saved successfully! #[a.btn(href="/phone") Pick your web phone!]

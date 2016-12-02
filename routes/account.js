@@ -21,7 +21,7 @@ var emails = require('./emails');
 
 var PERMITTED_FIELDS = [
   'first_name', 'last_name','company', 'phone', 'password',
-  'confirmation', 'email', 'reference'
+  'confirmation', 'email', 'reference', 'ringtone'
 ];
 
 router.get('/login', utils.redirectIfLoggedIn, function (req, res, next) {
@@ -85,6 +85,7 @@ router.post('/edit', utils.isLoggedIn, function (req, res) {
       return res.status(400).json(result);
     }
 
+    theAccount.ringtone = formData.ringtone;
     theAccount.first_name = formData.first_name;
     theAccount.last_name = formData.last_name;
     theAccount.company = formData.company;

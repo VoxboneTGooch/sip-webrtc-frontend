@@ -2,42 +2,67 @@ define(['jquery', 'bootstrap'], function(jQuery) {
 
   var EditNotificationsController = function($scope, $http, $window, $timeout) {
 
-    $scope.reset = function() {
-      this.onSubmitting = false;
-      this.errorMessage = '';
-      this.successMessage = '';
-      this.titleText = 'Add a new remote SIP address';
-      this.submitText = 'Add a SIP URI';
-      this.skipText = 'Skip for now';
-    };
+    $scope.playing = false;
+    $scope.savedSuccessfully = false;
+    $scope.savingError = false;
+    $scope.saveButtonText = 'Save Changes';
 
-    $scope.init = function() {
-      this.wirePlugins();
-      this.reset();
-    };
+    var audio = document.createElement('audio');
 
-    $scope.wirePlugins = function() {
+    $scope.$watch('initData', function () {
       jQuery('[data-toggle="tooltip"]').tooltip();
-    };
 
-    $scope.skipURI = function(redirect_to) {
-      $window.location.href = redirect_to;
-    };
+      if ($scope.initData)
+        $scope.account = $scope.initData.account;
 
-    $scope.sanitizeSipURI = function sanitizeSipURI(sip_uri) {
-      var result = '';
-
-      if (sip_uri) {
-        var i = sip_uri.indexOf(':');
-        result = 'sip:' + sip_uri.substring(i + 1).trim();
-      }
-
-      return result;
-    };
+    });
 
     var reqHeaders = {
       'Content-Type': 'application/json; charset=utf-8'
     };
+
+    var reqAccount = function (account) {
+      return {
+        method: 'POST',
+        url: '/account/edit',
+        headers: reqHeaders,
+        data: account
+      };
+    };
+
+    $scope.play = function () {
+      audio.src = '/audio/' + $scope.account.ringtone + '.ogg';
+
+      if (!$scope.playing)
+        audio.play();
+      else
+        audio.pause();
+
+      audio.currentTime = 0;
+      $scope.playing = !$scope.playing;
+    };
+
+    $scope.pause = function () {
+      audio.pause();
+      audio.currentTime = 0;
+      $scope.playing = !$scope.playing;
+    };
+
+    $scope.saveNotifications = function () {
+      $scope.savedSuccessfully = false;
+      $scope.savingError = false;
+      $scope.saveButtonText = 'Saving...';
+
+      $http(reqAccount($scope.account))
+        .then(function successCallback(response) {
+          $scope.saveButtonText = 'Save Changes';
+          $scope.savedSuccessfully = true;
+        }, function errorCallback(response) {
+          $scope.saveButtonText = 'Save Changes';
+          $scope.savingError = true;
+        });
+    };
+
   };
   EditNotificationsController.$inject = ['$scope', '$http', '$window', '$timeout'];
 
