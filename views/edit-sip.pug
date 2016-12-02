@@ -22,32 +22,36 @@ block content
             .register-content.ng-cloak
               h4 SIP Registrar
               p Lorem ipsum dolor sit amet, consectetur adipiscing elit
+              .checkbox
+                label
+                  input(type="checkbox" disabled checked)
+                  |Allow calls to the internal SIP URI
+                  span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
+              .checkbox
+                label
+                  input(type="checkbox" ng-model="registrar_enabled")
+                  |Sip Registrar
+                  span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
               section
                 form(name="sip_form")
                   .boxPanel
-                    .form-group
-                      label SIP Registrar
-                        span.badge(data-toggle='tooltip' data-placement="right" title="Add an optional SIP URI to connect to your switch or endpoint here") ?
-                      input.form-control(type="text" name="remoteSipUri" ng-model="bridge.remoteSipUri" ng-pattern="/^[^@]+@[^@]+$/" check-allowed-sip auto-focus required placeholder= "SIP registrar")
-          .row
-            .register-content.ng-cloak
-              h4 Configuration
-              p Lorem ipsum dolor sit amet, consectetur adipiscing elit
-              section
-                form(name="sip_form")
-                  .boxPanel
-                    .form-group
-                      label Name
-                        span.badge(data-toggle='tooltip' data-placement="right" title="Add an optional SIP URI to connect to your switch or endpoint here") ?
-                      input.form-control(type="text" name="remoteSipUri" ng-model="bridge.remoteSipUri" ng-pattern="/^[^@]+@[^@]+$/" check-allowed-sip auto-focus required placeholder= "Your name")
-                    .form-group
-                      label SIP username
-                        span.badge(data-toggle='tooltip' data-placement="right" title="Add an optional SIP URI to connect to your switch or endpoint here") ?
-                      input.form-control(type="text" name="remoteSipUri" ng-model="bridge.remoteSipUri" ng-pattern="/^[^@]+@[^@]+$/" check-allowed-sip auto-focus required placeholder= "Sip username")
-                    .form-group
-                      label SIP Password
-                        span.badge(data-toggle='tooltip' data-placement="right" title="Add an optional SIP URI to connect to your switch or endpoint here") ?
-                      input.form-control(type="text" name="remoteSipUri" ng-model="bridge.remoteSipUri" ng-pattern="/^[^@]+@[^@]+$/" check-allowed-sip auto-focus required placeholder= "Sip password")
+                    .sip-details(ng-show="registrar_enabled")
+                      .form-group
+                        label SIP Registrar
+                          span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
+                        input.form-control(type="text" name="remoteSipUri" ng-model="bridge.remoteSipUri" ng-pattern="/^[^@]+@[^@]+$/" check-allowed-sip auto-focus required placeholder= "SIP registrar")
+                      .form-group
+                        label Name
+                          span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
+                        input.form-control(type="text" name="remoteSipUri" ng-model="bridge.remoteSipUri" ng-pattern="/^[^@]+@[^@]+$/" check-allowed-sip auto-focus required placeholder= "Your name")
+                      .form-group
+                        label SIP username
+                          span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
+                        input.form-control(type="text" name="remoteSipUri" ng-model="bridge.remoteSipUri" ng-pattern="/^[^@]+@[^@]+$/" check-allowed-sip auto-focus required placeholder= "Sip username")
+                      .form-group
+                        label SIP Password
+                          span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
+                        input.form-control(type="text" name="remoteSipUri" ng-model="bridge.remoteSipUri" ng-pattern="/^[^@]+@[^@]+$/" check-allowed-sip auto-focus required placeholder= "Sip password")
         .col-xs-6
           .register-content.ng-cloak
             h4 Allowed IP addresses
