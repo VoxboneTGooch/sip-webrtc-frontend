@@ -33,6 +33,12 @@ define(['jquery', 'bootstrap'], function(jQuery) {
     $http(get_req)
       .then(function successCallback (response) {
         $scope.user = JSON.parse(response.data);
+
+        if ($scope.user.registrarURI)
+          $scope.registrar_enabled = true;
+        else
+          $scope.registrar_enabled = false;
+
       }, function errorCallback (response) {
 
       });
@@ -56,6 +62,13 @@ define(['jquery', 'bootstrap'], function(jQuery) {
     };
 
     $scope.saveConfig = function() {
+
+      if (!$scope.registrar_enabled) {
+        $scope.user.registrarURI = null;
+        $scope.user.sipUsername = null;
+        $scope.user.sipPassword = null;
+      }
+
       $http(reqUser($scope.user))
         .then(function successCallback (response) {
           $scope.savedSuccessfully = true;
