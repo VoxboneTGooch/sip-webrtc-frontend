@@ -37,6 +37,7 @@ app.set('view engine', 'pug');
 var accountRoutes = require('./routes/account');
 var index = require('./routes/index');
 var authRoutes = require('./routes/auth');
+var apiRoutes = require('./routes/api');
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -85,6 +86,7 @@ app.use(function (req, res, next) {
 app.use('/', index);
 app.use('/account', accountRoutes);
 app.use('/auth', authRoutes);
+app.use('/api', apiRoutes);
 
 // development error handler
 // will print stacktrace

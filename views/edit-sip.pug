@@ -15,7 +15,7 @@ append head
 
 block content
   .site-wrapper-inner.home-wrap
-    .body.edit-sip(ng-controller='EditSIPController' ng-init="init()")
+    .body.edit-sip(ng-controller='EditSIPController' ng-init="wirePlugins()")
       .container
         .col-xs-6
           .row
@@ -32,26 +32,20 @@ block content
                   input(type="checkbox" ng-model="registrar_enabled")
                   |Sip Registrar
                   span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
-              section
-                form(name="sip_form")
-                  .boxPanel
-                    .sip-details(ng-show="registrar_enabled")
-                      .form-group
-                        label SIP Registrar
-                          span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
-                        input.form-control(type="text" name="remoteSipUri" ng-model="bridge.remoteSipUri" ng-pattern="/^[^@]+@[^@]+$/" check-allowed-sip auto-focus required placeholder= "SIP registrar")
-                      .form-group
-                        label Name
-                          span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
-                        input.form-control(type="text" name="remoteSipUri" ng-model="bridge.remoteSipUri" ng-pattern="/^[^@]+@[^@]+$/" check-allowed-sip auto-focus required placeholder= "Your name")
-                      .form-group
-                        label SIP username
-                          span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
-                        input.form-control(type="text" name="remoteSipUri" ng-model="bridge.remoteSipUri" ng-pattern="/^[^@]+@[^@]+$/" check-allowed-sip auto-focus required placeholder= "Sip username")
-                      .form-group
-                        label SIP Password
-                          span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
-                        input.form-control(type="text" name="remoteSipUri" ng-model="bridge.remoteSipUri" ng-pattern="/^[^@]+@[^@]+$/" check-allowed-sip auto-focus required placeholder= "Sip password")
+              .boxPanel
+                .sip-details(ng-show="registrar_enabled")
+                  .form-group
+                    label SIP Registrar
+                      span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
+                    input.form-control(type="text" ng-model="user.registrarURI" placeholder= "SIP registrar")
+                  .form-group
+                    label SIP username
+                      span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
+                    input.form-control(type="text" ng-model="user.sipUsername" placeholder= "SIP username")
+                  .form-group
+                    label SIP Password
+                      span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
+                    input.form-control(type="text" ng-model="user.sipPassword" required placeholder= "Sip password")
         .col-xs-6
           .register-content.ng-cloak
             h4 Allowed IP addresses
@@ -60,16 +54,18 @@ block content
               form(name="sip_form")
                 .boxPanel#allowed-ips
                   .form-group
-                    input.form-control(type="text" name="remoteSipUri" ng-model="bridge.remoteSipUri" ng-pattern="/^[^@]+@[^@]+$/" check-allowed-sip auto-focus required placeholder= "Allowed IP")
+                    input.form-control(type="text" required placeholder= "Allowed IP")
 
                 button.btn.manage-ips(ng-click="addAllowedIp()")
                   span.glyphicon.glyphicon-triangle-bottom
                 button.btn.manage-ips(ng-click="removeAllowedIp()")
                   span.glyphicon.glyphicon-triangle-top
 
-          .form-group(ng-cloak)
-            button.btn.btn-default-custom.pull-right.button-block(ng-click="skipURI('/edit-bridge')" name="skipBtn") Save
+            .form-group(ng-cloak)
+              button.btn.btn-default-custom.pull-right.button-block(ng-click="saveConfig()" name="skipBtn") Save
 
+            .text-center.error-label(ng-show="errorMsg") {{errorMsg}}
+            .text-center.success-label(ng-show="savedSuccessfully") Your configuration has been saved successfully! #[a.btn(href="/edit-notifications") Configure Notifications]
             .clearfix
 
 

@@ -3,6 +3,11 @@ var _ = require('lodash');
 // Here it goes only utility methods
 module.exports = {
 
+  sip2webrtcApiHeaders: {
+    'Authorization': 'Basic ' + process.env.SIP_TO_WEBRTC_API_BASIC_AUTH,
+    'Content-Type': 'application/json'
+  },
+
   isLoggedIn: function(req, res, next) {
     if (req.isAuthenticated())
       return next();
@@ -42,6 +47,27 @@ module.exports = {
       return a ? (a ^ Math.random() * 16 >> a / 4).toString(16) : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, b);
     }
     return b();
+  },
+
+  createUser: function(account) {
+    var request = require('request');
+    var async = require('async');
+    var utils = this;
+    var apiBrowserUsername = utils.uuid4();
+    var userData = { browserUsername: apiBrowserUsername  };
+    account.apiBrowsername = apiBrowserUsername;
+
+    var url = process.env.SIP_TO_WEBRTC_API_URL + '/' + process.env.VOXBONE_WEBRTC_USERNAME + '/users';
+    request.post(url, {
+        headers: utils.sip2webrtcApiHeaders,
+        body: JSON.stringify(userData)
+      },
+      function(err, response, body) {
+        console.log(apiBrowserUsername);
+        account.api_browser_username = apiBrowserUsername;
+        account.save();
+      }
+    );
   },
 
   getVoxRoutes: function() {

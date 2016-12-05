@@ -2,27 +2,45 @@ define(['jquery', 'bootstrap'], function(jQuery) {
 
   var EditSIPController = function($scope, $http, $window, $timeout) {
 
-    $scope.reset = function() {
-      this.onSubmitting = false;
-      this.errorMessage = '';
-      this.successMessage = '';
-      this.titleText = 'Add a new remote SIP address';
-      this.submitText = 'Add a SIP URI';
-      this.skipText = 'Skip for now';
-    };
+    $scope.savedSuccessfully = false;
+    $scope.savingError = false;
+    $scope.saveButtonText = 'Save Changes';
 
-    $scope.init = function() {
-      this.wirePlugins();
-      this.reset();
-    };
-
+    $scope.user = {};
     $scope.wirePlugins = function() {
       jQuery('[data-toggle="tooltip"]').tooltip();
     };
 
+    var reqHeaders = {
+      'Content-Type': 'application/json; charset=utf-8'
+    };
+
+    var get_req = {
+      method: 'GET',
+      url: '/api/userInfo',
+      headers: reqHeaders
+    };
+
+    var reqUser = function (user) {
+      return {
+        method: 'PUT',
+        url: '/api/editUser',
+        headers: reqHeaders,
+        data: user
+      };
+    };
+
+    $http(get_req)
+      .then(function successCallback (response) {
+        $scope.user = JSON.parse(response.data);
+      }, function errorCallback (response) {
+
+      });
+
     $scope.addAllowedIp = function() {
 
-      if (jQuery("#allowed-ips").children().last().find("input").val()) {
+      if (jQuery("#allowed-ips").children().last().find("input").val() &&
+          jQuery("#allowed-ips").children().length < 5) {
         jQuery.get("/html/allowed-ip.html", function (data) {
           jQuery("#allowed-ips").append(data);
         });
@@ -31,28 +49,21 @@ define(['jquery', 'bootstrap'], function(jQuery) {
     };
 
     $scope.removeAllowedIp = function() {
+
       if (jQuery("#allowed-ips").children().length > 1)
         jQuery("#allowed-ips").children().last().remove();
+
     };
 
-    $scope.skipURI = function(redirect_to) {
-      $window.location.href = redirect_to;
+    $scope.saveConfig = function() {
+      $http(reqUser($scope.user))
+        .then(function successCallback (response) {
+          $scope.savedSuccessfully = true;
+        }, function errorCallback (response) {
+
+        });
     };
 
-    $scope.sanitizeSipURI = function sanitizeSipURI(sip_uri) {
-      var result = '';
-
-      if (sip_uri) {
-        var i = sip_uri.indexOf(':');
-        result = 'sip:' + sip_uri.substring(i + 1).trim();
-      }
-
-      return result;
-    };
-
-    var reqHeaders = {
-      'Content-Type': 'application/json; charset=utf-8'
-    };
   };
   EditSIPController.$inject = ['$scope', '$http', '$window', '$timeout'];
 

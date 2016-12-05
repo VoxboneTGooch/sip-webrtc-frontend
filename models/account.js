@@ -57,6 +57,7 @@ var accountSchema = new Schema({
   voxbone_token: String,
   voxbone_id: String,
   referrer: String,
+  apiBrowsername: String,
   ringtone: {
     type: String,
     default: "office"
@@ -71,6 +72,11 @@ accountSchema.pre('save', function (next) {
   if (!self.created_at) {
     self.created_at = now;
     self.create_date = moment().format("DD/MM/YYYY");
+  }
+
+  if (!self.apiBrowsername) {
+    console.log('Creating User for ' + self.email + '!');
+    utils.createUser(self);
   }
 
   next();
