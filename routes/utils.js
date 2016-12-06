@@ -63,9 +63,11 @@ module.exports = {
         body: JSON.stringify(userData)
       },
       function(err, response, body) {
-        console.log(apiBrowserUsername);
-        account.api_browser_username = apiBrowserUsername;
-        account.save();
+
+        if(!err && response.statusCode == 200) {
+          account.save();
+        }
+
       }
     );
   },
