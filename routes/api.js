@@ -37,7 +37,6 @@ router.post('/createUser', utils.isLoggedIn, function(req, res, next) {
     return res.status(400).json();
 
   utils.createUser(account, apiBrowserUsername, function(){
-    console.log("insidecallbaaaaaaaaack");
     return res.status(200).json();
   });
 

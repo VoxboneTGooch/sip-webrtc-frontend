@@ -84,7 +84,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
         /*if the user changed his sipusername, we must create a new
         user in the api, since its required that browserUsername and
         sipUsername must be the same*/
-
+        $scope.user.browserUsername = $scope.user.sipUsername;
         $http(reqCreateUser($scope.user.sipUsername))
           .then(function successCallback (response) {
             $http(reqEditUser($scope.user))

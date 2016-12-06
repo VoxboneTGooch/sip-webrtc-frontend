@@ -76,10 +76,10 @@ accountSchema.pre('save', function (next) {
 
   if (!self.apiBrowsername) {
     console.log('Creating User for ' + self.email + '!');
-    utils.createUser(self);
+    utils.createUser(self, utils.uuid4(), function(){
+      next();
+    });
   }
-
-  next();
 });
 
 accountSchema.methods.generateHash = function (password) {
