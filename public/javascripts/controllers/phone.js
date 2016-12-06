@@ -4,41 +4,63 @@ define(['jquery', 'bootstrap'], function(jQuery) {
     $scope.callMsg = "Waiting for registration...";
     $scope.callState = 'initial';
     $scope.phoneImg = '/images/vox-static-phone.png';
-    $scope.init = function (agent_username, agent_password, vox_username, vox_password, ringtone) {
 
-      var audio = new Audio('/audio/' + ringtone + '.ogg');
-      voxbone.WebRTC.configuration.log_level = voxbone.Logger.log_level.INFO;
-      voxbone.WebRTC.username = agent_username;
-      voxbone.WebRTC.password = agent_password;
-      voxbone.WebRTC.basicAuthInit(vox_username, vox_password);
+    var reqHeaders = {
+      'Content-Type': 'application/json; charset=utf-8'
+    };
 
-      voxbone.WebRTC.onCall = function (data, cb) {
-        $scope.callState = 'incoming';
-        $scope.phoneImg = '/images/vox-ringing-phone.gif';
-        var callee = data.request.from.display_name;
-        $scope.callMsg = "Incoming call from " + callee;
-        audio.play();
-        $scope.$apply();
+    var get_req = {
+      method: 'GET',
+      url: '/api/userInfo',
+      headers: reqHeaders
+    };
 
-        $scope.answerCall = function () {
-          $scope.callMsg = "In call with " + callee;
-          $scope.callState = 'inCall';
-          $scope.phoneImg = '/images/vox-hand-phone.png';
-          cb(true);
-          audio.pause();
-          audio.currentTime = 0;
-        };
+    $scope.init = function (vox_username, vox_password, ringtone) {
 
-        $scope.declineCall = function () {
-            $scope.callState = 'initial';
-            $scope.phoneImg = '/images/vox-static-phone.png';
-            //cb(false);
-            $scope.callMsg = "Waiting for incoming call...";
+      $http(get_req)
+      .then(function successCallback (response) {
+        $scope.user = JSON.parse(response.data);
+        console.log($scope.user);
+        var audio = new Audio('/audio/' + ringtone + '.ogg');
+
+        voxbone.WebRTC.configuration.log_level = voxbone.Logger.log_level.INFO;
+        voxbone.WebRTC.username = $scope.user.sipUsername;
+        voxbone.WebRTC.password = $scope.user.sipPassword;
+        voxbone.WebRTC.configuration.uri = 'sip:' + $scope.user.browserUsername + '@workshop-gateway.voxbone.com';
+        voxbone.WebRTC.basicAuthInit(vox_username, vox_password);
+
+        voxbone.WebRTC.onCall = function (data, cb) {
+
+          $scope.callState = 'incoming';
+          $scope.phoneImg = '/images/vox-ringing-phone.gif';
+          var callee = data.request.from.display_name;
+          $scope.callMsg = "Incoming call from " + callee;
+          audio.play();
+          $scope.$apply();
+
+          $scope.answerCall = function () {
+            $scope.callMsg = "In call with " + callee;
+            $scope.callState = 'inCall';
+            $scope.phoneImg = '/images/vox-hand-phone.png';
+            cb(true);
             audio.pause();
             audio.currentTime = 0;
+          };
+
+          $scope.declineCall = function () {
+              $scope.callState = 'initial';
+              $scope.phoneImg = '/images/vox-static-phone.png';
+              //cb(false);
+              $scope.callMsg = "Waiting for incoming call...";
+              audio.pause();
+              audio.currentTime = 0;
+          };
+
         };
 
-      };
+        }, function errorCallback (response) {
+
+        });
 
       voxbone.WebRTC.customEventHandler.ended = function(e) {
         $scope.callState = 'initial';

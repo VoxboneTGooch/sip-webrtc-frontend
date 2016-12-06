@@ -14,7 +14,7 @@ append head
 
 block content
   .site-wrapper-inner.home-wrap
-    .container(ng-controller="PhoneController" ng-init=`init("${agent_username}", "${agent_password}", "${vox_username}", "${vox_password}", "${ringtone}")`)
+    .container(ng-controller="PhoneController" ng-init=`init("${vox_username}", "${vox_password}", "${ringtone}")`)
       .register-content.ng-cloak.col-md-8.col-md-offset-2
         .text-center
           .well.call-info {{callMsg}}

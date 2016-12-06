@@ -10,10 +10,6 @@ var Voxbone = require('voxbone-webrtc');
 var voxrtc_username = process.env.VOXBONE_WEBRTC_USERNAME;
 var voxrtc_secret = process.env.VOXBONE_WEBRTC_PASSWORD;
 
-//Agent WebRTC credentials
-var agent_username = process.env.AGENT_WEBRTC_USERNAME;
-var agent_password = process.env.AGENT_WEBRTC_PASSWORD;
-
 //New Voxbone Object used for authentication
 var voxbone = new Voxbone({
     voxrtcUsername: voxrtc_username,
@@ -75,9 +71,7 @@ router.get('/phone', utils.isLoggedIn, function (req, res, next) {
   vox_username = voxrtc_username;
   vox_password = voxrtc_secret;
   res.render('phone', {
-    ringtone: ringtone,
-    agent_username: agent_username,
-    agent_password: agent_password
+    ringtone: ringtone
   });
 });
 
