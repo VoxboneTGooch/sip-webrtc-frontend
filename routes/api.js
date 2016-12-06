@@ -27,6 +27,23 @@ router.get('/userInfo', utils.isLoggedIn, function(req, res, next) {
   request(options, callback);
 });
 
+router.post('/createUser', utils.isLoggedIn, function(req, res, next) {
+  var apiBrowserUsername;
+  var account = res.locals.currentUser;
+
+  if(req.body)
+    apiBrowserUsername = req.body.apiBrowserUsername;
+  else
+    return res.status(400).json();
+
+  utils.createUser(account, apiBrowserUsername, function(){
+    console.log("insidecallbaaaaaaaaack");
+    return res.status(200).json();
+  });
+
+
+});
+
 router.put('/editUser', utils.isLoggedIn, function(req, res, next) {
   var apiUserId = res.locals.currentUser.apiBrowsername;
   var options = {
