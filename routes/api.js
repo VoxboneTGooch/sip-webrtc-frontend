@@ -12,7 +12,7 @@ router.get('/userInfo', utils.isLoggedIn, function(req, res, next) {
   var options = {
     url: process.env.SIP_TO_WEBRTC_API_URL + process.env.VOXBONE_WEBRTC_USERNAME + '/users/' + apiUserId,
     method: 'GET',
-    headers: utils.sip2webrtcApiHeaders,
+    headers: utils.sip2webrtcApiHeaders
   };
 
   function callback(error, response, body) {
