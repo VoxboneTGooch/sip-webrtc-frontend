@@ -10,7 +10,7 @@ var _ = require('underscore');
 router.get('/userInfo', utils.isLoggedIn, function(req, res, next) {
   var apiUserId = res.locals.currentUser.apiBrowsername;
   var options = {
-    url: process.env.SIP_TO_WEBRTC_API_URL + '/' + process.env.VOXBONE_WEBRTC_USERNAME + '/users/' + apiUserId,
+    url: process.env.SIP_TO_WEBRTC_API_URL + process.env.VOXBONE_WEBRTC_USERNAME + '/users/' + apiUserId,
     method: 'GET',
     headers: utils.sip2webrtcApiHeaders,
   };
@@ -30,7 +30,7 @@ router.get('/userInfo', utils.isLoggedIn, function(req, res, next) {
 router.put('/editUser', utils.isLoggedIn, function(req, res, next) {
   var apiUserId = res.locals.currentUser.apiBrowsername;
   var options = {
-    url: process.env.SIP_TO_WEBRTC_API_URL + '/' + process.env.VOXBONE_WEBRTC_USERNAME + '/users/' + apiUserId,
+    url: process.env.SIP_TO_WEBRTC_API_URL + process.env.VOXBONE_WEBRTC_USERNAME + '/users/' + apiUserId,
     method: 'PUT',
     headers: utils.sip2webrtcApiHeaders,
     json: req.body
