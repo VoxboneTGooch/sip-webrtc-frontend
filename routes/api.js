@@ -19,12 +19,27 @@ router.get('/userInfo', utils.isLoggedIn, function(req, res, next) {
     if (!error && response.statusCode == 200) {
       return res.status(200).json(body);
     } else {
-      console.log(error);
       return res.status(400).json();
     }
   }
 
   request(options, callback);
+});
+
+router.post('/createUser', utils.isLoggedIn, function(req, res, next) {
+  var apiBrowserUsername;
+  var account = res.locals.currentUser;
+
+  if(req.body)
+    apiBrowserUsername = req.body.apiBrowserUsername;
+  else
+    return res.status(400).json();
+
+  utils.createUser(account, apiBrowserUsername, function(newId){
+    return res.status(200).json(newId);
+  });
+
+
 });
 
 router.put('/editUser', utils.isLoggedIn, function(req, res, next) {
@@ -37,8 +52,9 @@ router.put('/editUser', utils.isLoggedIn, function(req, res, next) {
   };
 
   function callback(error, response, body) {
+
     if (!error && response.statusCode == 200) {
-      return res.status(200).json(body);
+      return res.status(200).json();
     } else {
       return res.status(400).json();
     }

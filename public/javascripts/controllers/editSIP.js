@@ -5,6 +5,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
     $scope.savedSuccessfully = false;
     $scope.savingError = false;
     $scope.saveButtonText = 'Save Changes';
+    var storedBrowserUsername;
 
     $scope.user = {};
     $scope.wirePlugins = function() {
@@ -21,7 +22,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
       headers: reqHeaders
     };
 
-    var reqUser = function (user) {
+    var reqEditUser = function (user) {
       return {
         method: 'PUT',
         url: '/api/editUser',
@@ -30,9 +31,20 @@ define(['jquery', 'bootstrap'], function(jQuery) {
       };
     };
 
+    var reqCreateUser = function (apiBrowserUsername) {
+      return {
+        method: 'POST',
+        url: '/api/createUser',
+        headers: reqHeaders,
+        data: { 'apiBrowserUsername' : apiBrowserUsername }
+      };
+    };
+
     $http(get_req)
       .then(function successCallback (response) {
         $scope.user = JSON.parse(response.data);
+        storedBrowserUsername = $scope.user.browserUsername;
+        $scope.user.sipUsername = storedBrowserUsername;
 
         if ($scope.user.registrarURI)
           $scope.registrar_enabled = true;
@@ -69,14 +81,35 @@ define(['jquery', 'bootstrap'], function(jQuery) {
         $scope.user.sipPassword = null;
       }
 
-      $http(reqUser($scope.user))
-        .then(function successCallback (response) {
-          $scope.savedSuccessfully = true;
-        }, function errorCallback (response) {
+      if (storedBrowserUsername != $scope.user.sipUsername) {
+        /*if the user changed his sipusername, we must create a new
+        user in the api, since its required that browserUsername and
+        sipUsername must be the same*/
+        $scope.user.browserUsername = $scope.user.sipUsername;
+        $http(reqCreateUser($scope.user.sipUsername))
+          .then(function successCallback (response) {
+            var newUserId = response.data;
+            $scope.user.id = newUserId;
+            $http(reqEditUser($scope.user))
+              .then(function successCallback (response) {
+                $scope.savedSuccessfully = true;
+              }, function errorCallback (response) {
+                $scope.savedSuccessfully = false;
+              });
+          }, function errorCallback (response) {
+            $scope.savedSuccessfully = false;
+          });
+      } else {
+        /*if the sipusername is the same, we only update it */
+        $http(reqEditUser($scope.user))
+          .then(function successCallback (response) {
+            $scope.savedSuccessfully = true;
+          }, function errorCallback (response) {
 
-        });
+          });
+      }
+
     };
-
   };
   EditSIPController.$inject = ['$scope', '$http', '$window', '$timeout'];
 

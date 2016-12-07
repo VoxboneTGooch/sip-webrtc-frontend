@@ -49,25 +49,21 @@ module.exports = {
     return b();
   },
 
-  createUser: function(account) {
+  createUser: function(account, apiBrowserUsername, callback) {
     var request = require('request');
-    var async = require('async');
     var utils = this;
-    var apiBrowserUsername = utils.uuid4();
-    var userData = { browserUsername: apiBrowserUsername  };
+    var userData = { "browserUsername": apiBrowserUsername };
     account.apiBrowsername = apiBrowserUsername;
-
     var url = process.env.SIP_TO_WEBRTC_API_URL + '/' + process.env.VOXBONE_WEBRTC_USERNAME + '/users';
     request.post(url, {
         headers: utils.sip2webrtcApiHeaders,
         body: JSON.stringify(userData)
       },
       function(err, response, body) {
-
-        if(!err && response.statusCode == 200) {
-          account.save();
-        }
-
+        var new_user = JSON.parse(body);
+        account.save(function(){
+          callback(new_user.id);
+        });
       }
     );
   },
