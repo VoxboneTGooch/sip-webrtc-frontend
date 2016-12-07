@@ -39,7 +39,32 @@ router.post('/createUser', utils.isLoggedIn, function(req, res, next) {
     return res.status(200).json(newId);
   });
 
+});
 
+router.delete('/deleteUser', utils.isLoggedIn, function(req, res, next) {
+
+  var apiUserId;
+  if(req.body)
+    apiUserId = req.body.apiBrowserUsername;
+  else
+    return res.status(400).json();
+
+  var options = {
+    url: process.env.SIP_TO_WEBRTC_API_URL + '/' + process.env.VOXBONE_WEBRTC_USERNAME + '/users/' + apiUserId,
+    method: 'DELETE',
+    headers: utils.sip2webrtcApiHeaders
+  };
+
+  function callback(error, response, body) {
+
+    if (!error && response.statusCode == 200) {
+      return res.status(200).json();
+    } else {
+      return res.status(400).json();
+    }
+  }
+
+  request(options, callback);
 });
 
 router.put('/editUser', utils.isLoggedIn, function(req, res, next) {
