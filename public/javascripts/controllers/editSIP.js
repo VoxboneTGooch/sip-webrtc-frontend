@@ -40,6 +40,15 @@ define(['jquery', 'bootstrap'], function(jQuery) {
       };
     };
 
+    var reqDeleteUser = function (apiBrowserUsername) {
+      return {
+        method: 'DELETE',
+        url: '/api/deleteUser',
+        headers: reqHeaders,
+        data: { 'apiBrowserUsername' : apiBrowserUsername }
+      };
+    };
+
     $http(get_req)
       .then(function successCallback (response) {
         $scope.user = JSON.parse(response.data);
@@ -85,6 +94,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
         /*if the user changed his sipusername, we must create a new
         user in the api, since its required that browserUsername and
         sipUsername must be the same*/
+        storedBrowserUsername = $scope.user.browserUsername;
         $scope.user.browserUsername = $scope.user.sipUsername;
         $http(reqCreateUser($scope.user.sipUsername))
           .then(function successCallback (response) {
@@ -92,7 +102,12 @@ define(['jquery', 'bootstrap'], function(jQuery) {
             $scope.user.id = newUserId;
             $http(reqEditUser($scope.user))
               .then(function successCallback (response) {
-                $scope.savedSuccessfully = true;
+                $http(reqDeleteUser(storedBrowserUsername))
+                  .then(function successCallback (response) {
+                    $scope.savedSuccessfully = true;
+                  }, function errorCallback (response) {
+                    $scope.savedSuccessfully = false;
+                  });
               }, function errorCallback (response) {
                 $scope.savedSuccessfully = false;
               });
