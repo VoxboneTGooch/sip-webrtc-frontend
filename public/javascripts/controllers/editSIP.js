@@ -82,7 +82,25 @@ define(['jquery', 'bootstrap'], function(jQuery) {
 
     };
 
+    $scope.filterRegistrarUri = function (registrarURI) {
+      var sip_index = registrarURI.indexOf('sip:') + 3;
+      var port_index = registrarURI.search(/(?:[^sip]):\d+/);
+      var reg_uri;
+
+      if (sip_index > 2)
+        reg_uri = 'sip:' + registrarURI.substring(sip_index + 1).trim();
+      else
+        reg_uri = 'sip:' + registrarURI.trim();
+
+      if (port_index > 0)
+        return reg_uri;
+      else
+        return reg_uri + ":5060";
+
+    };
+
     $scope.saveConfig = function() {
+      $scope.user.registrarURI = $scope.filterRegistrarUri($scope.user.registrarURI);
 
       if (!$scope.registrar_enabled) {
         $scope.user.registrarURI = null;
@@ -115,7 +133,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
             $scope.savedSuccessfully = false;
           });
       } else {
-        /*if the sipusername is the same, we only update it */
+        //if the sipusername is the same, we only update it
         $http(reqEditUser($scope.user))
           .then(function successCallback (response) {
             $scope.savedSuccessfully = true;
