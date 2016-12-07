@@ -20,7 +20,6 @@ define(['jquery', 'bootstrap'], function(jQuery) {
       $http(get_req)
       .then(function successCallback (response) {
         $scope.user = JSON.parse(response.data);
-        console.log($scope.user);
         var audio = new Audio('/audio/' + ringtone + '.ogg');
 
         voxbone.WebRTC.configuration.log_level = voxbone.Logger.log_level.INFO;

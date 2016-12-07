@@ -52,10 +52,6 @@ module.exports = {
   createUser: function(account, apiBrowserUsername, callback) {
     var request = require('request');
     var utils = this;
-
-    if(!apiBrowserUsername)
-      apiBrowserUsername = utils.uuid4();
-
     var userData = { "browserUsername": apiBrowserUsername };
     account.apiBrowsername = apiBrowserUsername;
     var url = process.env.SIP_TO_WEBRTC_API_URL + '/' + process.env.VOXBONE_WEBRTC_USERNAME + '/users';
@@ -64,8 +60,10 @@ module.exports = {
         body: JSON.stringify(userData)
       },
       function(err, response, body) {
-        account.save();
-        callback();
+        var new_user = JSON.parse(body);
+        account.save(function(){
+          callback(new_user.id);
+        });
       }
     );
   },

@@ -79,7 +79,10 @@ accountSchema.pre('save', function (next) {
     utils.createUser(self, utils.uuid4(), function(){
       next();
     });
+  } else {
+    next();
   }
+
 });
 
 accountSchema.methods.generateHash = function (password) {

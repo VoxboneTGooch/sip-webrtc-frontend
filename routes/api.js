@@ -19,7 +19,6 @@ router.get('/userInfo', utils.isLoggedIn, function(req, res, next) {
     if (!error && response.statusCode == 200) {
       return res.status(200).json(body);
     } else {
-      console.log(error);
       return res.status(400).json();
     }
   }
@@ -36,8 +35,8 @@ router.post('/createUser', utils.isLoggedIn, function(req, res, next) {
   else
     return res.status(400).json();
 
-  utils.createUser(account, apiBrowserUsername, function(){
-    return res.status(200).json();
+  utils.createUser(account, apiBrowserUsername, function(newId){
+    return res.status(200).json(newId);
   });
 
 
@@ -53,8 +52,9 @@ router.put('/editUser', utils.isLoggedIn, function(req, res, next) {
   };
 
   function callback(error, response, body) {
+
     if (!error && response.statusCode == 200) {
-      return res.status(200).json(body);
+      return res.status(200).json();
     } else {
       return res.status(400).json();
     }
