@@ -17,55 +17,60 @@ block content
   .site-wrapper-inner.home-wrap
     .body.edit-sip(ng-controller='EditSIPController' ng-init="wirePlugins()")
       .container
-        .col-xs-6
-          .row
+        .row
+          .col-xs-6
             .register-content.ng-cloak
-              h4 SIP Registrar
-              p Lorem ipsum dolor sit amet, consectetur adipiscing elit
+              h4 SIP Settings
+              p Use our free SIP address or connect to your SIP server
               .checkbox
                 label
-                  input(type="checkbox" disabled checked)
-                  |Allow calls to the internal SIP URI
-                  span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
+                  input(type="checkbox" ng-model="showInteralSip")
+                  |Give me a SIP address to test with
+                  span.badge(data-toggle='tooltip' data-placement="right" title="Dial this SIP address from your SIP phone or infrastructure") ?
+                  br
+              .internalSip(ng-show = "showInteralSip") workshop_webrtcventures-{{user.browserUsername}}@workshop-gateway.voxbone.com
+
               .checkbox
                 label
                   input(type="checkbox" ng-model="registrar_enabled")
-                  |Sip Registrar
-                  span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
+                  |Use an existing SIP service
+                  span.badge(data-toggle='tooltip' data-placement="right" title="Connect to a SIP service or IP-PBX") ?
               .boxPanel
                 .sip-details(ng-show="registrar_enabled")
                   .form-group
-                    label SIP Registrar
-                      span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
-                    input.form-control(type="text" ng-model="user.registrarURI" placeholder= "SIP registrar")
+                    label Registar
+                      span.badge(data-toggle='tooltip' data-placement="right" title="Enter your registar address with port") ?
+                    input.form-control(type="text" ng-model="user.registrarURI" placeholder= "sip.myservice.com:5060")
                   .form-group
                     label SIP username
-                      span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
-                    input.form-control(type="text" ng-model="user.sipUsername" placeholder= "SIP username")
+                      span.badge(data-toggle='tooltip' data-placement="right" title="Add the user name for your SIP service") ?
+                    input.form-control(type="text" ng-model="user.sipUsername" placeholder= "Username")
                   .form-group
                     label SIP Password
-                      span.badge(data-toggle='tooltip' data-placement="right" title="Lorem") ?
-                    input.form-control(type="text" ng-model="user.sipPassword" required placeholder= "Sip password")
-        .col-xs-6
-          .register-content.ng-cloak
-            h4 Allowed IP addresses
-            p Lorem ipsum dolor sit amet, consectetur adipiscing elit
-            section
-              form(name="sip_form")
-                .boxPanel#allowed-ips
-                  .form-group
-                    input.form-control(type="text" required placeholder= "Allowed IP")
+                      span.badge(data-toggle='tooltip' data-placement="right" title="Enter your SIP user's password/secret") ?
+                    input.form-control(type="text" ng-model="user.sipPassword" required placeholder= "Password")
+          .col-xs-6
+            .register-content.ng-cloak
+              h4 Allowed IP addresses
+              p Only allow incoming calls from the below IP addresses
+              section
+                form(name="sip_form")
+                  .boxPanel#allowed-ips
+                    .form-group
+                      input.form-control(type="text" disabled placeholder= "IP Address")
 
-                button.btn.manage-ips(ng-click="addAllowedIp()")
-                  span.glyphicon.glyphicon-triangle-bottom
-                button.btn.manage-ips(ng-click="removeAllowedIp()")
-                  span.glyphicon.glyphicon-triangle-top
+                  button.btn.manage-ips(ng-click="addAllowedIp()")
+                    span.glyphicon.glyphicon-triangle-bottom
+                  button.btn.manage-ips(ng-click="removeAllowedIp()")
+                    span.glyphicon.glyphicon-triangle-top
 
-            .form-group(ng-cloak)
-              button.btn.btn-default-custom.pull-right.button-block(ng-click="saveConfig()" name="skipBtn") Save
+        .row
+          .col-md-12
+            .text-center
+              button.btn.btn-default-custom.btn-block(ng-click="saveConfig()" name="skipBtn") Save
 
-            .text-center.error-label(ng-show="errorMsg") {{errorMsg}}
-            .text-center.success-label(ng-show="savedSuccessfully") Your configuration has been saved successfully! #[a.btn(href="/edit-notifications") Configure Notifications]
-            .clearfix
+              .text-center.error-label.msg-bckgnd(ng-show="errorMsg") {{errorMsg}}
+              .text-center.success-label.msg-bckgnd(ng-show="savedSuccessfully") Your configuration has been saved successfully! #[a.btn(href="/edit-notifications") Configure Notifications]
+              .clearfix
 
 

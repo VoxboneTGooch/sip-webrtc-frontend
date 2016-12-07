@@ -35,27 +35,24 @@ block content
             label
               input(type="checkbox" disabled)
               |Browser Notification
-              span.badge(data-toggle='tooltip' data-placement="right" title="Users can record their names before joining the conference") ?
+              span.badge(data-toggle='tooltip' data-placement="right" title="Enable pop-up notifications to from your browser") ?
 
         .col-xs-4
           .form-group
-            label Email &nbsp;
-              span.badge(data-toggle='tooltip' data-placement="right" title="Add an optional SIP URI to connect to your switch or endpoint") ?
-            input(type="text" class="form-control" disabled)
           .checkbox
             label
               input(type="checkbox" disabled)
               |Auto Load
-              span.badge(data-toggle='tooltip' data-placement="right" title="Users can record their names before joining the conference") ?
+              span.badge(data-toggle='tooltip' data-placement="right" title="Automatically load when your browser starts") ?
 
         .col-xs-4
           .form-group
             label SMS &nbsp;
-              span.badge(data-toggle='tooltip' data-placement="right" title="Add an optional SIP URI to connect to your switch or endpoint") ?
+              span.badge(data-toggle='tooltip' data-placement="right" title="Enter an phone number for SMS alerts on incoming calls") ?
             input(type="text" class="form-control" disabled)
 
           .form-group(ng-cloak)
             button.btn.btn-default-custom.pull-right.button-block(ng-click="saveNotifications()" name="skipBtn") {{ saveButtonText }}
 
         .text-center.error-label(ng-show="savingError") Your configuration cannot be saved. Please try again
-        .text-center.success-label(ng-show="savedSuccessfully") Your configuration has been saved successfully! #[a.btn(href="/phone") Pick your web phone!]
+        .text-center.success-label(ng-show="savedSuccessfully") Your configuration has been saved successfully! #[a.btn(href="/phone") View your web phone!]

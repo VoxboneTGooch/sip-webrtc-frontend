@@ -19,41 +19,52 @@ block content
         .col-sm-12.col-md-8
 
           h1 Webphone for everyone
-          h2 Anywhere, anytime!
-          p.
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
+          h2 Answer SIP calls from your browser!
+          p Take calls in minutes just using your browser - no installs, no plug-ins, no hassle. sip2webr.tc is a cloud-based WebRTC gateway service based on the Voxbone Workshop WebRTC-to-SIP Gateway Service. sip2webr.tc is perfect for:
+          ul
+            li zero-install remote agents,
+            li seamless click-to-callback, and
+            li web-based UC application integration.
+          p #[a(href="/account/signup/") Sign-up], try it out, or see more info below.
   .home-setup(id="setup")
     .container
       .row
         .col-xs-12
           h3 Setup
-            span  in 4 Easy Steps
+            span  in 3 Easy Steps
+
+      .row.color-boxes
+        .col-sm-12.col-md-4
+          .setup-grid.setup-inside-block
+            a(href="/edit-sip/")
+              img(alt="Setup SIP" src="../../images/setup-sip.png")
+            h5 Add SIP details
+            p Enter your SIP details or use our free SIP address
+
+        .col-sm-12.col-md-4
+          .setup-grid.setup-inside-block
+            a(href="/edit-notifications/")
+              img(alt="Notifications" src="../../images/notifications.png")
+            h5 Notification settings
+            p Pick incoming call notification options
+
+        .col-sm-12.col-md-4
+          .setup-grid.setup-inside-block
+            a(href="/phone/")
+              img(alt="Phone" src="../../images/phone.png")
+            h5 Answer the Phone!
+            p Pick-up the phone when someone calls
 
       .row
-        .col-sm-12.col-md-3
-          .setup-grid.setup-inside-block
-            img(alt="Icon2" src="../../images/pick-did.png")
-            h5 Lorem
-            p Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temp
+        .col-xs-12
+          h3 Want to
+            span  try it now?
 
-        .col-sm-12.col-md-3
-          .setup-grid.setup-inside-block
-            img(alt="Icon3" src="../../images/add-sip.png")
-            h5 Lorem
-            p Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temp
-
-        .col-sm-12.col-md-3
-          .setup-grid.setup-inside-block
-            img(alt="Icon1" src="../../images/configure.png")
-            h5 Lorem
-            p Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temp
-
-        .col-sm-12.col-md-3
-          .setup-grid.setup-inside-block
-            img(alt="Icon1" src="../../images/call-view.png")
-            h5 Lorem
-            p Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temp
+      .row.home-buttons
+        if authenticated
+          a.btn.btn-default-custom(href='/edit-sip') Setup my phone
+        else
+          a.btn.btn-default-custom(href='/account/signup') Setup my phone
 
   .contact(id="contact")
     .container
