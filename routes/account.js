@@ -75,12 +75,12 @@ router.get('/edit', utils.isLoggedIn, function (req, res) {
 });
 
 router.post('/edit', utils.isLoggedIn, function (req, res) {
-  console.log("aca");
+
   var req_parameters = req.parameters;
   var formData = req_parameters.permit(PERMITTED_FIELDS).value();
   var result = { message: "Succesfully saved", errors: true };
 
-  Account.findOne({email: req.user.email}, function (err, theAccount) {
+  Account.findOne({_id: req.user._id}, function (err, theAccount) {
     if (!theAccount) {
       result.message = "Account does not exist";
       return res.status(400).json(result);
