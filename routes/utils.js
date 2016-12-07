@@ -49,6 +49,20 @@ module.exports = {
     return b();
   },
 
+  deleteUser: function(apiBrowserUsername, callback) {
+    var request = require('request');
+    var utils = this;
+
+    var url = process.env.SIP_TO_WEBRTC_API_URL + '/' + process.env.VOXBONE_WEBRTC_USERNAME + '/users/' + apiBrowserUsername;
+    request.delete(url, {
+        headers: utils.sip2webrtcApiHeaders,
+      },
+      function(err, response, body) {
+
+      }
+    );
+  },
+
   createUser: function(account, apiBrowserUsername, callback) {
     var request = require('request');
     var utils = this;
