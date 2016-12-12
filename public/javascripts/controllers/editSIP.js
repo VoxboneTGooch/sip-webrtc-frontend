@@ -5,6 +5,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
     $scope.savedSuccessfully = false;
     $scope.savingError = false;
     $scope.saveButtonText = 'Save Changes';
+    $scope.showInteralSip = true;
     var storedBrowserUsername;
 
     $scope.user = {};
@@ -100,15 +101,10 @@ define(['jquery', 'bootstrap'], function(jQuery) {
     };
 
     $scope.saveConfig = function() {
-      $scope.user.registrarURI = $scope.filterRegistrarUri($scope.user.registrarURI);
+      if ($scope.user.registrarURI)
+        $scope.user.registrarURI = $scope.filterRegistrarUri($scope.user.registrarURI);
 
-      if (!$scope.registrar_enabled) {
-        $scope.user.registrarURI = null;
-        $scope.user.sipUsername = null;
-        $scope.user.sipPassword = null;
-      }
-
-      if (storedBrowserUsername != $scope.user.sipUsername) {
+      if ($scope.user.sipUsername && (storedBrowserUsername !== $scope.user.sipUsername)) {
         /*if the user changed his sipusername, we must create a new
         user in the api, since its required that browserUsername and
         sipUsername must be the same*/
