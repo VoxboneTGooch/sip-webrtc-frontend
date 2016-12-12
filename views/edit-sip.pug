@@ -24,7 +24,7 @@ block content
               p Use our free SIP address or connect to your SIP server
               .checkbox
                 label
-                  input(type="checkbox" ng-model="showInteralSip" checked disabled)
+                  input(type="checkbox" ng-model="showInteralSip" disabled)
                   |Give me a SIP address to test with
                   span.badge(data-toggle='tooltip' data-placement="right" title="Dial this SIP address from your SIP phone or infrastructure") ?
                   br
@@ -48,7 +48,10 @@ block content
                   .form-group
                     label SIP Password
                       span.badge(data-toggle='tooltip' data-placement="right" title="Enter your SIP user's password/secret") ?
-                    input.form-control(type="text" ng-model="user.sipPassword" required placeholder= "Password")
+                      input(type="checkbox" ng-click="showPassword()")
+                      |Show
+                    input.form-control(type="{{inputType}}" ng-model="user.sipPassword" placeholder="Password")
+
           .col-xs-6
             .register-content.ng-cloak
               h4 Allowed IP addresses

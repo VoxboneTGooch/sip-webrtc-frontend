@@ -6,6 +6,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
     $scope.savingError = false;
     $scope.saveButtonText = 'Save Changes';
     $scope.showInteralSip = true;
+    $scope.inputType = 'password';
     var storedBrowserUsername;
 
     $scope.user = {};
@@ -100,7 +101,12 @@ define(['jquery', 'bootstrap'], function(jQuery) {
 
     };
 
+    $scope.showPassword = function() {
+      $scope.inputType = $scope.inputType === 'password' ? 'text' : 'password';
+    };
+
     $scope.saveConfig = function() {
+
       if ($scope.user.registrarURI)
         $scope.user.registrarURI = $scope.filterRegistrarUri($scope.user.registrarURI);
 
