@@ -54,6 +54,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
     $http(get_req)
       .then(function successCallback (response) {
         $scope.user = JSON.parse(response.data);
+        fillAllowedIps($scope.user.allowedIPs);
         storedBrowserUsername = $scope.user.browserUsername;
         $scope.user.sipUsername = storedBrowserUsername;
 
@@ -65,6 +66,39 @@ define(['jquery', 'bootstrap'], function(jQuery) {
       }, function errorCallback (response) {
 
       });
+
+    function getAllowedIpsArray() {
+      var arrIPs = [];
+      jQuery('#allowed-ips > .allowed-ip > input').each(function(){
+
+        if (jQuery(this).val())
+          arrIPs.push(jQuery(this).val());
+
+      });
+
+      if (arrIPs.length)
+        return arrIPs;
+      else
+        return null;
+
+    }
+
+    function fillAllowedIps(arrIPs) {
+
+      if (arrIPs && arrIPs.length) {
+        jQuery("#allowed-ips").children().last().remove();
+        arrIPs.forEach(function(IP) {
+          jQuery.get("/html/allowed-ip.html", function (data) {
+            jQuery("#allowed-ips")
+              .append(data)
+              .append(function() {
+              jQuery("#allowed-ips").children().last().find("input").val(IP);
+            });
+          });
+        });
+      }
+
+    }
 
     jQuery("#allowed-ips").on('click', ".add-ip", function() {
 
@@ -80,7 +114,9 @@ define(['jquery', 'bootstrap'], function(jQuery) {
 
     jQuery("#allowed-ips").on('click', ".remove-ip", function() {
 
-      if (jQuery("#allowed-ips").children().length > 1)
+      if (jQuery("#allowed-ips").children().length === 1)
+        jQuery("#allowed-ips").children().find("input").val('');
+      else if (jQuery("#allowed-ips").children().length > 1)
         jQuery(this).parent().remove();
 
     });
@@ -107,6 +143,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
     };
 
     $scope.saveConfig = function() {
+      $scope.user.allowedIPs = getAllowedIpsArray();
 
       if ($scope.user.registrarURI)
         $scope.user.registrarURI = $scope.filterRegistrarUri($scope.user.registrarURI);

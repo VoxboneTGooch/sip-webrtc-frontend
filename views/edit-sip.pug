@@ -53,10 +53,10 @@ block content
                     input.form-control(type="{{inputType}}" ng-model="user.sipPassword" required placeholder= "Password")
           .col-xs-6.register-content.ng-cloak
             h4 Allowed IP addresses
-            p Only allow incoming calls from the below IP addresses
+            p Incoming calls from any IP address allowed. Enter addresses below to limit incoming calls.
             .boxPanel#allowed-ips
               .input-group.allowed-ip
-                input.form-control(type="text" placeholder= "IP Address")
+                input.form-control(type="text" placeholder="IP Address")
                 button.btn.manage-ips.add-ip
                   span.glyphicon.glyphicon-plus
                 button.btn.manage-ips.remove-ip
