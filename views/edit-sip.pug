@@ -50,23 +50,17 @@ block content
                       span.badge(data-toggle='tooltip' data-placement="right" title="Enter your SIP user's password/secret") ?
                       input(type="checkbox" ng-click="showPassword()")
                       |Show
-                    input.form-control(type="{{inputType}}" ng-model="user.sipPassword" placeholder="Password")
-
-          .col-xs-6
-            .register-content.ng-cloak
-              h4 Allowed IP addresses
-              p Only allow incoming calls from the below IP addresses
-              section
-                form(name="sip_form")
-                  .boxPanel#allowed-ips
-                    .form-group
-                      input.form-control(type="text" disabled placeholder= "IP Address")
-
-                  button.btn.manage-ips(ng-click="addAllowedIp()")
-                    span.glyphicon.glyphicon-triangle-bottom
-                  button.btn.manage-ips(ng-click="removeAllowedIp()")
-                    span.glyphicon.glyphicon-triangle-top
-
+                    input.form-control(type="{{inputType}}" ng-model="user.sipPassword" required placeholder= "Password")
+          .col-xs-6.register-content.ng-cloak
+            h4 Allowed IP addresses
+            p Only allow incoming calls from the below IP addresses
+            .boxPanel#allowed-ips
+              .input-group.allowed-ip
+                input.form-control(type="text" placeholder= "IP Address")
+                button.btn.manage-ips.add-ip
+                  span.glyphicon.glyphicon-plus
+                button.btn.manage-ips.remove-ip
+                  span.glyphicon.glyphicon-minus
         .row
           .col-md-12
             .text-center

@@ -66,23 +66,24 @@ define(['jquery', 'bootstrap'], function(jQuery) {
 
       });
 
-    $scope.addAllowedIp = function() {
+    jQuery("#allowed-ips").on('click', ".add-ip", function() {
 
       if (jQuery("#allowed-ips").children().last().find("input").val() &&
           jQuery("#allowed-ips").children().length < 5) {
+          var selector = jQuery(this);
         jQuery.get("/html/allowed-ip.html", function (data) {
-          jQuery("#allowed-ips").append(data);
+          selector.parent().after(data);
         });
       }
 
-    };
+    });
 
-    $scope.removeAllowedIp = function() {
+    jQuery("#allowed-ips").on('click', ".remove-ip", function() {
 
       if (jQuery("#allowed-ips").children().length > 1)
-        jQuery("#allowed-ips").children().last().remove();
+        jQuery(this).parent().remove();
 
-    };
+    });
 
     $scope.filterRegistrarUri = function (registrarURI) {
       var sip_index = registrarURI.indexOf('sip:') + 3;

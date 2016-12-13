@@ -31,3 +31,29 @@
     display: inline-block !important;
     margin-left: 10px;
 }
+
+#allowed-ips {
+  float: left;
+  height: 4em;
+  input {
+    display: inline-block;
+  }
+  button {
+    display: inline-block;
+    /* aligned to each other and not the .wrapper */
+    height: 100%;
+    /* already was inline by dephault - but just to be clear */
+    vertical-align: middle;
+  }
+}
+
+.allowed-ip{
+  margin-bottom: 20px;
+  .add-ip {
+    color: green;
+  }
+  .remove-ip {
+    color: red;
+  }
+}
+
