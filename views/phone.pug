@@ -18,7 +18,20 @@ block content
       .register-content.ng-cloak.col-md-8.col-md-offset-2
         .text-center
           .well.call-info {{callMsg}}
-          img(ng-src="{{phoneImg}}")
+          .img-container
+            #microphone.int-sensor(ng-show="callState == 'ongoing'")
+              #mic5.sensor
+              #mic4.sensor
+              #mic3.sensor
+              #mic2.sensor
+              #mic1.sensor
+            #earphone.int-sensor(ng-show="callState == 'ongoing'")
+              #eap5.sensor
+              #eap4.sensor
+              #eap3.sensor
+              #eap2.sensor
+              #eap1.sensor
+            img(ng-src="{{phoneImg}}")
         button.btn.btn-default-custom.pull-right.button-block.call-button(ng-show="callState == 'receiving'" ng-click="answerCall()") Answer
         button.btn.btn-default-custom.pull-right.button-block.call-button(ng-show="callState == 'receiving'" ng-click="declineCall()") Decline
         button.btn.btn-default-custom.pull-right.button-block.call-button(ng-show="callState == 'ongoing'" ng-click="hangCall()") Hang
