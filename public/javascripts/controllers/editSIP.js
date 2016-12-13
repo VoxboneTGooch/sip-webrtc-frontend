@@ -67,6 +67,16 @@ define(['jquery', 'bootstrap'], function(jQuery) {
 
       });
 
+    function bindIpMask() {
+      jQuery('.ip-address').mask('0ZZ.0ZZ.0ZZ.0ZZ', {
+        translation: {
+          'Z': {
+            pattern: /[0-9]/, optional: true
+          }
+        }
+      });
+    }
+
     function getAllowedIpsArray() {
       var arrIPs = [];
       jQuery('#allowed-ips > .allowed-ip > input').each(function(){
@@ -92,12 +102,13 @@ define(['jquery', 'bootstrap'], function(jQuery) {
             jQuery("#allowed-ips")
               .append(data)
               .append(function() {
-              jQuery("#allowed-ips").children().last().find("input").val(IP);
-            });
+                jQuery("#allowed-ips").children().last().find("input").val(IP);
+              });
           });
         });
       }
 
+      bindIpMask();
     }
 
     jQuery("#allowed-ips").on('click', ".add-ip", function() {
@@ -110,6 +121,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
         });
       }
 
+      bindIpMask();
     });
 
     jQuery("#allowed-ips").on('click', ".remove-ip", function() {

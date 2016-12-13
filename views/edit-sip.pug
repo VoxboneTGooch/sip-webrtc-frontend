@@ -5,9 +5,10 @@ append head
   script.
     require([
       'angular',
-      'controllers/editSIP'
+      'controllers/editSIP',
+      'jqueryMask'
     ],
-    function (angular, EditSIPController) {
+    function (angular, EditSIPController, jQueryMask) {
       angular.module('sip-webrtc-frontend', [])
         .controller('EditSIPController', EditSIPController);
       angular.bootstrap(document, ['sip-webrtc-frontend']);
@@ -56,7 +57,7 @@ block content
             p Incoming calls from any IP address allowed. Enter addresses below to limit incoming calls.
             .boxPanel#allowed-ips
               .input-group.allowed-ip
-                input.form-control(type="text" placeholder="IP Address")
+                input.form-control.ip-address(type="text" placeholder="IP Address")
                 button.btn.manage-ips.add-ip
                   span.glyphicon.glyphicon-plus
                 button.btn.manage-ips.remove-ip

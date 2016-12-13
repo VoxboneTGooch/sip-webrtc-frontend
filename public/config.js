@@ -68,6 +68,10 @@ require.config({
       '//cdn.jsdelivr.net/qtip2/2.2.1/jquery.qtip.min',
       '/lib/qtip2/basic/jquery.qtip.min'
     ],
+    jqueryMask: [
+      '//cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.0/jquery.mask.min',
+      '/lib/jquery-mask/dist/jquery.mask.min'
+    ],
     underscore: [
       '//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min',
       '/lib/underscore/underscore-min'
