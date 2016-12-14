@@ -31,10 +31,7 @@ block content
 
               .formWrap
                 .oauth-wrap
-                  h4.text-center Login with:
                   include social-buttons
-
-                h4.sub-header or enter your details below:
 
                 form#login_form(ng-controller="LoginController" ng-init=`login.uemail='${email || ''}'` name="login_form" novalidate)
                   .form-group

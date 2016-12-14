@@ -61,10 +61,11 @@ block content
             span  try it now?
 
       .row.home-buttons
-        if authenticated
-          a.btn.btn-default-custom(href='/edit-sip') Setup my phone
-        else
-          a.btn.btn-default-custom(href='/account/signup') Setup my phone
+        .col-sm-12.col-md-6.offset-md-3
+          if authenticated
+            a.btn.btn-default-custom(href='/edit-sip') Setup my phone
+          else
+            a.btn.btn-default-custom(href='/account/signup') Setup my phone
 
   .contact(id="contact")
     .container
@@ -80,7 +81,7 @@ block content
               |CA 94105
               br
               |USA #[span Tel: +1 415 520 505]
-              button.btn.btn-default(onclick="document.getElementById('launch_call').click();" type="submit") Click-to-call us
+              button.btn.btn-default(onclick="document.getElementById('launch_call').click();" type="submit") Click-to-Call
               span
                 a(href=
               "https://www.voxbone.com/" target="_blank")

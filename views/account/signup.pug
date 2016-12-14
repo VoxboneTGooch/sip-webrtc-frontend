@@ -40,10 +40,7 @@ block content
                 #[strong Note for current Voxbone customers:] you can login with your Voxbone portal account using the Voxbone button below. The DIDs and services used on VoxConf.me are indepedant of your Voxbone account. Please #[a(href="mailto:workshop@voxbone.com") contact us] to add conferencing to an existing Voxbone DID.
 
               .formWrap.oauth-wrap
-                  h4.text-center Login with:
-                  include social-buttons
-
-              h4.sub-header or enter your details below to create a new account:
+                include social-buttons
 
               form#create_account(ng-controller="SignUpController" name="create_account" ng-init=`account.uemail='${email || ""}'` novalidate)
                 .form-group
@@ -78,22 +75,22 @@ block content
                   .error-label(ng-show="create_account.$submitted || create_account.upassword.$touched")
                     .ng-hide(ng-show="create_account.upassword.$error.required") Password is required
                     .ng-hide(ng-show="create_account.upassword.$error.minlength") Password must be at least 8 characters in length
-                  .form-group
-                    label.control-label Confirm Password
-                    input.form-control(placeholder="Repeat your password" type="password" id="confirmation" name="confirmation" ng-model="account.confirmation" required pw-check="upassword")
-                    .error-label(ng-show="create_account.$submitted || create_account.confirmation.$touched")
-                      .ng-hide(ng-show="create_account.confirmation.$error.pwmatch") Password confirmation does not match
+                .form-group
+                  label.control-label Confirm Password
+                  input.form-control(placeholder="Repeat your password" type="password" id="confirmation" name="confirmation" ng-model="account.confirmation" required pw-check="upassword")
+                  .error-label(ng-show="create_account.$submitted || create_account.confirmation.$touched")
+                    .ng-hide(ng-show="create_account.confirmation.$error.pwmatch") Password confirmation does not match
 
-                  .form-group.text-center
-                    - var recaptcha_key = `\'${process.env.GOOGLE_RECAPTCHA_SITE_KEY}\'`
-                    .captcha(ng-model="account.recaptcha" vc-recaptcha key=recaptcha_key)
+                .form-group.text-center
+                  - var recaptcha_key = `\'${process.env.GOOGLE_RECAPTCHA_SITE_KEY}\'`
+                  .captcha(ng-model="account.recaptcha" vc-recaptcha key=recaptcha_key)
 
-                  .form-group
-                    label.control-label
-                      span You must accept our #[a(href="https://www.voxbone.com/acceptable-use-policy") User Policy]
-                      span &nbsp;
-                      input(type="checkbox" id="uaup" name="uaup" ng-model="account.uaup" required)
+                .form-group
+                  label.control-label
+                    span You must accept our #[a(href="https://www.voxbone.com/acceptable-use-policy") User Policy]
+                    span &nbsp;
+                    input(type="checkbox" id="uaup" name="uaup" ng-model="account.uaup" required)
 
-                  a.btn.btn-default-custom#create(ng-disabled="create_account.$invalid" ng-click="processForm()") Create Account
-                  br
-                  p Already have a Sip2Webr.tc account? #[a(href="./login") Login here]
+                a.btn.btn-default-custom#create(ng-disabled="create_account.$invalid" ng-click="processForm()") Create Account
+                br
+                p Already have a Sip2Webr.tc account? #[a(href="./login") Login here]
