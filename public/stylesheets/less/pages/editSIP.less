@@ -5,12 +5,13 @@
 }
 
 .edit-sip {
-    input {
-        height: 35px;
-    }
-    input[type="checkbox"] {
-        height: auto;
-    }
+  input {
+    height: 35px;
+  }
+  input[type="checkbox"] {
+    height: auto;
+    margin-right: 5px;
+  }
 }
 
 .msg-bckgnd {
@@ -27,42 +28,50 @@
     margin-left: 5px;
 }
 
-.manage-ips {
-    display: inline-block !important;
-    margin-left: 10px;
-}
-
-#allowed-ips {
-  float: left;
-  height: 4em;
-  input {
-    display: inline-block;
-  }
-  button {
-    display: inline-block;
-    /* aligned to each other and not the .wrapper */
-    height: 100%;
-    /* already was inline by dephault - but just to be clear */
-    vertical-align: middle;
-  }
-}
-
 .allowed-ip{
+  position: relative;
   margin-bottom: 20px;
-  .add-ip {
-    color: green;
+
+  input {
+    display: block;
+    height: 38px;
+    padding-right: 85px;
   }
-  .remove-ip {
-    color: red;
+
+  .manage-ips {
+    z-index: 5;
+    position: absolute;
+    top: 1px;
+    right: 0;
+    width: 38px;
+    height: 36px;
+    border: none;
+    border-left: 1px solid @color-mid-grey;
+    background: rgba(0, 0, 0, 0.05);
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    &.add-ip {
+      right: 38px;
+      color: green;
+    }
+
+    &.remove-ip {
+      color: red;
+    }
   }
+
 }
 
 .important-info {
   font-size: 20px;
   color: white;
   text-decoration: none;
+  &:hover {
+    color: @color-lgreen;
+  }
 }
 
-.important-info:hover {
-    color: @color-lgreen;
-}
+

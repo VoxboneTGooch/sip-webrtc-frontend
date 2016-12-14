@@ -19,49 +19,51 @@ block content
     .body.edit-sip(ng-controller='EditSIPController' ng-init="wirePlugins()")
       .container
         .row
-          .col-xs-6
-            .register-content.ng-cloak
-              h4 SIP Settings
-              p Use our free SIP address or connect to your SIP server
-              .checkbox
-                label
-                  input(type="checkbox" ng-model="showInteralSip" disabled)
-                  |Give me a SIP address to test with
-                  span.badge(data-toggle='tooltip' data-placement="right" title="Dial this SIP address from your SIP phone or infrastructure") ?
-                  br
-              .internalSip(ng-show = "showInteralSip") #{voxbone_webrtc_username}+{{user.browserUsername}}@workshop-gateway.voxbone.com
-
-              .checkbox
-                label
-                  input(type="checkbox" ng-model="registrar_enabled")
-                  |Use an existing SIP service
-                  span.badge(data-toggle='tooltip' data-placement="right" title="Connect to a SIP service or IP-PBX") ?
-              .boxPanel
-                .sip-details(ng-show="registrar_enabled")
-                  .form-group
-                    label Registar
-                      span.badge(data-toggle='tooltip' data-placement="right" title="Enter your registar address with port") ?
-                    input.form-control(type="text" ng-model="user.registrarURI" placeholder= "sip.myservice.com:5060")
-                  .form-group
-                    label SIP username
-                      span.badge(data-toggle='tooltip' data-placement="right" title="Add the user name for your SIP service") ?
-                    input.form-control(type="text" ng-model="user.sipUsername" placeholder= "Username")
-                  .form-group
-                    label SIP Password
-                      span.badge(data-toggle='tooltip' data-placement="right" title="Enter your SIP user's password/secret") ?
-                      input(type="checkbox" ng-click="showPassword()")
-                      |Show
-                    input.form-control(type="{{inputType}}" ng-model="user.sipPassword" required placeholder= "Password")
-          .col-xs-6.register-content.ng-cloak
-            h4 Allowed IP addresses
-            p Incoming calls from any IP address allowed. Enter addresses below to limit incoming calls.
-            .boxPanel#allowed-ips
-              .input-group.allowed-ip
-                input.form-control.ip-address(type="text" placeholder="IP Address")
-                button.btn.manage-ips.add-ip
-                  span.glyphicon.glyphicon-plus
-                button.btn.manage-ips.remove-ip
-                  span.glyphicon.glyphicon-minus
+          .col-xs-12.register-content
+            .row
+              .col-xs-6
+                .ng-cloak
+                  h4 SIP Settings
+                  p Use our free SIP address or connect to your SIP server
+                  .checkbox
+                    label
+                      input(type="checkbox" ng-model="showInteralSip" disabled)
+                      |Give me a SIP address to test with
+                      span.badge(data-toggle='tooltip' data-placement="right" title="Dial this SIP address from your SIP phone or infrastructure") ?
+                      br
+                  .internalSip(ng-show = "showInteralSip") #{voxbone_webrtc_username}+{{user.browserUsername}}@workshop-gateway.voxbone.com
+                  .checkbox
+                    label
+                      input(type="checkbox" ng-model="registrar_enabled")
+                      |Use an existing SIP service
+                      span.badge(data-toggle='tooltip' data-placement="right" title="Connect to a SIP service or IP-PBX") ?
+                  .boxPanel
+                    .sip-details(ng-show="registrar_enabled")
+                      .form-group
+                        label Registar
+                          span.badge(data-toggle='tooltip' data-placement="right" title="Enter your registar address with port") ?
+                        input.form-control(type="text" ng-model="user.registrarURI" placeholder= "sip.myservice.com:5060")
+                      .form-group
+                        label SIP username
+                          span.badge(data-toggle='tooltip' data-placement="right" title="Add the user name for your SIP service") ?
+                        input.form-control(type="text" ng-model="user.sipUsername" placeholder= "Username")
+                      .form-group
+                        label SIP Password
+                          span.badge(data-toggle='tooltip' data-placement="right" title="Enter your SIP user's password/secret") ?
+                        label
+                          input(type="checkbox" ng-click="showPassword()")
+                          |Show
+                        input.form-control(type="{{inputType}}" ng-model="user.sipPassword" required placeholder= "Password")
+              .col-xs-6.ng-cloak
+                h4 Allowed IP addresses
+                p Incoming calls from any IP address allowed. Enter addresses below to limit incoming calls.
+                .boxPanel#allowed-ips
+                  .allowed-ip
+                    input.form-control.ip-address(type="text" placeholder="IP Address")
+                    button.manage-ips.add-ip
+                      span.glyphicon.glyphicon-plus
+                    button.manage-ips.remove-ip
+                      span.glyphicon.glyphicon-minus
         .row
           .col-md-12
             .text-center
