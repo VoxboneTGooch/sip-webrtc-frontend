@@ -17,6 +17,10 @@ module.exports = function(Account, passport) {
           errorMessage = { error: 'account-not-found', type: 'danger', message: 'Account not found' };
           return done(null, false, req.flash('loginMessage', errorMessage));
         }
+        if (!account.password) {
+          errorMessage = { error: 'password-not-found', type: 'danger', message: 'Password not found' };
+          return done(null, false, req.flash('loginMessage', errorMessage));
+        }
         if (!account.validPassword(password)) {
           errorMessage = { error: 'wrong-password', type: 'danger', message: 'Wrong password. Try again' };
           return done(null, false, req.flash('loginMessage', errorMessage));
