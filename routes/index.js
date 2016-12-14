@@ -58,7 +58,9 @@ router.get('/ping', function (req, res, next) {
 });
 
 router.get('/edit-SIP', utils.isLoggedIn, function (req, res, next) {
-  res.render('edit-sip');
+  res.render('edit-sip', {
+    voxbone_webrtc_username: voxrtc_username
+  });
 });
 
 router.get('/edit-notifications', utils.isLoggedIn, function (req, res, next) {
