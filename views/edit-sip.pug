@@ -65,10 +65,10 @@ block content
         .row
           .col-md-12
             .text-center
+              a.important-info(href="#" data-toggle="modal" data-target="#sipInfo") Important SIP setup information
               button.btn.btn-default-custom.btn-block(ng-click="saveConfig()" name="skipBtn") Save
 
               .text-center.error-label.msg-bckgnd(ng-show="errorMsg") {{errorMsg}}
               .text-center.success-label.msg-bckgnd(ng-show="savedSuccessfully") Your configuration has been saved successfully! #[a.btn(href="/edit-notifications") Configure Notifications]
               .clearfix
-
-
+  include sip-setup-info-modal
