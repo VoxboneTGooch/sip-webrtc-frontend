@@ -16,36 +16,39 @@ block content
   - var userData = JSON.stringify(currentUser)
   .site-wrapper-inner.home-wrap
     .container(ng-controller="EditNotificationsController" ng-init=`initData={account: ${userData}}`)
-      .register-content.ng-cloak.col-md-8.col-md-offset-2
-        h4 Edit Notifications
-        .col-xs-4
+      .notifications-content.ng-cloak.col-md-6.col-md-offset-3
+        .col-xs-12
+          h4 Edit Notifications
+        .col-xs-12
           .form-group
 
-            label Ringtone &nbsp;
-              button.btn(ng-show="!playing" ng-click="play()")
+            label Ringtone
+            .preview-ringtone
+              select.form-control(ng-model="account.ringtone")
+                option(value="office") Office
+                option(value="legacy") legacy
+                option(value="old") Old
+                option(value="crystal") Crystal
+              button.btn.noti-play(ng-show="!playing" ng-click="play()")
                 span.glyphicon.glyphicon-play
-              button.btn(ng-show="playing" ng-click="pause()")
+              button.btn.noti-pause(ng-show="playing" ng-click="pause()")
                 span.glyphicon.glyphicon-pause
-            select.form-control(ng-model="account.ringtone")
-              option(value="office") Office
-              option(value="legacy") legacy
-              option(value="old") Old
-              option(value="crystal") Crystal
+  
           .checkbox
             label
               input(type="checkbox" disabled)
               |Browser Notification
               span.badge(data-toggle='tooltip' data-placement="right" title="Enable pop-up notifications to from your browser") ?
 
-        .col-xs-4
+        .col-xs-12
           .form-group
-          .checkbox
-            label
-              input(type="checkbox" disabled)
-              |Auto Load
-              span.badge(data-toggle='tooltip' data-placement="right" title="Automatically load when your browser starts") ?
+            .checkbox
+              label
+                input(type="checkbox" disabled)
+                |Auto Load
+                span.badge(data-toggle='tooltip' data-placement="right" title="Automatically load when your browser starts") ?
 
-        .col-xs-4
+        .col-xs-12
           .form-group
             label SMS &nbsp;
               span.badge(data-toggle='tooltip' data-placement="right" title="Enter an phone number for SMS alerts on incoming calls") ?
