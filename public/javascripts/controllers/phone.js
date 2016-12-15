@@ -27,10 +27,12 @@ define(['jquery', 'bootstrap'], function(jQuery) {
         case 'receiving':
           $scope.callState = 'receiving';
           $scope.phoneImg = '/images/vox-ringing-phone.gif';
-          $scope.callMsg = "Incoming call from " + callee;
+          //$scope.callMsg = "Incoming call from " + callee;
+          $scope.callMsg = "Incoming call";
           break;
         case 'ongoing':
-          $scope.callMsg = "In call with " + callee;
+          //$scope.callMsg = "In call with " + callee;
+          $scope.callMsg = "In call";
           $scope.callState = 'ongoing';
           $scope.phoneImg = '/images/vox-hand-phone.png';
           break;

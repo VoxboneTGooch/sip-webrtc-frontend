@@ -35,5 +35,6 @@ block content
         button.btn.btn-default-custom.pull-right.button-block.call-button(ng-show="callState == 'receiving'" ng-click="answerCall()") Answer
         button.btn.btn-default-custom.pull-right.button-block.call-button(ng-show="callState == 'receiving'" ng-click="declineCall()") Decline
         button.btn.btn-default-custom.pull-right.button-block.call-button(ng-show="callState == 'ongoing'" ng-click="hangCall()") Hang up
-
+        .text-center.trouble-connecting
+          span Trouble connecting? #[a(target="_blank" href="mailto:workshop@voxbone.com?subject=sip2webr.tc") Contact us]
 
