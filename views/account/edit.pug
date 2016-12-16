@@ -46,4 +46,7 @@ block content
                     .form-group
                       label.control-label Email Address
                       input.form-control(placeholder="email@example.com" type="text" ng-model="account.email" disabled)
+                    .form-group
+                      label.control-label Api ID
+                      input.form-control(type="text" ng-model="account.apiBrowsername" disabled)
                     button.btn.btn-default-custom.btn-block#save(ng-disabled="editProfile.$invalid" ng-click="saveProfile(account)") Save Profile

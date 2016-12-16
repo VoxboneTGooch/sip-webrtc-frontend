@@ -56,7 +56,6 @@ define(['jquery', 'bootstrap'], function(jQuery) {
         $scope.user = JSON.parse(response.data);
         fillAllowedIps($scope.user.allowedIPs);
         storedBrowserUsername = $scope.user.browserUsername;
-        $scope.user.sipUsername = storedBrowserUsername;
 
         if ($scope.user.registrarURI)
           $scope.registrar_enabled = true;
