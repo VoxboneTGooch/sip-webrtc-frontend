@@ -1,4 +1,6 @@
 var _ = require('lodash');
+var Haikunator = require('haikunator');
+var haikunator = new Haikunator();
 
 // Here it goes only utility methods
 module.exports = {
@@ -34,6 +36,10 @@ module.exports = {
     var err = new Error('Not Found');
     err.status = 404;
     next(err);
+  },
+
+  haiku: function () {
+    return haikunator.haikunate();
   },
 
   uuid4: function() {
