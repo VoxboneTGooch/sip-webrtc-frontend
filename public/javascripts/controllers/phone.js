@@ -1,10 +1,24 @@
 define(['jquery', 'bootstrap'], function(jQuery) {
 
   var PhoneController = function($scope, $http, $window, $timeout) {
-    $scope.callMsg = "Waiting for registration...";
     $scope.callState = 'initial';
     $scope.phoneImg = '/images/vox-static-phone.png';
     var audio;
+    var constraints = {
+      video: false,
+      audio: true,
+    };
+    navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+
+    if (navigator.getUserMedia) {
+      navigator.getUserMedia(constraints, function() {
+        appendMessage('ok', 'Microphone access granted');
+      }, function(){
+        appendMessage('remove', 'Could not access microphone');
+      });
+    } else {
+      appendMessage('remove', 'Your browser does not support accessing your microphone, please try again in either Chrome, Firefox or Opera');
+    }
 
     var reqHeaders = {
       'Content-Type': 'application/json; charset=utf-8'
