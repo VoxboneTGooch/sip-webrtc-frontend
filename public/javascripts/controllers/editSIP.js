@@ -7,6 +7,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
     $scope.saveButtonText = 'Save Changes';
     $scope.showInteralSip = true;
     $scope.inputType = 'password';
+    $scope.errorMsg = '';
     var storedBrowserUsername;
 
     $scope.user = {};
@@ -66,6 +67,31 @@ define(['jquery', 'bootstrap'], function(jQuery) {
 
       });
 
+    function invalidIPaddresses(ipaddresses) {
+      var invalids = 0;
+
+      if (!ipaddresses) return invalids;
+
+      var ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+      $scope.errorMsg = '';
+
+      ipaddresses.forEach(function(ipaddress) {
+
+        if (!ipaddress.match(ipformat)) {
+          $scope.errorMsg += (ipaddress + ', ');
+          invalids ++;
+        }
+
+      });
+
+      if (invalids > 1)
+        $scope.errorMsg += 'are invalid IP addresses';
+      else if (invalids === 1)
+        $scope.errorMsg += 'is an invalid IP address';
+
+      return invalids;
+    }
+
     function bindIpMask() {
       jQuery('.ip-address').mask('0ZZ.0ZZ.0ZZ.0ZZ', {
         translation: {
@@ -111,16 +137,16 @@ define(['jquery', 'bootstrap'], function(jQuery) {
     }
 
     jQuery("#allowed-ips").on('click', ".add-ip", function() {
+      var selector = jQuery(this);
+      var ipaddress = jQuery("#allowed-ips").children().last().find("input").val();
 
-      if (jQuery("#allowed-ips").children().last().find("input").val() &&
-          jQuery("#allowed-ips").children().length < 5) {
-          var selector = jQuery(this);
-        jQuery.get("/html/allowed-ip.html", function (data) {
-          selector.parent().after(data);
-        });
+      if (ipaddress && jQuery("#allowed-ips").children().length < 5) {
+          jQuery.get("/html/allowed-ip.html", function (data) {
+            selector.parent().after(data);
+          });
+          bindIpMask();
       }
 
-      bindIpMask();
     });
 
     jQuery("#allowed-ips").on('click', ".remove-ip", function() {
@@ -132,7 +158,9 @@ define(['jquery', 'bootstrap'], function(jQuery) {
 
     });
 
-    $scope.filterRegistrarUri = function (registrarURI) {
+    $scope.filterRegistrarUri = function (input) {
+      var at_index = input.indexOf('@');
+      var registrarURI = input.substring(at_index + 1);
       var sip_index = registrarURI.indexOf('sip:') + 3;
       var port_index = registrarURI.search(/(?:[^sip]):\d+/);
       var reg_uri;
@@ -156,48 +184,52 @@ define(['jquery', 'bootstrap'], function(jQuery) {
     $scope.saveConfig = function() {
       $scope.user.allowedIPs = getAllowedIpsArray();
 
-      if ($scope.user.registrarURI)
-        $scope.user.registrarURI = $scope.filterRegistrarUri($scope.user.registrarURI);
+      if (!invalidIPaddresses($scope.user.allowedIPs)) {
 
-      if ($scope.user.sipUsername && (storedBrowserUsername !== $scope.user.sipUsername)) {
-        /*if the user changed his sipusername, we must create a new
-        user in the api, since its required that browserUsername and
-        sipUsername must be the same*/
-        storedBrowserUsername = $scope.user.browserUsername;
-        $scope.user.browserUsername = $scope.user.sipUsername;
-        $http(reqCreateUser($scope.user.sipUsername))
-          .then(function successCallback (response) {
-            var newUserId = response.data;
+        if ($scope.user.registrarURI)
+          $scope.user.registrarURI = $scope.filterRegistrarUri($scope.user.registrarURI);
 
-            if (newUserId)
-              $scope.user.id = newUserId;
+        if ($scope.user.sipUsername && (storedBrowserUsername !== $scope.user.sipUsername)) {
+          /*if the user changed his sipusername, we must create a new
+          user in the api, since its required that browserUsername and
+          sipUsername must be the same*/
+          storedBrowserUsername = $scope.user.browserUsername;
+          $scope.user.browserUsername = $scope.user.sipUsername;
+          $http(reqCreateUser($scope.user.sipUsername))
+            .then(function successCallback (response) {
+              var newUserId = response.data;
 
-            $http(reqEditUser($scope.user))
-              .then(function successCallback (response) {
-                $http(reqDeleteUser(storedBrowserUsername))
-                  .then(function successCallback (response) {
-                    storedBrowserUsername = $scope.user.browserUsername;
-                    $scope.savedSuccessfully = true;
-                  }, function errorCallback (response) {
-                    storedBrowserUsername = $scope.user.browserUsername;
-                    $scope.savedSuccessfully = true;
-                  });
-              }, function errorCallback (response) {
-                $scope.errorMsg = 'There was an error editing your account';
-                $scope.savedSuccessfully = false;
-              });
-          }, function errorCallback (response) {
-            $scope.errorMsg = 'There was an error generating your registrar config';
-            $scope.savedSuccessfully = false;
-          });
-      } else {
-        //if the sipusername is the same, we only update it
-        $http(reqEditUser($scope.user))
-          .then(function successCallback (response) {
-            $scope.savedSuccessfully = true;
-          }, function errorCallback (response) {
-            $scope.errorMsg = 'There was an error editing your account';
-          });
+              if (newUserId)
+                $scope.user.id = newUserId;
+
+              $http(reqEditUser($scope.user))
+                .then(function successCallback (response) {
+                  $http(reqDeleteUser(storedBrowserUsername))
+                    .then(function successCallback (response) {
+                      storedBrowserUsername = $scope.user.browserUsername;
+                      $scope.savedSuccessfully = true;
+                    }, function errorCallback (response) {
+                      storedBrowserUsername = $scope.user.browserUsername;
+                      $scope.savedSuccessfully = true;
+                    });
+                }, function errorCallback (response) {
+                  $scope.errorMsg = 'There was an error editing your account';
+                  $scope.savedSuccessfully = false;
+                });
+            }, function errorCallback (response) {
+              $scope.errorMsg = 'There was an error generating your registrar config';
+              $scope.savedSuccessfully = false;
+            });
+        } else {
+          //if the sipusername is the same, we only update it
+          $http(reqEditUser($scope.user))
+            .then(function successCallback (response) {
+              $scope.savedSuccessfully = true;
+            }, function errorCallback (response) {
+              $scope.errorMsg = 'There was an error editing your account';
+            });
+        }
+
       }
 
     };
