@@ -4,7 +4,6 @@ define(['jquery', 'bootstrap'], function(jQuery) {
 
     $scope.playing = false;
     $scope.savedSuccessfully = false;
-    $scope.savingError = false;
     $scope.saveButtonText = 'Save Changes';
 
     var audio = document.createElement('audio');
@@ -59,7 +58,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
           $scope.savedSuccessfully = true;
         }, function errorCallback(response) {
           $scope.saveButtonText = 'Save Changes';
-          $scope.savingError = true;
+          $scope.savedSuccessfully = false;
         });
     };
 

@@ -66,10 +66,18 @@ module.exports = {
         body: JSON.stringify(userData)
       },
       function(err, response, body) {
-        var new_user = JSON.parse(body);
-        account.save(function(){
-          callback(new_user.id);
-        });
+
+        if (!JSON.stringify(body).errors && response.statusCode !== 400) {
+          var new_user = JSON.parse(body);
+          account.save(function(){
+            callback(new_user.id);
+          });
+        } else {
+          account.save(function(){
+            callback(false);
+          });
+        }
+
       }
     );
   },

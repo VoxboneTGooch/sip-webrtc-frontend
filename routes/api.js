@@ -62,6 +62,7 @@ router.delete('/deleteUser', utils.isLoggedIn, function(req, res, next) {
     } else {
       return res.status(400).json();
     }
+
   }
 
   request(options, callback);

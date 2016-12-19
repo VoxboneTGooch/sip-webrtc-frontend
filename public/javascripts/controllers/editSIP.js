@@ -168,19 +168,26 @@ define(['jquery', 'bootstrap'], function(jQuery) {
         $http(reqCreateUser($scope.user.sipUsername))
           .then(function successCallback (response) {
             var newUserId = response.data;
-            $scope.user.id = newUserId;
+
+            if (newUserId)
+              $scope.user.id = newUserId;
+
             $http(reqEditUser($scope.user))
               .then(function successCallback (response) {
                 $http(reqDeleteUser(storedBrowserUsername))
                   .then(function successCallback (response) {
+                    storedBrowserUsername = $scope.user.browserUsername;
                     $scope.savedSuccessfully = true;
                   }, function errorCallback (response) {
-                    $scope.savedSuccessfully = false;
+                    storedBrowserUsername = $scope.user.browserUsername;
+                    $scope.savedSuccessfully = true;
                   });
               }, function errorCallback (response) {
+                $scope.errorMsg = 'There was an error editing your account';
                 $scope.savedSuccessfully = false;
               });
           }, function errorCallback (response) {
+            $scope.errorMsg = 'There was an error generating your registrar config';
             $scope.savedSuccessfully = false;
           });
       } else {
@@ -189,7 +196,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
           .then(function successCallback (response) {
             $scope.savedSuccessfully = true;
           }, function errorCallback (response) {
-
+            $scope.errorMsg = 'There was an error editing your account';
           });
       }
 
