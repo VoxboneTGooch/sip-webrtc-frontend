@@ -1,3 +1,78 @@
+.call-page-content {
+  background-color: @panel-color;
+  color: #fff;
+  margin-bottom: 20px;
+  font-weight: 100;
+  padding: 20px 25px;
+
+  h4 {
+    margin-bottom: 30px;
+  }
+
+  .img-container {
+    background: #fff;
+    text-align: center;
+    padding: 20px 0;
+    margin-bottom: 10px;
+    img {
+      width: 200px;
+      margin-bottom: 20px;
+    }
+  }
+
+  .call-info {
+    color: #fff;
+    margin-top: 10px;
+    
+    .glyphicon {
+      margin-right:  3px;
+    }
+  }
+
+  .call-actions {
+    text-align: center;
+
+    .btn {
+      border-radius: 3px;
+      margin: 0 3px;
+      
+      .glyphicon {
+        font-size: 90%;
+        margin-right: 5px;
+      }
+
+      &.btn-answer {
+        background: @color-success;
+        color: #fff;
+
+        &:hover {
+          background: darken(@color-success, 5%);
+        }
+      }
+
+
+      &.btn-decline {
+        background: @color-danger;
+        color: #fff;
+
+        &:hover {
+          background: darken(@color-danger, 5%);
+        }
+      }
+
+
+      &.btn-hangup {
+        background: @color-danger;
+        color: #fff;
+
+        &:hover {
+          background: darken(@color-danger, 5%);
+        }
+      }
+    }
+  }
+}
+
 .call-info {
   color: black;
 }
@@ -26,21 +101,15 @@
 
 .int-sensor {
     width: 100%;
-    height: 100%;
     position: absolute;
 }
 
 #microphone {
-    right: 125px;
-    top: 385px;
+    left: 100px;
+    top: 110px;
 }
 
 #earphone {
-    right: 100px;
-    top: 125px;
+    left: 100px;
+    top: 25px;
 }
-
-.img-container {
-    position: relative;
-}
-

@@ -15,26 +15,33 @@ append head
 block content
   .site-wrapper-inner.home-wrap
     .container(ng-controller="PhoneController" ng-init=`init("${vox_username}", "${vox_password}", "${ringtone}")`)
-      .register-content.ng-cloak.col-md-8.col-md-offset-2
-        .text-center
-          .well.call-info {{callMsg}}
-          .img-container
-            #microphone.int-sensor(ng-show="callState == 'ongoing'")
-              #mic5.sensor
-              #mic4.sensor
-              #mic3.sensor
-              #mic2.sensor
-              #mic1.sensor
-            #earphone.int-sensor(ng-show="callState == 'ongoing'")
-              #eap5.sensor
-              #eap4.sensor
-              #eap3.sensor
-              #eap2.sensor
-              #eap1.sensor
-            img(ng-src="{{phoneImg}}")
-        button.btn.btn-default-custom.pull-right.button-block.call-button(ng-show="callState == 'receiving'" ng-click="answerCall()") Answer
-        button.btn.btn-default-custom.pull-right.button-block.call-button(ng-show="callState == 'receiving'" ng-click="declineCall()") Decline
-        button.btn.btn-default-custom.pull-right.button-block.call-button(ng-show="callState == 'ongoing'" ng-click="hangCall()") Hang up
-        .text-center.trouble-connecting
-          span Trouble connecting? #[a(target="_blank" href="mailto:workshop@voxbone.com?subject=sip2webrtc connection help") Contact us]
-
+      .call-page-content.ng-cloak.col-md-12
+        h4 Call Page
+        .row
+          .col-md-6
+            .status-message-list
+          .col-md-6
+            .img-container
+              #microphone.int-sensor(ng-show="callState == 'ongoing'")
+                #mic1.sensor
+                #mic2.sensor
+                #mic3.sensor
+                #mic4.sensor
+                #mic5.sensor
+              #earphone.int-sensor(ng-show="callState == 'ongoing'")
+                #eap1.sensor
+                #eap2.sensor
+                #eap3.sensor
+                #eap4.sensor
+                #eap5.sensor
+              img(ng-src="{{phoneImg}}")
+              .call-actions
+                button.btn.btn-answer.call-button(ng-show="callState == 'receiving'" ng-click="answerCall()")
+                  span.glyphicon.glyphicon-ok
+                  | Answer
+                button.btn.btn-decline.call-button(ng-show="callState == 'receiving'" ng-click="declineCall()")
+                  span.glyphicon.glyphicon-earphone
+                  | Decline
+                button.btn.btn-hangup.call-button(ng-show="callState == 'ongoing'" ng-click="hangCall()")
+                  span.glyphicon.glyphicon-earphone
+                  | Hang up

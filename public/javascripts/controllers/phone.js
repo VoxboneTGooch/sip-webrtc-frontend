@@ -20,6 +20,16 @@ define(['jquery', 'bootstrap'], function(jQuery) {
       appendMessage('remove', 'Your browser does not support accessing your microphone, please try again in either Chrome, Firefox or Opera');
     }
 
+    appendMessage('time', 'Waiting for Registration');
+
+    function appendMessage(icon, message) {
+      jQuery(".status-message-list")
+      .append('<div class="call-info">\
+                <span class="glyphicon glyphicon-' + icon + '"></span>\
+                 ' + message + '\
+              </div>');
+    }
+
     var reqHeaders = {
       'Content-Type': 'application/json; charset=utf-8'
     };
@@ -34,19 +44,18 @@ define(['jquery', 'bootstrap'], function(jQuery) {
 
       switch (state) {
         case 'waiting':
-          $scope.callMsg = "Waiting for incoming call...";
           $scope.callState = 'waiting';
           $scope.phoneImg = '/images/vox-static-phone.png';
           break;
         case 'receiving':
+          appendMessage('bell', 'Receiving call');
           $scope.callState = 'receiving';
           $scope.phoneImg = '/images/vox-ringing-phone.gif';
           //$scope.callMsg = "Incoming call from " + callee;
-          $scope.callMsg = "Incoming call";
           break;
         case 'ongoing':
           //$scope.callMsg = "In call with " + callee;
-          $scope.callMsg = "In call";
+          appendMessage('earphone', 'In Call');
           $scope.callState = 'ongoing';
           $scope.phoneImg = '/images/vox-hand-phone.png';
           break;
@@ -113,6 +122,8 @@ define(['jquery', 'bootstrap'], function(jQuery) {
           };
 
           voxbone.WebRTC.customEventHandler.failed = function(e) {
+            appendMessage('phone-alt', 'Ended call');
+            appendMessage('time', 'Waiting for incoming call');
             setState('waiting');
             audio.pause();
             audio.currentTime = 0;
@@ -125,10 +136,14 @@ define(['jquery', 'bootstrap'], function(jQuery) {
         });
 
       voxbone.WebRTC.customEventHandler.ended = function(e) {
+        appendMessage('phone-alt', 'Ended call');
+        appendMessage('time', 'Waiting for incoming call');
         setState('waiting');
       };
 
       voxbone.WebRTC.customEventHandler.registered = function(e) {
+        appendMessage('ok', 'Registered');
+        appendMessage('time', 'Waiting for incoming call');
         setState('waiting');
       };
 
