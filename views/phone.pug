@@ -1,5 +1,7 @@
 extends layout
 
+prepend head
+  script(src="//rawgit.com/voxbone-workshop/webrtc-js/inbound/dist/voxbone-2.2.0-alpha.js")
 append head
   script.
     require([
@@ -36,7 +38,7 @@ block content
                 #eap5.sensor
               img(ng-src="{{phoneImg}}")
               .call-actions
-                button.btn.btn-answer.call-button(ng-disabled="callState !== 'receiving'" ng-click="answerCall()")
+                button.btn.btn-answer.call-button(ng-disabled="callState !== 'receiving'" ng-show="callState !== 'ongoing'" ng-click="answerCall()")
                   span.glyphicon.glyphicon-ok
                   | Answer
                 button.btn.btn-decline.call-button(ng-show="callState == 'receiving'" ng-click="declineCall()")
