@@ -72,12 +72,12 @@ define(['jquery', 'bootstrap'], function(jQuery) {
 
       if (!ipaddresses) return invalids;
 
-      var ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+      var ipformat = /((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$))/;
       $scope.errorMsg = '';
 
       ipaddresses.forEach(function(ipaddress) {
 
-        if (!ipaddress.match(ipformat)) {
+        if (!ipformat.test(ipaddress)) {
           $scope.errorMsg += (ipaddress + ', ');
           invalids ++;
         }
@@ -90,16 +90,6 @@ define(['jquery', 'bootstrap'], function(jQuery) {
         $scope.errorMsg += 'is an invalid IP address';
 
       return invalids;
-    }
-
-    function bindIpMask() {
-      jQuery('.ip-address').mask('0ZZ.0ZZ.0ZZ.0ZZ', {
-        translation: {
-          'Z': {
-            pattern: /[0-9]/, optional: true
-          }
-        }
-      });
     }
 
     function getAllowedIpsArray() {
@@ -133,7 +123,6 @@ define(['jquery', 'bootstrap'], function(jQuery) {
         });
       }
 
-      bindIpMask();
     }
 
     jQuery("#allowed-ips").on('click', ".add-ip", function() {
@@ -144,7 +133,6 @@ define(['jquery', 'bootstrap'], function(jQuery) {
           jQuery.get("/html/allowed-ip.html", function (data) {
             selector.parent().after(data);
           });
-          bindIpMask();
       }
 
     });
