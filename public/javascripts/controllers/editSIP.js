@@ -3,7 +3,6 @@ define(['jquery', 'bootstrap'], function(jQuery) {
   var EditSIPController = function($scope, $http, $window, $timeout) {
 
     $scope.savedSuccessfully = false;
-    $scope.savingError = false;
     $scope.saveButtonText = 'Save Changes';
     $scope.showInteralSip = true;
     $scope.inputType = 'password';
@@ -170,6 +169,8 @@ define(['jquery', 'bootstrap'], function(jQuery) {
     };
 
     $scope.saveConfig = function() {
+      $scope.savedSuccessfully = false;
+      $scope.errorMsg = '';
       $scope.user.allowedIPs = getAllowedIpsArray();
 
       if (!invalidIPaddresses($scope.user.allowedIPs)) {
