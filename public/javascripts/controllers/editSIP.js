@@ -66,6 +66,16 @@ define(['jquery', 'bootstrap'], function(jQuery) {
 
       });
 
+    function clearSettings (registrarEnabled) {
+
+      if (!registrarEnabled) {
+        $scope.user.sipUsername = null;
+        $scope.user.sipPassword = null;
+        $scope.user.registrarURI = null;
+      }
+
+    }
+
     function invalidIPaddresses(ipaddresses) {
       var invalids = 0;
 
@@ -172,6 +182,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
       $scope.savedSuccessfully = false;
       $scope.errorMsg = '';
       $scope.user.allowedIPs = getAllowedIpsArray();
+      clearSettings($scope.registrar_enabled);
 
       if (!invalidIPaddresses($scope.user.allowedIPs)) {
 
