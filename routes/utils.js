@@ -39,7 +39,7 @@ module.exports = {
   },
 
   haiku: function () {
-    return haikunator.haikunate();
+    return haikunator.haikunate({tokenLength: 0});
   },
 
   uuid4: function() {
