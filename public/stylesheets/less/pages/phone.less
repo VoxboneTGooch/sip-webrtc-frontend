@@ -78,40 +78,49 @@
 }
 
 .call-button {
-    margin-right: 10px;
-    margin-left: 10px;
+  margin-right: 10px;
+  margin-left: 10px;
 }
 
 .sensor {
-    width: 10px;
-    height: 30px;
-    border-radius: 1px;
-    border: 1px solid black;
-    display: inline-block;
-    margin: 1px;
+  width: 12px;
+  height: 36px;
+  display: inline-block;
+  margin: 0 0 0 -2px;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 12px 36px;
 }
 
 .active {
-    background-color: green;
+  background-image: url(../images/sensor-bg-green.png);
 }
 
 .peak {
-    background-color: red;
+  background-image: url(../images/sensor-bg-red.png);
 }
 
 .int-sensor {
-    width: 100%;
-    position: absolute;
+  width:auto;
+  position: absolute;
 }
 
 #microphone {
-    left: 100px;
-    top: 110px;
+  left: 50%;
+  top: 115px;
+  margin-left: 25px;
+  -ms-transform: rotate(7deg); /* IE 9 */
+  -webkit-transform: rotate(7deg); /* Chrome, Safari, Opera */
+  transform: rotate(7deg);
 }
 
 #earphone {
-    left: 100px;
-    top: 25px;
+  left: 50%;
+  top: 12px;
+  margin-left: 25px;
+  -ms-transform: rotate(-7deg); /* IE 9 */
+  -webkit-transform: rotate(-7deg); /* Chrome, Safari, Opera */
+  transform: rotate(-7deg);
 }
 
 #status-message-list {
