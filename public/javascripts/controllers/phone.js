@@ -73,26 +73,16 @@ define(['jquery', 'bootstrap'], function(jQuery) {
 
     function clearDevice(device){
       jQuery('.img-container #' + device +' div').each(function(){
-        jQuery(this).removeClass('active').removeClass('peak');
+        jQuery(this).removeClass('active');
       });
     }
 
     function setMicDot(dot) {
-
-      if (dot === '5')
-        jQuery('#microphone #mic' + dot).addClass('peak');
-      else
-        jQuery('#microphone #mic' + dot).addClass('active');
-
+      jQuery('#microphone #mic' + dot).addClass('active');
     }
 
     function setEapDot(dot) {
-
-      if (dot === '5')
-        jQuery('#earphone #eap' + dot).addClass('peak');
-      else
-        jQuery('#earphone #eap' + dot).addClass('active');
-
+      jQuery('#earphone #eap' + dot).addClass('active');
     }
 
     function filterRegistrarURI (registrarURI) {
@@ -176,19 +166,15 @@ define(['jquery', 'bootstrap'], function(jQuery) {
       voxbone.WebRTC.customEventHandler.remoteMediaVolume = function(e) {
         clearDevice('earphone');
         if (e.remoteVolume > 0.01) setEapDot('1');
-        if (e.remoteVolume > 0.05) setEapDot('2');
-        if (e.remoteVolume > 0.10) setEapDot('3');
-        if (e.remoteVolume > 0.20) setEapDot('4');
-        if (e.remoteVolume > 0.30) setEapDot('5');
+        if (e.remoteVolume > 0.10) setEapDot('2');
+        if (e.remoteVolume > 0.20) setEapDot('3');
       };
 
       voxbone.WebRTC.customEventHandler.localMediaVolume = function(e) {
         clearDevice('microphone');
         if (e.localVolume > 0.01) setMicDot('1');
-        if (e.localVolume > 0.05) setMicDot('2');
-        if (e.localVolume > 0.10) setMicDot('3');
-        if (e.localVolume > 0.20) setMicDot('4');
-        if (e.localVolume > 0.30) setMicDot('5');
+        if (e.localVolume > 0.10) setMicDot('2');
+        if (e.localVolume > 0.20) setMicDot('3');
       };
 
       $scope.hangCall = function () {

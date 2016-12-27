@@ -26,20 +26,16 @@ block content
             h6 Call this phone from:
             .call-sip
               p Internal SIP: &nbsp; #{voxbone_webrtc_username}+{{user.browserUsername}}@workshop-gateway.voxbone.com
-              p(ng-show="user.sipPassword && user.sipUsername && registrar && callState == 'waiting'") Your SIP: &nbsp; {{user.sipUsername}}@{{registrar}}
+              p(ng-show="user.sipPassword && user.sipUsername && registrar") Your SIP: &nbsp; {{user.sipUsername}}@{{registrar}}
             .img-container
               #microphone.int-sensor(ng-show="callState == 'ongoing'")
-                #mic1.sensor
-                #mic2.sensor
-                #mic3.sensor
-                #mic4.sensor
-                #mic5.sensor
+                #mic1.sensor.sensor-01
+                #mic2.sensor.sensor-02
+                #mic3.sensor.sensor-03
               #earphone.int-sensor(ng-show="callState == 'ongoing'")
-                #eap1.sensor
-                #eap2.sensor
-                #eap3.sensor
-                #eap4.sensor
-                #eap5.sensor
+                #eap1.sensor.sensor-01
+                #eap2.sensor.sensor-02
+                #eap3.sensor.sensor-03
               img(ng-src="{{phoneImg}}")
               .call-actions
                 button.btn.btn-answer.call-button(ng-disabled="callState !== 'receiving'" ng-show="callState !== 'ongoing'" ng-click="answerCall()")

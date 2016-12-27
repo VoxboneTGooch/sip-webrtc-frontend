@@ -83,21 +83,35 @@
 }
 
 .sensor {
-  width: 12px;
-  height: 36px;
+  width: 20px;
+  height: 64px;
   display: inline-block;
-  margin: 0 0 0 -2px;
+  margin: 0;
   background-position: center center;
   background-repeat: no-repeat;
-  background-size: 12px 36px;
 }
 
-.active {
-  background-image: url(../images/sensor-bg-green.png);
+.sensor-01 {
+  background-size: 12px;
+  &.active {
+    background-image: url(../images/sensor-01-green.png);
+  }
 }
 
-.peak {
-  background-image: url(../images/sensor-bg-red.png);
+.sensor-02 {
+  background-size: 15px;
+  margin-left: -12px;
+  &.active {
+    background-image: url(../images/sensor-02-green.png);
+  }
+}
+
+.sensor-03 {
+  background-size: 19px;
+  margin-left: -12px;
+  &.active {
+    background-image: url(../images/sensor-03-green.png);
+  }
 }
 
 .int-sensor {
@@ -107,7 +121,7 @@
 
 #microphone {
   left: 50%;
-  top: 115px;
+  top: 180px;
   margin-left: 25px;
   -ms-transform: rotate(7deg); /* IE 9 */
   -webkit-transform: rotate(7deg); /* Chrome, Safari, Opera */
@@ -116,7 +130,7 @@
 
 #earphone {
   left: 50%;
-  top: 12px;
+  top: 90px;
   margin-left: 25px;
   -ms-transform: rotate(-7deg); /* IE 9 */
   -webkit-transform: rotate(-7deg); /* Chrome, Safari, Opera */
