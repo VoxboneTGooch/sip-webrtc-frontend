@@ -95,6 +95,16 @@ define(['jquery', 'bootstrap'], function(jQuery) {
 
     }
 
+    function filterRegistrarURI (registrarURI) {
+
+      if (!registrarURI)
+        return null;
+
+      var sipIndex = registrarURI.indexOf('sip:') + 4;
+      var portIndex = registrarURI.search(/(?:[^sip]):\d+/) - 3;
+      return registrarURI.substring(sipIndex).substring(0, portIndex).trim();
+    }
+
     $scope.init = function (vox_username, vox_password, ringtone, apiBrowserName) {
       var req_url;
 
@@ -112,6 +122,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
       $http(get_req)
       .then(function successCallback (response) {
         $scope.user = JSON.parse(response.data);
+        $scope.registrar = filterRegistrarURI($scope.user.registrarURI);
         audio = new Audio('/audio/' + ringtone + '.ogg');
         voxbone.WebRTC.configuration.log_level = voxbone.Logger.log_level.INFO;
         voxbone.WebRTC.username = $scope.user.sipUsername;

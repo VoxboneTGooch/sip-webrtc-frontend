@@ -18,11 +18,15 @@ block content
   .site-wrapper-inner.home-wrap
     .container(ng-controller="PhoneController" ng-init=`init("${vox_username}", "${vox_password}", "${ringtone}")`)
       .call-page-content.ng-cloak.col-md-12
-        h4 Call Page
         .row
           .col-md-6
+            h4 Call Page
             #status-message-list
           .col-md-6
+            h6 Call this phone from:
+            .call-sip
+              p Internal SIP: &nbsp; #{voxbone_webrtc_username}+{{user.browserUsername}}@workshop-gateway.voxbone.com
+              p(ng-show="user.sipPassword && user.sipUsername && registrar && callState == 'waiting'") Your SIP: &nbsp; {{user.sipUsername}}@{{registrar}}
             .img-container
               #microphone.int-sensor(ng-show="callState == 'ongoing'")
                 #mic1.sensor
