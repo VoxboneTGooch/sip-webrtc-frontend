@@ -3,6 +3,7 @@ var express = require('express');
 var router = express.Router();
 var utils = require('./utils');
 var Account = require('../models/account');
+var Demo = require('../models/demo');
 var request = require('request');
 var Voxbone = require('voxbone-webrtc');
 
@@ -73,7 +74,35 @@ router.get('/phone', utils.isLoggedIn, function (req, res, next) {
   vox_username = voxrtc_username;
   vox_password = voxrtc_secret;
   res.render('phone', {
+    voxbone_webrtc_username: voxrtc_username,
     ringtone: ringtone
+  });
+});
+
+router.get('/demo', function (req, res, next) {
+  Demo
+    .findOne({})
+    .sort({'updated_at': 1})
+    .exec(function (err, theDemo) {
+
+      if (!theDemo) {
+        result.message = "Demo does not exist";
+        return res.status(400).json(result);
+      }
+
+      theDemo.save(function (err) {
+        if (err) throw err;
+      });
+      voxrtc_config = voxbone.generate();
+      vox_username = voxrtc_username;
+      vox_password = voxrtc_secret;
+      res.render('demo', {
+        voxbone_webrtc_username: voxrtc_username,
+        apiBrowsername: theDemo.name,
+        ringtone: 'office',
+        widget_id: theDemo.widget_id,
+        internal_sip: theDemo.sip
+      });
   });
 });
 

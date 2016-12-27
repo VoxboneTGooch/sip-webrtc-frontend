@@ -95,7 +95,19 @@ define(['jquery', 'bootstrap'], function(jQuery) {
 
     }
 
-    $scope.init = function (vox_username, vox_password, ringtone) {
+    $scope.init = function (vox_username, vox_password, ringtone, apiBrowserName) {
+      var req_url;
+
+      if (apiBrowserName)
+        req_url = '/api/userInfo?apiBrowserName=' + apiBrowserName;
+      else
+        req_url = '/api/userInfo';
+
+      var get_req = {
+        method: 'GET',
+        url: req_url,
+        headers: reqHeaders
+      };
 
       $http(get_req)
       .then(function successCallback (response) {

@@ -47,3 +47,5 @@ block content
                 button.btn.btn-hangup.call-button(ng-show="callState == 'ongoing'" ng-click="hangCall()")
                   span.glyphicon.glyphicon-earphone
                   | Hang up
+            .text-center.trouble-connecting
+              span Trouble connecting? #[a.contact-link(target="_blank" href="mailto:workshop@voxbone.com?subject=sip2webrtc connection help") Contact us]

@@ -7,8 +7,16 @@ var utils = require('./utils');
 var NodeCache = require("node-cache");
 var _ = require('underscore');
 
-router.get('/userInfo', utils.isLoggedIn, function(req, res, next) {
-  var apiUserId = res.locals.currentUser.apiBrowsername;
+router.get('/userInfo', function(req, res, next) {
+  var apiUserId;
+
+  if(req.query.apiBrowserName)
+    apiUserId = req.query.apiBrowserName;
+  else if(req.isAuthenticated())
+    apiUserId = res.locals.currentUser.apiBrowsername;
+  else
+    return res.status(400).json();
+
   var options = {
     url: process.env.SIP_TO_WEBRTC_API_URL + '/' + process.env.VOXBONE_WEBRTC_USERNAME + '/users/' + apiUserId,
     method: 'GET',

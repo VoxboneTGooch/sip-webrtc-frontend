@@ -1,0 +1,71 @@
+extends layout
+
+prepend head
+  script(src="//rawgit.com/voxbone-workshop/webrtc-js/inbound/dist/voxbone-2.2.0-alpha.js")
+append head
+  script.
+    require([
+      'angular',
+      'controllers/demo'
+    ],
+    function (angular, DemoController, jQueryMask) {
+      angular.module('sip-webrtc-frontend', [])
+        .controller('DemoController', DemoController);
+      angular.bootstrap(document, ['sip-webrtc-frontend']);
+    });
+
+block content
+  .site-wrapper-inner.home-wrap.demo-page
+    .container(ng-controller="DemoController" ng-init=`init("${vox_username}", "${vox_password}", "${ringtone}", "${apiBrowsername}")`)
+      .row
+        .call-page-content.ng-cloak.col-md-6
+          h4 Call Page
+          .row
+            .col-md-6
+              #status-message-list
+            .col-md-6
+              .img-container
+                #microphone.int-sensor(ng-show="callState == 'ongoing'")
+                  #mic1.sensor
+                  #mic2.sensor
+                  #mic3.sensor
+                  #mic4.sensor
+                  #mic5.sensor
+                #earphone.int-sensor(ng-show="callState == 'ongoing'")
+                  #eap1.sensor
+                  #eap2.sensor
+                  #eap3.sensor
+                  #eap4.sensor
+                  #eap5.sensor
+                img(ng-src="{{phoneImg}}")
+                .call-actions
+                  button.btn.btn-answer.call-button(ng-disabled="callState !== 'receiving'" ng-show="callState !== 'ongoing'" ng-click="answerCall()")
+                    span.glyphicon.glyphicon-ok
+                    | Answer
+                  button.btn.btn-decline.call-button(ng-show="callState == 'receiving'" ng-click="declineCall()")
+                    span.glyphicon.glyphicon-earphone
+                    | Decline
+                  button.btn.btn-hangup.call-button(ng-show="callState == 'ongoing'" ng-click="hangCall()")
+                    span.glyphicon.glyphicon-earphone
+                    | Hang up
+              .text-center.trouble-connecting
+                span Trouble connecting? #[a.contact-link(target="_blank" href="mailto:workshop@voxbone.com?subject=sip2webrtc connection help") Contact us]
+
+        .call-page-content.ng-cloak.col-md-6
+          h4 Behind the scenes
+          #console
+
+      .row
+        .call-page-content.ng-cloak.col-md-6
+          h4 Call this phone!
+          .internalSip
+            span #{internal_sip}
+        .call-page-content.ng-cloak.col-md-6.text-center
+          h5 You can create a button similiar like this one in
+          a(href="https://click2vox.com") Click2Vox
+          .voxButton#voxButton
+            link(rel="stylesheet" href="https://click2vox.com/stylesheets/widget.css?v=200")
+            script(src="https://click2vox.com/javascripts/widget.js?v=200")
+            iframe#call_button_frame(width="300" height="183" frameBorder="0" scrolling="no" src=`https://click2vox.com/voxbone_widget/${widget_id}`)
+            #control
+
