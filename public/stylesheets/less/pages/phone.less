@@ -4,12 +4,11 @@
   margin-bottom: 20px;
   font-weight: 100;
   padding: 20px 25px;
-
   h4 {
     margin-bottom: 30px;
   }
-
   .img-container {
+    position: relative;
     background: #fff;
     text-align: center;
     padding: 20px 0;
@@ -19,52 +18,39 @@
       margin-bottom: 20px;
     }
   }
-
   .call-info {
     color: #fff;
     margin-top: 10px;
-
     .glyphicon {
       margin-right:  3px;
     }
   }
-
   .call-actions {
     text-align: center;
-
     .btn {
       border-radius: 3px;
       margin: 0 3px;
-
       .glyphicon {
         font-size: 90%;
         margin-right: 5px;
       }
-
       &.btn-answer {
         background: @color-success;
         color: #fff;
-
         &:hover {
           background: darken(@color-success, 5%);
         }
       }
-
-
       &.btn-decline {
         background: @color-danger;
         color: #fff;
-
         &:hover {
           background: darken(@color-danger, 5%);
         }
       }
-
-
       &.btn-hangup {
         background: @color-danger;
         color: #fff;
-
         &:hover {
           background: darken(@color-danger, 5%);
         }
@@ -120,8 +106,9 @@
 }
 
 #microphone {
+  position: absolute;
   left: 50%;
-  top: 180px;
+  top: 90px;
   margin-left: 25px;
   -ms-transform: rotate(7deg); /* IE 9 */
   -webkit-transform: rotate(7deg); /* Chrome, Safari, Opera */
@@ -129,8 +116,9 @@
 }
 
 #earphone {
+  position: absolute;
   left: 50%;
-  top: 90px;
+  top: 5px;
   margin-left: 25px;
   -ms-transform: rotate(-7deg); /* IE 9 */
   -webkit-transform: rotate(-7deg); /* Chrome, Safari, Opera */
@@ -147,12 +135,14 @@
 }
 
 .call-sip {
-  p {
-    margin: 0;
-  }
-  white-space: nowrap;
+  word-wrap: break-word;
   font-size: 11px;
-  background: @color-mid-light-grey;
+  background: rgba(76,146,116,0.7);
   margin-bottom: 10px;
   padding: 10px;
+  p {
+    margin: 0;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
 }

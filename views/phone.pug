@@ -25,8 +25,9 @@ block content
           .col-md-6
             h6 Call this phone from:
             .call-sip
-              p Internal SIP: &nbsp; #{voxbone_webrtc_username}+{{user.browserUsername}}@workshop-gateway.voxbone.com
-              p(ng-show="user.sipPassword && user.sipUsername && registrar") Your SIP: &nbsp; {{user.sipUsername}}@{{registrar}}
+              p Internal SIP: &nbsp; sip:#{voxbone_webrtc_username}+{{user.browserUsername}}@workshop-gateway.voxbone.com
+              br
+              p(ng-show="user.sipPassword && user.sipUsername && registrar") Your SIP: &nbsp; sip:{{user.sipUsername}}@{{registrar}}
             .img-container
               #microphone.int-sensor(ng-show="callState == 'ongoing'")
                 #mic1.sensor.sensor-01

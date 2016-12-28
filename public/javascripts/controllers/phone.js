@@ -30,7 +30,10 @@ define(['jquery', 'bootstrap'], function(jQuery) {
                  ' + message + '\
               </div>');
       var elem = document.getElementById('status-message-list');
-      elem.scrollTop = elem.scrollHeight;
+
+      if (elem)
+        elem.scrollTop = elem.scrollHeight;
+
     }
 
     var reqHeaders = {
