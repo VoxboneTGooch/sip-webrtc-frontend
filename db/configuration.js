@@ -39,25 +39,27 @@ function generateDemos (index) {
     };
     if (!demo) {
       request(options, function(error, response, body) {
-        console.log("Generating demo " + index);
-        demo = new Demo(
-          {
-            name: "demo" + index,
-            sip: internalSip,
-            widget_id: JSON.parse(body) || "Get manually from click2vox",
-          }
-        );
-        demo.save(function (err) {
 
-          if(err)
-            console.log("Demo" + index + "couldn't be generated");
-          if (index < 10)
-            generateDemos(index + 1);
+        if (!error && body) {
+          console.log("Generating demo " + index);
+          demo = new Demo(
+            {
+              name: "demo" + index,
+              sip: internalSip,
+              widget_id: JSON.parse(body) || "Get manually from click2vox",
+            }
+          );
+          demo.save(function (err) {
 
-        });
+            if(err)
+              console.log("Demo" + index + "couldn't be generated");
+            if (index < 10)
+              generateDemos(index + 1);
+
+          });
+        }
 
       });
-
     } else if (index < 10) {
       generateDemos(index + 1);
     }

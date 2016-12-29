@@ -86,8 +86,7 @@ router.get('/demo', function (req, res, next) {
     .exec(function (err, theDemo) {
 
       if (!theDemo) {
-        result.message = "Demo does not exist";
-        return res.status(400).json(result);
+        return res.status(400).json("Demo does not exist");
       }
 
       theDemo.save(function (err) {
