@@ -16,10 +16,10 @@ block content
   - var userData = JSON.stringify(currentUser)
   .site-wrapper-inner.home-wrap
     .container(ng-controller="EditNotificationsController" ng-init=`initData={account: ${userData}}`)
-      .notifications-content.ng-cloak.col-md-6.col-md-offset-3
-        .col-xs-12
+      .notifications-content.ng-cloak
+        .row
           h4 Edit Notifications
-        .col-xs-12
+        .row
           .form-group
 
             label Ringtone
@@ -40,7 +40,7 @@ block content
               |Browser Notification
               span.badge(data-toggle='tooltip' data-placement="right" title="Enable pop-up notifications to from your browser") ?
 
-        .col-xs-12
+        .row
           .form-group
             .checkbox
               label
@@ -48,12 +48,12 @@ block content
                 |Auto Load
                 span.badge(data-toggle='tooltip' data-placement="right" title="Automatically load when your browser starts") ?
 
-        .col-xs-12
+        .row
           .form-group
             label SMS &nbsp;
               span.badge(data-toggle='tooltip' data-placement="right" title="Enter a phone number for SMS alerts on incoming calls") ?
             input(type="text" class="form-control" disabled)
-
+          br
           .form-group(ng-cloak)
             button.btn.btn-default-custom.pull-right.button-block(ng-click="saveNotifications()" name="skipBtn") {{ saveButtonText }}
 

@@ -24,7 +24,7 @@ block content
         .row
           .col-xs-12.register-content
             .row
-              .col-xs-6
+              .col-md-6
                 .ng-cloak
                   h4 SIP Settings
                   p Use our free SIP address or connect to your SIP server
@@ -57,7 +57,7 @@ block content
                           input(type="checkbox" ng-click="showPassword()")
                           |Show
                         input.form-control(type="{{inputType}}" ng-model="user.sipPassword" required placeholder= "Password")
-              .col-xs-6.ng-cloak
+              .col-md-6.ng-cloak
                 h4 Allowed IP addresses
                 p Incoming calls from any IP address allowed. Enter addresses below to limit incoming calls.
                 .boxPanel#allowed-ips
