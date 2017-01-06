@@ -3,11 +3,13 @@ define(['jquery', 'bootstrap'], function(jQuery) {
   var PhoneController = function($scope, $http, $window, $timeout) {
     $scope.callState = 'initial';
     $scope.phoneImg = '/images/vox-static-phone.png';
+
     var audio;
     var constraints = {
       video: false,
       audio: true,
     };
+
     navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
 
     if (navigator.getUserMedia) {
@@ -64,6 +66,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
           appendMessage('earphone', 'In Call');
           $scope.callState = 'ongoing';
           $scope.phoneImg = '/images/vox-hand-phone.png';
+
           break;
         default:
           alert("default");
@@ -98,8 +101,9 @@ define(['jquery', 'bootstrap'], function(jQuery) {
       return registrarURI.substring(sipIndex).substring(0, portIndex).trim();
     }
 
-    $scope.init = function (vox_username, vox_password, ringtone, apiBrowserName) {
+    $scope.init = function (vox_username, vox_password, ringtone, apiBrowserName, email) {
       var req_url;
+      var now;
 
       if (apiBrowserName)
         req_url = '/api/userInfo?apiBrowserName=' + apiBrowserName;
@@ -121,6 +125,19 @@ define(['jquery', 'bootstrap'], function(jQuery) {
         voxbone.WebRTC.username = $scope.user.sipUsername;
         voxbone.WebRTC.password = $scope.user.sipPassword;
         voxbone.WebRTC.configuration.uri = 'sip:' + $scope.user.browserUsername + '@workshop-gateway.voxbone.com';
+
+        //exporting call logs
+        voxbone.WebRTC.configuration.post_logs = true;
+        now = new Date($.now());
+        var call = {
+            call: {
+              'sip2webr.tc_email': email,
+              'sip2webr.tc_apiBrowsername': $scope.user.browserUsername,
+              'sip2webr.tc_callTime': now
+            }
+        };
+
+        voxbone.WebRTC.webrtcLogs += JSON.stringify(call);
         voxbone.WebRTC.basicAuthInit(vox_username, vox_password);
 
         voxbone.WebRTC.onCall = function (data, cb) {
