@@ -29,11 +29,11 @@ block content
               br
               p(ng-show="user.sipPassword && user.sipUsername && registrar") Your SIP: &nbsp; sip:{{user.sipUsername}}@{{registrar}}
             .img-container
-              #microphone.int-sensor(ng-show="callState == 'ongoing'")
+              #phone-microphone.phone-int-sensor(ng-show="callState == 'ongoing'")
                 #mic1.sensor.sensor-01
                 #mic2.sensor.sensor-02
                 #mic3.sensor.sensor-03
-              #earphone.int-sensor(ng-show="callState == 'ongoing'")
+              #phone-earphone.phone-int-sensor(ng-show="callState == 'ongoing'")
                 #eap1.sensor.sensor-01
                 #eap2.sensor.sensor-02
                 #eap3.sensor.sensor-03
