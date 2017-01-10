@@ -105,12 +105,12 @@ define(['jquery', 'bootstrap'], function(jQuery) {
       return registrarURI.substring(sipIndex).substring(0, portIndex).trim();
     }
 
-    $scope.init = function (vox_username, vox_password, ws_server, ringtone, apiBrowserName, email) {
+    $scope.init = function (config, ringtone, email) {
       var req_url;
       var now;
 
-      if (apiBrowserName)
-        req_url = '/api/userInfo?apiBrowserName=' + apiBrowserName;
+      if (config.apiBrowserName)
+        req_url = '/api/userInfo?apiBrowserName=' + config.apiBrowserName;
       else
         req_url = '/api/userInfo';
 
@@ -128,8 +128,8 @@ define(['jquery', 'bootstrap'], function(jQuery) {
         voxbone.WebRTC.configuration.log_level = voxbone.Logger.log_level.INFO;
         voxbone.WebRTC.username = $scope.user.sipUsername;
         voxbone.WebRTC.password = $scope.user.sipPassword;
-        voxbone.WebRTC.configuration.uri = 'sip:' + $scope.user.browserUsername + '@workshop-gateway.voxbone.com';
-        voxbone.WebRTC.configuration.ws_servers = [ws_server];
+        voxbone.WebRTC.configuration.uri = 'sip:' + $scope.user.browserUsername + '@' + config.sip_gateway_domain;
+        voxbone.WebRTC.configuration.ws_servers = [config.ws_server];
 
         //exporting call logs
         voxbone.WebRTC.configuration.post_logs = true;
@@ -143,7 +143,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
         };
 
         voxbone.WebRTC.webrtcLogs += JSON.stringify(call);
-        voxbone.WebRTC.basicAuthInit(vox_username, vox_password);
+        voxbone.WebRTC.basicAuthInit(config.vox_username, config.vox_password);
 
         voxbone.WebRTC.onCall = function (data, cb) {
 

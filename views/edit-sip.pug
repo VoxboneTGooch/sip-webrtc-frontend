@@ -34,7 +34,7 @@ block content
                       |Give me a SIP address to test with
                       span.badge(data-toggle='tooltip' data-placement="right" title="Dial this SIP address from your SIP phone or infrastructure") ?
                       br
-                  .internalSip(ng-show = "showInteralSip") #{voxbone_webrtc_username}+{{user.browserUsername}}@workshop-gateway.voxbone.com
+                  .internalSip(ng-show = "showInteralSip") #{voxbone_webrtc_username}+{{user.browserUsername}}@#{sip_gateway_domain}
                   .checkbox
                     label
                       input(type="checkbox" ng-model="registrar_enabled")
@@ -75,6 +75,6 @@ block content
                   .msg-wrap.success-label(ng-show="savedSuccessfully") Your configuration has been saved successfully! #[a(href="/edit-notifications") Configure Notifications]
 
                   button.btn.btn-default-custom.btn-footer(ng-click="saveConfig()" name="skipBtn") Save
-    
+
                   .clearfix
       include sip-setup-info-modal

@@ -16,7 +16,7 @@ append head
 
 block content
   .site-wrapper-inner.home-wrap
-    .container(ng-controller="PhoneController" ng-init=`init("${vox_username}", "${vox_password}", "${ws_server}", "${ringtone}", "${apiBrowsername}", "${email}")`)
+    .container(ng-controller="PhoneController" ng-init=`init(${JSON.stringify(config)}, "${ringtone}", "${email}")`)
       .call-page-content.ng-cloak.col-md-12
         .row
           .col-md-6
@@ -25,7 +25,7 @@ block content
           .col-md-6
             h6 Call this phone from:
             .call-sip
-              p Internal SIP: &nbsp; sip:#{voxbone_webrtc_username}+{{user.browserUsername}}@workshop-gateway.voxbone.com
+              p Internal SIP: &nbsp; sip:#{config.voxbone_webrtc_username}+{{user.browserUsername}}@#{config.sip_gateway_domain}
               br
               p(ng-show="user.sipPassword && user.sipUsername && registrar") Your SIP: &nbsp; sip:{{user.sipUsername}}@{{registrar}}
             .img-container

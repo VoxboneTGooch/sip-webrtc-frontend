@@ -60,7 +60,8 @@ router.get('/ping', function (req, res, next) {
 
 router.get('/edit-SIP', utils.isLoggedIn, function (req, res, next) {
   res.render('edit-sip', {
-    voxbone_webrtc_username: voxrtc_username
+    voxbone_webrtc_username: voxrtc_username,
+    sip_gateway_domain: process.env.SIP_GATEWAY_DOMAIN
   });
 });
 
@@ -72,14 +73,19 @@ router.get('/phone', utils.isLoggedIn, function (req, res, next) {
   var ringtone = res.locals.currentUser.ringtone;
   var uemail = res.locals.currentUser.email;
   voxrtc_config = voxbone.generate();
-  vox_username = voxrtc_username;
-  vox_password = voxrtc_secret;
-  res.render('phone', {
+  var config = {
+    vox_username: voxrtc_username,
+    vox_password: voxrtc_secret,
     voxbone_webrtc_username: voxrtc_username,
+    apiBrowserName: res.locals.currentUser.apiBrowsername,
+    ws_server: process.env.WS_SERVER,
+    sip_gateway_domain: process.env.SIP_GATEWAY_DOMAIN
+  };
+
+  res.render('phone', {
+    config: config,
     ringtone: ringtone,
-    apiBrowsername: res.locals.currentUser.apiBrowsername,
-    email: uemail,
-    ws_server: process.env.WS_SERVER
+    email: uemail
   });
 });
 
@@ -97,15 +103,21 @@ router.get('/demo', function (req, res, next) {
         if (err) throw err;
       });
       voxrtc_config = voxbone.generate();
-      vox_username = voxrtc_username;
-      vox_password = voxrtc_secret;
-      res.render('demo', {
+      var config = {
+        vox_username: voxrtc_username,
+        vox_password: voxrtc_secret,
         voxbone_webrtc_username: voxrtc_username,
-        apiBrowsername: theDemo.name,
+        apiBrowserName: theDemo.name,
+        ws_server: process.env.WS_SERVER,
+        sip_gateway_domain: process.env.SIP_GATEWAY_DOMAIN
+      };
+
+      res.render('demo', {
+        config: config,
         ringtone: 'office',
+        email: theDemo.name + '@' + process.env.SIP_GATEWAY_DOMAIN,
         widget_id: theDemo.widget_id,
-        internal_sip: theDemo.sip,
-        ws_server: process.env.WS_SERVER
+        internal_sip: theDemo.sip
       });
   });
 });
