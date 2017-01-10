@@ -78,7 +78,8 @@ router.get('/phone', utils.isLoggedIn, function (req, res, next) {
     voxbone_webrtc_username: voxrtc_username,
     ringtone: ringtone,
     apiBrowsername: res.locals.currentUser.apiBrowsername,
-    email: uemail
+    email: uemail,
+    ws_server: process.env.WS_SERVER
   });
 });
 
@@ -103,7 +104,8 @@ router.get('/demo', function (req, res, next) {
         apiBrowsername: theDemo.name,
         ringtone: 'office',
         widget_id: theDemo.widget_id,
-        internal_sip: theDemo.sip
+        internal_sip: theDemo.sip,
+        ws_server: process.env.WS_SERVER
       });
   });
 });

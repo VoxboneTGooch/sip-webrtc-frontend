@@ -105,7 +105,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
       return registrarURI.substring(sipIndex).substring(0, portIndex).trim();
     }
 
-    $scope.init = function (vox_username, vox_password, ringtone, apiBrowserName, email) {
+    $scope.init = function (vox_username, vox_password, ws_server, ringtone, apiBrowserName, email) {
       var req_url;
       var now;
 
@@ -129,6 +129,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
         voxbone.WebRTC.username = $scope.user.sipUsername;
         voxbone.WebRTC.password = $scope.user.sipPassword;
         voxbone.WebRTC.configuration.uri = 'sip:' + $scope.user.browserUsername + '@workshop-gateway.voxbone.com';
+        voxbone.WebRTC.configuration.ws_servers = [ws_server];
 
         //exporting call logs
         voxbone.WebRTC.configuration.post_logs = true;
