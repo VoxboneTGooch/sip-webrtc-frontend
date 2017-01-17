@@ -19,7 +19,9 @@ block content
     .container
       .row.banner-content
         .col-sm-12.col-md-8
-
+          if unsupported_browser
+            .unsupported-browser.text-center.banner-content
+              h4 #{unsupported_browser} is not supported, please use Firefox or Chrome
           h1 Webphone for everyone
           h2 Answer SIP calls from your browser!
           p Take calls in minutes just using your browser - no installs, no plug-ins, no hassle. sip2webr.tc is a cloud-based WebRTC gateway service based on the Voxbone Workshop WebRTC-to-SIP Gateway Service. sip2webr.tc is perfect for:
