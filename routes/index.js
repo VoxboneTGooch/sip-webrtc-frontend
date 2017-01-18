@@ -81,6 +81,7 @@ router.get('/edit-notifications', utils.isLoggedIn, function (req, res, next) {
 
 router.get('/phone', utils.isLoggedIn, function (req, res, next) {
   var ringtone = res.locals.currentUser.ringtone;
+  var browserNotifications = res.locals.currentUser.browserNotifications;
   var uemail = res.locals.currentUser.email;
   voxrtc_config = voxbone.generate();
   var config = {
@@ -95,6 +96,7 @@ router.get('/phone', utils.isLoggedIn, function (req, res, next) {
   res.render('phone', {
     config: config,
     ringtone: ringtone,
+    browserNotifications: browserNotifications,
     email: uemail
   });
 });

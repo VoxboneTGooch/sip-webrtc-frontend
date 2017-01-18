@@ -1,6 +1,11 @@
-define(['jquery', 'bootstrap'], function(jQuery) {
+define([
+  'controllers/browserNotifications',
+  'jquery',
+  'bootstrap'
+  ], function(BrowserNotificationsController, jQuery) {
 
-  var PhoneController = function($scope, $http, $window, $timeout) {
+  var PhoneController = function($scope, $http, $window, $timeout, $controller) {
+    angular.extend(this, $controller(BrowserNotificationsController, {$scope: $scope}));
     $scope.callState = 'initial';
     $scope.phoneImg = '/images/vox-static-phone.png';
 
@@ -60,6 +65,10 @@ define(['jquery', 'bootstrap'], function(jQuery) {
           $scope.phoneImg = '/images/vox-static-phone.png';
           break;
         case 'receiving':
+
+          if ($scope.browserNotifications)
+            $scope.showNotification("Incoming Call. Click to see the phone");
+
           appendMessage('bell', 'Receiving call');
           $scope.callState = 'receiving';
           $scope.phoneImg = '/images/vox-ringing-phone.gif';
@@ -105,9 +114,10 @@ define(['jquery', 'bootstrap'], function(jQuery) {
       return registrarURI.substring(sipIndex).substring(0, portIndex).trim();
     }
 
-    $scope.init = function (config, ringtone, email) {
+    $scope.init = function (config, ringtone, browserNotifications, email) {
       var req_url;
       var now;
+      $scope.browserNotifications = JSON.parse(browserNotifications);
 
       if (config.apiBrowserName)
         req_url = '/api/userInfo?apiBrowserName=' + config.apiBrowserName;
@@ -208,7 +218,7 @@ define(['jquery', 'bootstrap'], function(jQuery) {
       };
     };
   };
-  PhoneController.$inject = ['$scope', '$http', '$window', '$timeout'];
+  PhoneController.$inject = ['$scope', '$http', '$window', '$timeout', '$controller'];
 
   return PhoneController;
 });

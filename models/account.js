@@ -62,6 +62,10 @@ var accountSchema = new Schema({
     type: String,
     default: "office"
   },
+  browserNotifications: {
+    type: Boolean,
+    default: false
+  }
 });
 
 accountSchema.pre('save', function (next) {
