@@ -65,11 +65,13 @@ block content
             span  try it now?
 
       .row.home-buttons
-        .col-sm-12.col-md-6.offset-md-3
+        .col-sm-12.col-md-6
+          a.btn.btn-default-custom(href='/demo') Try the demo
+        .col-sm-12.col-md-6
           if authenticated
             a.btn.btn-default-custom(href='/edit-sip') Setup my phone
           else
-            a.btn.btn-default-custom(href='/demo') Try a demo
+            a.btn.btn-default-custom(href='/account/signup') Create an account
 
   .contact(id="contact")
     .container
