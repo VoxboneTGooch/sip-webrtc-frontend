@@ -9,6 +9,11 @@ define(['jquery', 'bootstrap'], function(jQuery) {
     $scope.errorMsg = '';
     var storedBrowserUsername;
 
+    $scope.didSignup = function () {
+      var win = window.open("https://did2webr.tc", '_blank');
+      win.focus();
+    };
+
     $scope.user = {};
     $scope.wirePlugins = function() {
       jQuery('[data-toggle="tooltip"]').tooltip();

@@ -22,7 +22,7 @@ block content
           .col-md-12.register-content
             img.img-responsive.infrastructure(src='/images/infrastructure.png')
         .row
-          .col-xs-12.register-content
+          .col-xs-12.register-content(ng-cloak)
             .row
               .col-md-6
                 .ng-cloak
@@ -35,6 +35,11 @@ block content
                       span.badge(data-toggle='tooltip' data-placement="right" title="Dial this SIP address from your SIP phone or infrastructure") ?
                       br
                   .internalSip(ng-show = "showInteralSip") #{voxbone_webrtc_username}+{{user.browserUsername}}@#{sip_gateway_domain}
+                  .checkbox
+                    label
+                      input(type="checkbox" ng-model="did2webrtcSignup" ng-disabled="did2webrtcSignup" ng-click="didSignup()")
+                      |Sign-up at did2webr.tc to call with a phone number
+                      span.badge(data-toggle='tooltip' data-placement="right" title="didwebr.tc is a sister site to sip2webr.tc. At did2webr.tc we auto provision a Voxbone DID to a sip2webr.tc address so you can call from a PSTN phone number") ?
                   .checkbox
                     label
                       input(type="checkbox" ng-model="registrar_enabled")
