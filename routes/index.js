@@ -44,7 +44,8 @@ router.get('/.well-known/acme-challenge/:acmeToken', function(req, res, next) {
 
 router.get('*', function (req, res, next) {
   //  Check for unsupported browsers
-  if (!utils.isSupportedBrowser(req) && req.url !== '/') {
+  var browser = utils.getReqBrowser(req);
+  if (!utils.isSupportedBrowser(browser) && req.url !== '/') {
     res.redirect('/');
     return;
   }
@@ -56,12 +57,13 @@ router.get('*', function (req, res, next) {
 });
 
 router.get('/', function (req, res, next) {
-  var unsupported_browser = null;
+  var browser = utils.getReqBrowser(req);
+  var options = {};
 
-  if (!utils.isSupportedBrowser(req))
-    unsupported_browser = utils.getReqBrowser(req);
+  if (!utils.isSupportedBrowser(browser))
+    options.unsupported_browser = browser;
 
-  res.render('home', {unsupported_browser: unsupported_browser});
+  res.render('home', options);
 });
 
 router.get('/ping', function (req, res, next) {
