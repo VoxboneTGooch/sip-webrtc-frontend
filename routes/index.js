@@ -50,7 +50,7 @@ router.get('*', function (req, res, next) {
     return;
   }
   // Redirects if not HTTPS
-  if (process.env.FORCE_HTTPS == 'true' && process.env.APP_URL && req.headers['x-forwarded-proto'] != 'https')
+  if (process.env.FORCE_HTTPS === 'true' && process.env.APP_URL && req.headers['x-forwarded-proto'] != 'https')
     res.redirect(process.env.APP_URL + req.url);
   else
     next();
