@@ -30,7 +30,7 @@ block content
               p Internal SIP: &nbsp; sip:#{config.voxbone_webrtc_username}+{{user.browserUsername}}@#{config.sip_gateway_domain}
               br
               p(ng-show="user.sipPassword && user.sipUsername && registrar") Your SIP: &nbsp; sip:{{user.sipUsername}}@{{registrar}}
-            .img-container
+            .img-container.ng-cloak
               #phone-microphone.phone-int-sensor(ng-show="isCallOngoing()")
                 #mic1.sensor.sensor-01
                 #mic2.sensor.sensor-02
