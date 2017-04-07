@@ -118,7 +118,7 @@ define([
         $scope.browserNotifications = JSON.parse(browserNotifications);
 
       if (config.apiBrowserName)
-        req_url = '/api/userInfo?apiBrowserName=' + config.apiBrowserName;
+        req_url = '/api/userInfo?apiBrowserName=' + encodeURIComponent(config.apiBrowserName);
       else
         req_url = '/api/userInfo';
 
