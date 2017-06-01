@@ -2911,41 +2911,41 @@ function initAll(voxbone, adapter) {
 								pcObject = voxbone.WebRTC.rtcSession.connection.pc;
 
 							// switch (e.cause) {
-							// 	case io.C.causes.USER_DENIED_MEDIA_ACCESS:
+							// 	case JSSIP.C.causes.USER_DENIED_MEDIA_ACCESS:
 							// 		if (typeof pcObject === 'object')
 							// 			callStats.reportError(pcObject, conferenceID, callStats.webRTCFunctions.getUserMedia);
 							// 		voxbone.WebRTC.customEventHandler.getUserMediaFailed(e);
 							// 		break;
 							//
-							// 	case io.C.causes.INCOMPATIBLE_SDP:
-							// 	case io.C.causes.MISSING_SDP:
+							// 	case JSSIP.C.causes.INCOMPATIBLE_SDP:
+							// 	case JSSIP.C.causes.MISSING_SDP:
 							// 		if (typeof pcObject === 'object')
 							// 			callStats.reportError(pcObject, conferenceID, callStats.webRTCFunctions.createOffer);
 							// 		break;
 							//
-							// 	case io.C.causes.BYE:
-							// 	case io.C.causes.CANCELED:
-							// 	case io.C.causes.NO_ANSWER:
-							// 	case io.C.causes.EXPIRES:
-							// 	case io.C.causes.NO_ACK:
-							// 	case io.C.causes.BUSY:
-							// 	case io.C.causes.REJECTED:
-							// 	case io.C.causes.REDIRECTED:
-							// 	case io.C.causes.UNAVAILABLE:
-							// 	case io.C.causes.NOT_FOUND:
+							// 	case JSSIP.C.causes.BYE:
+							// 	case JSSIP.C.causes.CANCELED:
+							// 	case JSSIP.C.causes.NO_ANSWER:
+							// 	case JSSIP.C.causes.EXPIRES:
+							// 	case JSSIP.C.causes.NO_ACK:
+							// 	case JSSIP.C.causes.BUSY:
+							// 	case JSSIP.C.causes.REJECTED:
+							// 	case JSSIP.C.causes.REDIRECTED:
+							// 	case JSSIP.C.causes.UNAVAILABLE:
+							// 	case JSSIP.C.causes.NOT_FOUND:
 							// 		if (typeof pcObject === 'object')
 							// 			callStats.reportError(pcObject, conferenceID, callStats.webRTCFunctions.applicationError);
 							// 		break;
 
-							// case io.C.causes.DIALOG_ERROR:
-							// case io.C.causes.BAD_MEDIA_DESCRIPTION:
-							// case io.C.causes.RTP_TIMEOUT:
-							// case io.C.causes.SIP_FAILURE_CODE:
-							// case io.C.causes.REQUEST_TIMEOUT:
-							// case io.C.causes.CONNECTION_ERROR:
-							// case io.C.causes.INTERNAL_ERROR:
-							// case io.C.causes.ADDRESS_INCOMPLETE:
-							// case io.C.causes.AUTHENTICATION_ERROR:
+							// case JSSIP.C.causes.DIALOG_ERROR:
+							// case JSSIP.C.causes.BAD_MEDIA_DESCRIPTION:
+							// case JSSIP.C.causes.RTP_TIMEOUT:
+							// case JSSIP.C.causes.SIP_FAILURE_CODE:
+							// case JSSIP.C.causes.REQUEST_TIMEOUT:
+							// case JSSIP.C.causes.CONNECTION_ERROR:
+							// case JSSIP.C.causes.INTERNAL_ERROR:
+							// case JSSIP.C.causes.ADDRESS_INCOMPLETE:
+							// case JSSIP.C.causes.AUTHENTICATION_ERROR:
 							// 	default:
 							// 		if (typeof pcObject === 'object')
 							// 			callStats.reportError(pcObject, conferenceID, callStats.webRTCFunctions.signalingError);
@@ -3019,67 +3019,7 @@ function initAll(voxbone, adapter) {
 			 */
 
 			setupInboundCalling: function(details, callback) {
-				//OLD io APPROACH
-				// var socket = new io.WebSocketInterface(this.configuration.ws_servers[0]);
-				// socket.via_transport = "tcp";
-				//
-				// //hack for now, dont want to delete ws_servers for this.configuration but want to not pass it in
-				// var config = {};
-				// var authHeaders = [];
-				//
-				// extend(config, this.configuration);
-				// delete config.ws_servers;
-				//
-				// config.sockets = [socket];
-				//
-				// //PASSING USER AUTH
-				//
-				// voxbone.phone = new io.UA(config);
-				//
-				// if (authHeaders.length)
-				// 	voxbone.phone.registrator().setExtraHeaders(authHeaders);
-				//
-				// voxbone.phone.on('connected', function(e) {
-				// 	voxbone.customEventHandler.connected(e);
-				// 	voxbone.Logger.loginfo("connected to websocket");
-				// });
-				//
-				// voxbone.phone.on('registered', function(e) {
-				// 	voxbone.customEventHandler.registered(e);
-				// });
-				//
-				// voxbone.phone.on('newRTCSession', function(data) {
-				// 	//we have a new call so ask our onCall function if we want to accept it
-				// 	if (data.originator === 'remote') {
-				//
-				// 		voxbone.rtcSession = data.session;
-				// 		var options = voxbone.getOptions();
-				//
-				// 		Object.keys(options.eventHandlers).forEach(function(eventName) {
-				// 			data.session.on(eventName, options.eventHandlers[eventName]);
-				// 		});
-				//
-				// 		data.session.on('connecting', function(e) {
-				// 			voxbone.customEventHandler.getUserMediaAccepted(e);
-				// 		});
-				//
-				// 		var handleCall = function (continueCall) {
-				// 			if (continueCall) {
-				// 				data.session.answer({
-				// 					'extraHeaders': options.extraHeaders,
-				// 					'pcConfig': options.pcConfig,
-				// 					'mediaConstraints': options.mediaConstraints
-				// 				});
-				// 			} else {
-				// 				data.session.terminate();
-				// 			}
-				// 		};
-				//
-				// 		voxbone.onCall(data, handleCall);
-				// 	}
-				// });
-				//
-				// voxbone.phone.start();
+
 				//HARDCODED REGISTRATION!
 				var details = {uri: "sip:7501@ast.voxboneworkshop.com",authorization_user: voxbone.WebRTC.authorization_user, secret: "1234", auth: "plain"};
 
@@ -3118,57 +3058,22 @@ function initAll(voxbone, adapter) {
 							callback(err, res);
 
 							that.on('incomingcall', function(caller, allowvideo) {
-								  // console.log('-----------------------------------');
-								  // console.log(data);
-									//we have a new call so ask our onCall function if we want to accept it
-									// if (data.originator === 'remote') {
 
-										// voxbone.rtcSession = data.session;
-										// var options = voxbone.WebRTC.getOptions();
-										//
-										// Object.keys(options.eventHandlers).forEach(function(eventName) {
-										// 	data.session.on(eventName, options.eventHandlers[eventName]);
-										// });
-										//
-										// data.session.on('connecting', function(e) {
-										// 	voxbone.WebRTC.customEventHandler.getUserMediaAccepted(e);
-										// });
-										//
-										// var handleCall = function (continueCall) {
-										// 	if (continueCall) {
-										// 		data.session.answer({
-										// 			'extraHeaders': options.extraHeaders,
-										// 			'pcConfig': options.pcConfig,
-										// 			'mediaConstraints': options.mediaConstraints
-										// 		});
-										// 	} else {
-										// 		data.session.terminate();
-										// 	}
-										// };
-
-										voxbone.WebRTC.onCall(caller, function (continueCall) {
-												if (continueCall) {
-													// Accept a call (will result in a 200 OK)
-													that.acceptCall(allowvideo, function(err) {
-														if (err) {
-															voxbone.Logger.logerror(err);
-															cleanup();
-															return;
-														}
-													});
-												} else {
-													voxbone.hangup();
+								voxbone.WebRTC.onCall(caller, function (continueCall) {
+										if (continueCall) {
+											// Accept a call (will result in a 200 OK)
+											that.acceptCall(allowvideo, function(err) {
+												if (err) {
+													voxbone.Logger.logerror(err);
+													cleanup();
+													return;
 												}
-									  });
-								//voxbone.WebRTC.onCall(data);
-								// Accept a call (will result in a 200 OK)
-								// that.acceptCall(voxbone.WebRTC.allowVideo, function(err) {
-								// 	if (err) {
-								// 		voxbone.Logger.logerror(err);
-								// 		cleanup();
-								// 		return;
-								// 	}
-								// });
+											});
+										} else {
+											voxbone.hangup();
+										}
+
+							  });
 							});
 						});
 					});
