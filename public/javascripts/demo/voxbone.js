@@ -2222,25 +2222,27 @@ requirejs.config({
 		callstats: "//cdn.voxbone.com/lib/callstats-3.17.10.min",
 		io: [
 			"//cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io"
-		]
+		],
+		adapter: "//cdnjs.cloudflare.com/ajax/libs/adapterjs/0.14.3/adapter.min"
 	}
 });
 
 requirejs([
 	'io',
-	'callstats'
-], function(_IO, callstats) {
+	'callstats',
+	'adapter'
+], function(_IO, callstats, adapter) {
 	configIO(_IO);
 	io = _IO;
 	//frontend = io('https://janus.click2vox.io:9011/');
-
+	initAll(voxbone,adapter);
 	voxbone.WebRTC.callStats = callstats;
 });
 
 // // voxbone = new voxbone(io) || {};
-initAll(voxbone);
+
 // // VoxBone demo object
-function initAll(voxbone) {
+function initAll(voxbone, adapter) {
 
 	var that = this;
 	var wrapper = null;
@@ -2624,20 +2626,23 @@ function initAll(voxbone) {
 					setTimeout(this.customEventHandler.authExpired, timeout * 750);
 				}
 
-				var callstats_credentials = data.callStatsCredentials;
-
-				var csInitCallback = function(csError, csMsg) {
-					voxbone.Logger.loginfo("callStats Status: errCode = " + csError + " Msg = " + csMsg);
-				};
-				var localUserId = ((data.username).split(":"))[1];
-				//voxbone.WebRTC.callStats.initialize(callstats_credentials.appId, callstats_credentials.appSecret, localUserId, csInitCallback, null, null);
+				// var callstats_credentials = data.callStatsCredentials;
+				//
+				// var csInitCallback = function(csError, csMsg) {
+				// 	voxbone.Logger.loginfo("callStats Status: errCode = " + csError + " Msg = " + csMsg);
+				// };
+				// var localUserId = ((data.username).split(":"))[1];
+				// voxbone.WebRTC.callStats.initialize(callstats_credentials.appId, callstats_credentials.appSecret, localUserId, csInitCallback, null, null);
 
 				if (this.onCall instanceof Function && !this.phone) {
 					this.inboundCalling = true;
 					this.configuration.register = true;
-					this.setupInboundCalling(this.configuration);
+					this.setupInboundCalling(this.configuration, function (err) {
+						if (err) {
+							voxbone.Logger.logerror('Registration failed: ' + err);
+						}
+					});
 				}
-
 				this.customEventHandler.readyToCall();
 			},
 
@@ -2958,26 +2963,26 @@ function initAll(voxbone) {
 							voxbone.customEventHandler.accepted(e);
 						},
 						'addstream': function(e) {
-							voxbone.monitorStreamVolume('local');
-							voxbone.monitorStreamVolume('remote');
+							voxbone.WebRTC.monitorStreamVolume('local');
+							voxbone.WebRTC.monitorStreamVolume('remote');
 
-							if (voxbone.allowVideo) {
-								voxbone.initVideoElement(voxbone.videoComponentName, e.stream);
+							if (voxbone.WebRTC.allowVideo) {
+								voxbone.initVideoElement(voxbone.WebRTC.videoComponentName, e.stream);
 							} else {
-								voxbone.initAudioElement(voxbone.audioComponentName, e.stream);
+								voxbone.initAudioElement(voxbone.WebRTC.audioComponentName, e.stream);
 							}
 						},
 						'confirmed': function(e) {
 							//Check if the customer has configured any dialer string, use that to bypass IVRs
-							if (voxbone.configuration.dialer_string !== undefined && voxbone.configuration.dialer_string.length > 0) {
-								var digitsPending = voxbone.configuration.dialer_string.split(',');
-								voxbone.sendPreConfiguredDtmf(digitsPending);
+							if (voxbone.WebRTC.configuration.dialer_string !== undefined && voxbone.WebRTC.configuration.dialer_string.length > 0) {
+								var digitsPending = voxbone.WebRTC.configuration.dialer_string.split(',');
+								voxbone.WebRTC.sendPreConfiguredDtmf(digitsPending);
 							}
 						},
 						'ended': function(e) {
-							//voxbone.postLogsToServer();
-							voxbone.cleanUp();
-							voxbone.customEventHandler.ended(e);
+							//voxbone.WebRTC.postLogsToServer();
+							voxbone.WebRTC.cleanUp();
+							voxbone.WebRTC.customEventHandler.ended(e);
 						}
 					},
 					'extraHeaders': [],
@@ -3076,7 +3081,7 @@ function initAll(voxbone) {
 				//
 				// voxbone.phone.start();
 				//HARDCODED REGISTRATION!
-				var details = {uri: "sip:7500@ast.voxboneworkshop.com",authorization_user: voxbone.WebRTC.authorization_user, secret: "1234", auth: "plain"};
+				var details = {uri: "sip:7501@ast.voxboneworkshop.com",authorization_user: voxbone.WebRTC.authorization_user, secret: "1234", auth: "plain"};
 
 				// Registering an account
 				callback = (typeof callback == "function") ? callback : voxbone.noop;
@@ -3112,9 +3117,58 @@ function initAll(voxbone) {
 								that.unregisterWrapper();
 							callback(err, res);
 
-							that.on('incomingcall', function(e) {
+							that.on('incomingcall', function(caller, allowvideo) {
+								  // console.log('-----------------------------------');
+								  // console.log(data);
+									//we have a new call so ask our onCall function if we want to accept it
+									// if (data.originator === 'remote') {
+
+										// voxbone.rtcSession = data.session;
+										// var options = voxbone.WebRTC.getOptions();
+										//
+										// Object.keys(options.eventHandlers).forEach(function(eventName) {
+										// 	data.session.on(eventName, options.eventHandlers[eventName]);
+										// });
+										//
+										// data.session.on('connecting', function(e) {
+										// 	voxbone.WebRTC.customEventHandler.getUserMediaAccepted(e);
+										// });
+										//
+										// var handleCall = function (continueCall) {
+										// 	if (continueCall) {
+										// 		data.session.answer({
+										// 			'extraHeaders': options.extraHeaders,
+										// 			'pcConfig': options.pcConfig,
+										// 			'mediaConstraints': options.mediaConstraints
+										// 		});
+										// 	} else {
+										// 		data.session.terminate();
+										// 	}
+										// };
+
+										voxbone.WebRTC.onCall(caller, function (continueCall) {
+												if (continueCall) {
+													// Accept a call (will result in a 200 OK)
+													that.acceptCall(allowvideo, function(err) {
+														if (err) {
+															voxbone.Logger.logerror(err);
+															cleanup();
+															return;
+														}
+													});
+												} else {
+													voxbone.hangup();
+												}
+									  });
+								//voxbone.WebRTC.onCall(data);
 								// Accept a call (will result in a 200 OK)
-								that.acceptCall(voxbone.WebRTC.allowVideo, callback);
+								// that.acceptCall(voxbone.WebRTC.allowVideo, function(err) {
+								// 	if (err) {
+								// 		voxbone.Logger.logerror(err);
+								// 		cleanup();
+								// 		return;
+								// 	}
+								// });
 							});
 						});
 					});
@@ -3181,7 +3235,7 @@ function initAll(voxbone) {
 
 				//hardcoded for test
 				var destPhone = 'sip:agonza1@sip.linphone.org';
-				voxbone.WebRTC.configuration.uri = 'sip:7500@ast.voxboneworkshop.com';
+				voxbone.WebRTC.configuration.uri = 'sip:7501@ast.voxboneworkshop.com';
 				voxbone.WebRTC.configuration.secret = '1234';
 				voxbone.WebRTC.configuration.display = 'click2vox DEV';
 				that.getWrapper(function(err, res) {
@@ -3235,7 +3289,7 @@ function initAll(voxbone) {
 									previewCB(stream);
 									// Create offer
 									var mediaConstraints = null;
-									if (window.navigator.mozGetUserMedia || window.navigator.userAgent.indexOf("Edge") > -1) {
+									if (adapter.browserDetails.browser == "firefox" || adapter.browserDetails.browser == "edge") {
 										mediaConstraints = {
 											'offerToReceiveAudio': true,
 											'offerToReceiveVideo': allowVideo

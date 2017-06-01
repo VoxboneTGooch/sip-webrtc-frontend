@@ -156,9 +156,8 @@ define([
         voxbone.WebRTC.webrtcLogs += JSON.stringify(call);
         voxbone.WebRTC.basicAuthInit(config.vox_username, config.vox_password);
 
-        voxbone.WebRTC.onCall = function (data, cb) {
+        voxbone.WebRTC.onCall = function (callee, cb) {
 
-          var callee = data.request.from.display_name;
           setState('receiving', callee);
           audio.play();
 
