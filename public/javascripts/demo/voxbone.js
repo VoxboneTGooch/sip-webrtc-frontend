@@ -2267,7 +2267,7 @@ function initAll(voxbone, adapter) {
 			var chromever = adapter.browserDetails.version;
 			if(chromever >= 43) {
 				element.srcObject = stream;
-			} else if(typeof to.src !== 'undefined') {
+			} else if(typeof element.src !== 'undefined') {
 				element.src = URL.createObjectURL(stream);
 			} else {
 				console.error("Error attaching stream to element");
@@ -2849,7 +2849,7 @@ function initAll(voxbone, adapter) {
 				var audioScriptProcessorName = (type === 'local' ? 'localAudioScriptProcessor' : 'remoteAudioScriptProcessor');
 
 				var streams = voxbone.WebRTC.rtcSession.connection[getStreamFunctionName]();
-				voxbone.Logger.loginfo("streams " + streams.length);
+				voxbone.WebRTC.Logger.loginfo("streams " + streams.length);
 				for (var i = 0; i < streams.length; i++) {
 					if (streams[i].getAudioTracks().length > 0) {
 						/*activate the local volume monitoring*/
@@ -2899,12 +2899,12 @@ function initAll(voxbone, adapter) {
 							voxbone.callStats.addNewFabric(pc, remoteUserId, voxbone.callStats.fabricUsage.audio, voxbone.callid, null);
 						},
 						'progress': function(e) {
-							voxbone.customEventHandler.progress(e);
+							voxbone.WebRTC.customEventHandler.progress(e);
 						},
 						'failed': function(e) {
 							var pcObject;
-							var conferenceID = voxbone.callid;
-							var callStats = voxbone.callStats;
+							var conferenceID = voxbone.WebRTC.callid;
+							var callStats = voxbone.WebRTC.callStats;
 							voxbone.Logger.logerror("Call (" + conferenceID + ") failed. Cause: " + e.cause);
 
 							if (typeof voxbone.WebRTC.rtcSession.connection !== 'undefined' && voxbone.rtcSession.connection)
@@ -2954,22 +2954,22 @@ function initAll(voxbone, adapter) {
 
 							//voxbone.postLogsToServer();
 							voxbone.cleanUp();
-							voxbone.customEventHandler.failed(e);
+							voxbone.WebRTC.customEventHandler.failed(e);
 						},
 						'accepted': function(e) {
-							if (!voxbone.inboundCalling)
-							  voxbone.rtcSession = e.sender;
+							// if (!voxbone.WebRTC.inboundCalling)
+							//   voxbone.WebRTC.rtcSession = e.sender;
 
-							voxbone.customEventHandler.accepted(e);
+							voxbone.WebRTC.customEventHandler.accepted(e);
 						},
 						'addstream': function(e) {
 							voxbone.WebRTC.monitorStreamVolume('local');
 							voxbone.WebRTC.monitorStreamVolume('remote');
 
 							if (voxbone.WebRTC.allowVideo) {
-								voxbone.initVideoElement(voxbone.WebRTC.videoComponentName, e.stream);
+								voxbone.WebRTC.initVideoElement(voxbone.WebRTC.videoComponentName, e.stream);
 							} else {
-								voxbone.initAudioElement(voxbone.WebRTC.audioComponentName, e.stream);
+								voxbone.WebRTC.initAudioElement(voxbone.WebRTC.audioComponentName, e.stream);
 							}
 						},
 						'confirmed': function(e) {
@@ -3647,8 +3647,16 @@ function initAll(voxbone, adapter) {
 		pc = new RTCPeerConnection(pc_config, pc_constraints);
 		// We use this PeerConnection both to send AND receive
 		pc.onaddstream = function(remoteStream) {
+
+			// var player = new Audio();
+			// attachMediaStream(player, remoteStream);
+			// player.play();
+			// var e = new Audio();
+			// voxbone.attachMediaStream(e, remoteStream);
+
 			var streamCB = (typeof that.callbacks["stream"] == "function") ? that.callbacks["stream"] : voxbone.noop;
 			streamCB(remoteStream.stream);
+
 		};
 		pc.onicecandidate = function(event) {
 			// Trickle candidate (or the end of the gathering process)
@@ -3695,7 +3703,7 @@ function initAll(voxbone, adapter) {
 			previewCB(stream);
 			// Create offer
 			var mediaConstraints = null;
-			if(window.navigator.mozGetUserMedia || window.navigator.userAgent.indexOf("Edge") > -1) {
+			if(adapter.browserDetails.browser == "firefox" || adapter.browserDetails.browser == "edge") {
 				mediaConstraints = {
 					'offerToReceiveAudio': true,
 					'offerToReceiveVideo': allowVideo
