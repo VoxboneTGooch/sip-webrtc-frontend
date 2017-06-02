@@ -2234,14 +2234,11 @@ requirejs([
 ], function(_IO, callstats, adapter) {
 	configIO(_IO);
 	io = _IO;
-	//frontend = io('https://janus.click2vox.io:9011/');
 	initAll(voxbone,adapter);
 	voxbone.WebRTC.callStats = callstats;
 });
 
-// // voxbone = new voxbone(io) || {};
-
-// // VoxBone demo object
+//initialize voxbone.js
 function initAll(voxbone, adapter) {
 
 	var that = this;
@@ -2253,9 +2250,6 @@ function initAll(voxbone, adapter) {
 	var dtmfSender = null;
 	var sdpSent = false;
 	var iceServers = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
-	//var test = io.connect('https://janus.click2vox.io:9011/');
-  // Connections to frontend server
-	//var frontend = io.connect('https://janus.click2vox.io:9011/');
   // Helper method to check whether WebRTC is supported by this browser
 	voxbone.isWebrtcSupported = function() {
 		return window.RTCPeerConnection && navigator.getUserMedia;
@@ -2587,18 +2581,6 @@ function initAll(voxbone, adapter) {
 				voxbone.Request.jsonp(this.basicAuthServerURL, data);
 			},
 
-			/**
-			 * Calculates the number of seconds until the current WebRTC token expires
-			 *
-			 * @returns time until expration in seconds
-			 */
-
-			getAuthExpiration: function(data) {
-				var now = Math.floor((new Date()).getTime() / 1000);
-				var fields = this.configuration.authorization_user.split(/:/);
-				return fields[0] - now;
-			},
-
 			processAuthData: function(data) {
 
 				console.log(data);
@@ -2628,8 +2610,8 @@ function initAll(voxbone, adapter) {
 					setTimeout(this.customEventHandler.authExpired, timeout * 750);
 				}
 
-				// var callstats_credentials = data.callStatsCredentials;
-				//
+				var callstats_credentials = data.callStatsCredentials;
+
 				// var csInitCallback = function(csError, csMsg) {
 				// 	voxbone.Logger.loginfo("callStats Status: errCode = " + csError + " Msg = " + csMsg);
 				// };
@@ -2845,14 +2827,15 @@ function initAll(voxbone, adapter) {
 				console.log('monitoring volume on ', type);
 
 				// console.log(voxbone.WebRTC.rtcSession.connection);
-				//var getStreamFunctionName = (type === 'local' ? voxbone.WebRTC.rtcSession.localStream : voxbone.WebRTC.rtcSession.connection.remoteStream);
+				//var getStreamFunctionName = (type === 'local' ? myStream : voxbone.WebRTC.rtcSession.remoteStream);
 				var volumeLocationName = (type === 'local' ? 'localVolume' : 'remoteVolume');
 				var volumeLocationTimerName = (type === 'local' ? 'localVolumeTimer' : 'remoteVolumeTimer');
 				var customEventName = (type === 'local' ? 'localMediaVolume' : 'remoteMediaVolume');
 				var audioScriptProcessorName = (type === 'local' ? 'localAudioScriptProcessor' : 'remoteAudioScriptProcessor');
 
-				var streams = stream;
-				console.log(streams);
+				var streams = [];
+				streams.push(stream);
+				voxbone.Logger.loginfo(streams);
 				voxbone.Logger.loginfo("streams " + streams.length);
 				for (var i = 0; i < streams.length; i++) {
 					if (streams[i].getAudioTracks().length > 0) {
@@ -3207,7 +3190,6 @@ function initAll(voxbone, adapter) {
 									pc.addStream(stream);
 									var previewCB = (typeof that.callbacks["preview"] == "function") ? that.callbacks["preview"] : voxbone.noop;
 									previewCB(stream);
-									newRTCSession.call(this, 'local', stream);
 									// Create offer
 									var mediaConstraints = null;
 									if (adapter.browserDetails.browser == "firefox" || adapter.browserDetails.browser == "edge") {
@@ -3662,19 +3644,11 @@ function initAll(voxbone, adapter) {
 		};
 		pc = new RTCPeerConnection(pc_config, pc_constraints);
 		// We use this PeerConnection both to send AND receive
+		console.log(pc);
 		pc.onaddstream = function(remoteStream) {
-
-			// var player = new Audio();
-			// attachMediaStream(player, remoteStream);
-			// player.play();
-			// var e = new Audio();
-			// voxbone.attachMediaStream(e, remoteStream);
-
 			var streamCB = (typeof that.callbacks["stream"] == "function") ? that.callbacks["stream"] : voxbone.noop;
 			streamCB(remoteStream.stream);
-			newRTCSession.call(this, 'remote', remoteStream);
-
-			// voxbone.WebRTC.rtcSession.connection.remoteStream = remoteStream;
+			voxbone.WebRTC.rtcSession.remoteStream = remoteStream;
 
 		};
 		pc.onicecandidate = function(event) {
@@ -3963,19 +3937,6 @@ function initAll(voxbone, adapter) {
 			randomString += charSet.substring(randomPoz,randomPoz+1);
 		}
 		return randomString;
-	}
-
-
-
-
-	function newRTCSession(originator, request) {
-		voxbone.Logger.loginfo('newRTCSession()');
-		//
-		// voxbone.WebRTC.rtcSession = new newRTCSession({
-		// 	originator: originator,
-		// 	session: this,
-		// 	request: request
-		// });
 	}
 
 };
