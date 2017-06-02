@@ -3075,6 +3075,10 @@ function initAll(voxbone, adapter) {
 
 							  });
 							});
+
+							that.on('stream', function(stream) {
+								self.emit('addstream', { stream: stream });
+							});
 						});
 					});
 				});
