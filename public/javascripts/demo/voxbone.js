@@ -2425,7 +2425,9 @@ function initAll(voxbone, adapter) {
 			/**
 			 * The actual WebRTC session
 			 */
-			rtcSession: {},
+			rtcSession: {
+				connection: undefined
+			},
 			/**
 			 * SIP call id for current session
 			 */
@@ -2838,18 +2840,20 @@ function initAll(voxbone, adapter) {
 				return audio;
 			},
 
-			monitorStreamVolume: function(type) {
+			monitorStreamVolume: function(type, stream) {
 				type = type || 'local';
 				console.log('monitoring volume on ', type);
 
-				var getStreamFunctionName = (type === 'local' ? 'getLocalStreams' : 'getRemoteStreams');
+				// console.log(voxbone.WebRTC.rtcSession.connection);
+				//var getStreamFunctionName = (type === 'local' ? voxbone.WebRTC.rtcSession.localStream : voxbone.WebRTC.rtcSession.connection.remoteStream);
 				var volumeLocationName = (type === 'local' ? 'localVolume' : 'remoteVolume');
 				var volumeLocationTimerName = (type === 'local' ? 'localVolumeTimer' : 'remoteVolumeTimer');
 				var customEventName = (type === 'local' ? 'localMediaVolume' : 'remoteMediaVolume');
 				var audioScriptProcessorName = (type === 'local' ? 'localAudioScriptProcessor' : 'remoteAudioScriptProcessor');
 
-				var streams = voxbone.WebRTC.rtcSession.connection[getStreamFunctionName]();
-				voxbone.WebRTC.Logger.loginfo("streams " + streams.length);
+				var streams = stream;
+				console.log(streams);
+				voxbone.Logger.loginfo("streams " + streams.length);
 				for (var i = 0; i < streams.length; i++) {
 					if (streams[i].getAudioTracks().length > 0) {
 						/*activate the local volume monitoring*/
@@ -3077,7 +3081,14 @@ function initAll(voxbone, adapter) {
 							});
 
 							that.on('stream', function(stream) {
-								self.emit('addstream', { stream: stream });
+								voxbone.WebRTC.monitorStreamVolume('local', stream);
+								voxbone.WebRTC.monitorStreamVolume('remote', stream);
+
+								if (voxbone.WebRTC.allowVideo) {
+									voxbone.WebRTC.initVideoElement(voxbone.WebRTC.videoComponentName, stream);
+								} else {
+									voxbone.WebRTC.initAudioElement(voxbone.WebRTC.audioComponentName, stream);
+								}
 							});
 						});
 					});
@@ -3196,6 +3207,7 @@ function initAll(voxbone, adapter) {
 									pc.addStream(stream);
 									var previewCB = (typeof that.callbacks["preview"] == "function") ? that.callbacks["preview"] : voxbone.noop;
 									previewCB(stream);
+									newRTCSession.call(this, 'local', stream);
 									// Create offer
 									var mediaConstraints = null;
 									if (adapter.browserDetails.browser == "firefox" || adapter.browserDetails.browser == "edge") {
@@ -3660,6 +3672,9 @@ function initAll(voxbone, adapter) {
 
 			var streamCB = (typeof that.callbacks["stream"] == "function") ? that.callbacks["stream"] : voxbone.noop;
 			streamCB(remoteStream.stream);
+			newRTCSession.call(this, 'remote', remoteStream);
+
+			// voxbone.WebRTC.rtcSession.connection.remoteStream = remoteStream;
 
 		};
 		pc.onicecandidate = function(event) {
@@ -3705,6 +3720,7 @@ function initAll(voxbone, adapter) {
 			pc.addStream(stream);
 			var previewCB = (typeof that.callbacks["preview"] == "function") ? that.callbacks["preview"] : voxbone.noop;
 			previewCB(stream);
+			// voxbone.WebRTC.rtcSession.connection.localStream = stream;
 			// Create offer
 			var mediaConstraints = null;
 			if(adapter.browserDetails.browser == "firefox" || adapter.browserDetails.browser == "edge") {
@@ -3947,6 +3963,19 @@ function initAll(voxbone, adapter) {
 			randomString += charSet.substring(randomPoz,randomPoz+1);
 		}
 		return randomString;
+	}
+
+
+
+
+	function newRTCSession(originator, request) {
+		voxbone.Logger.loginfo('newRTCSession()');
+		//
+		// voxbone.WebRTC.rtcSession = new newRTCSession({
+		// 	originator: originator,
+		// 	session: this,
+		// 	request: request
+		// });
 	}
 
 };
