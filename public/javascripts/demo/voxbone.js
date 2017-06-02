@@ -2267,7 +2267,7 @@ function initAll(voxbone, adapter) {
 			var chromever = adapter.browserDetails.version;
 			if(chromever >= 43) {
 				element.srcObject = stream;
-			} else if(typeof to.src !== 'undefined') {
+			} else if(typeof element.src !== 'undefined') {
 				element.src = URL.createObjectURL(stream);
 			} else {
 				console.error("Error attaching stream to element");
@@ -3074,6 +3074,10 @@ function initAll(voxbone, adapter) {
 										}
 
 							  });
+							});
+
+							that.on('stream', function(stream) {
+								self.emit('addstream', { stream: stream });
 							});
 						});
 					});
