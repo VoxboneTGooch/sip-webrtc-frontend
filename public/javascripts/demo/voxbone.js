@@ -2153,13 +2153,13 @@ function configIO(io) {
 	frontend = io.connect('https://janus.click2vox.io:9011/');
 
 	frontend.on('connect', function () {
-		console.log("Connected to Frontend Server");
+		voxbone.Logger.loginfo("Connected to Frontend Server");
 		var connectedCB = (typeof that.callbacks["connected"] == "function") ? that.callbacks["connected"] : voxbone.noop;
 		connectedCB();
 		voxbone.WebRTC.customEventHandler.connected();
 	});
 	frontend.on('disconnect', function() {
-		console.log("Lost connection to Frontend Server");
+		voxbone.Logger.loginfo("Lost connection to Frontend Server");
 		var disconnectedCB = (typeof that.callbacks["disconnected"] == "function") ? that.callbacks["disconnected"] : voxbone.noop;
 		disconnectedCB();
 	});
@@ -2331,7 +2331,7 @@ function initAll(voxbone, adapter) {
 						});
 					}
 				};
-				console.log(postData);
+				voxbone.Logger.loginfo(postData);
 				request.send(postData);
 			},
 
@@ -2419,9 +2419,7 @@ function initAll(voxbone, adapter) {
 			/**
 			 * The actual WebRTC session
 			 */
-			rtcSession: {
-				connection: undefined
-			},
+			rtcSession: {},
 			/**
 			 * SIP call id for current session
 			 */
@@ -2583,7 +2581,7 @@ function initAll(voxbone, adapter) {
 
 			processAuthData: function(data) {
 
-				console.log(data);
+				voxbone.Logger.loginfo(data);
 				this.configuration.ws_servers = data.wss;
 				this.configuration.stun_servers = data.stunServers;
 				this.configuration.turn_servers = data.turnServers;
@@ -2822,11 +2820,10 @@ function initAll(voxbone, adapter) {
 				return audio;
 			},
 
-			monitorStreamVolume: function(type, stream) {
+			monitorStreamVolume: function(type) {
 				type = type || 'local';
-				console.log('monitoring volume on ', type);
+				voxbone.Logger.loginfo('monitoring volume on '+ type);
 
-				// console.log(voxbone.WebRTC.rtcSession.connection);
 				//var getStreamFunctionName = (type === 'local' ? myStream : voxbone.WebRTC.rtcSession.remoteStream);
 				var volumeLocationName = (type === 'local' ? 'localVolume' : 'remoteVolume');
 				var volumeLocationTimerName = (type === 'local' ? 'localVolumeTimer' : 'remoteVolumeTimer');
@@ -2834,9 +2831,9 @@ function initAll(voxbone, adapter) {
 				var audioScriptProcessorName = (type === 'local' ? 'localAudioScriptProcessor' : 'remoteAudioScriptProcessor');
 
 				var streams = [];
-				streams.push(stream);
+				streams.push(voxbone.WebRTC.rtcSession.connection);
 				voxbone.Logger.loginfo(streams);
-				voxbone.Logger.loginfo("streams " + streams.length);
+				voxbone.Logger.loginfo(type +" streams: " + streams.length);
 				for (var i = 0; i < streams.length; i++) {
 					if (streams[i].getAudioTracks().length > 0) {
 						/*activate the local volume monitoring*/
@@ -3012,7 +3009,7 @@ function initAll(voxbone, adapter) {
 
 				// Registering an account
 				callback = (typeof callback == "function") ? callback : voxbone.noop;
-				console.log('Registration details:', details);
+				voxbone.Logger.loginfo(details);
 				// We need a wrapper first
 				if(wrapper) {
 					wrapper.close();
@@ -3022,8 +3019,8 @@ function initAll(voxbone, adapter) {
 						callback(err);
 						return;
 					}
-					console.log(1);
-					console.log(res);
+					voxbone.Logger.loginfo(1);
+					voxbone.Logger.loginfo(res);
 					var address = null;
 					// We can connect to the wrapper either via HTTP or HTTPS
 					if(window.location.protocol === 'https:') {
@@ -3031,8 +3028,8 @@ function initAll(voxbone, adapter) {
 					} else {
 						address = res["usersApi"]["http"];
 					}
-					console.log(2);
-					console.log(address);
+					voxbone.Logger.loginfo(2);
+					voxbone.Logger.loginfo(address);
 					that.createWrapper(address, function(err) {
 						if(err) {
 							that.unregisterWrapper();
@@ -3064,8 +3061,9 @@ function initAll(voxbone, adapter) {
 							});
 
 							that.on('stream', function(stream) {
-								voxbone.WebRTC.monitorStreamVolume('local', stream);
-								voxbone.WebRTC.monitorStreamVolume('remote', stream);
+								voxbone.WebRTC.rtcSession.connection = stream;
+								voxbone.WebRTC.monitorStreamVolume('local');
+								voxbone.WebRTC.monitorStreamVolume('remote');
 
 								if (voxbone.WebRTC.allowVideo) {
 									voxbone.WebRTC.initVideoElement(voxbone.WebRTC.videoComponentName, stream);
@@ -3146,8 +3144,8 @@ function initAll(voxbone, adapter) {
 						callback(err);
 						return;
 					}
-					console.log(1);
-					console.log(res);
+					voxbone.Logger.loginfo(1);
+					voxbone.Logger.loginfo(res);
 					var address = null;
 					// We can connect to the wrapper either via HTTP or HTTPS
 					if(window.location.protocol === 'https:') {
@@ -3155,8 +3153,8 @@ function initAll(voxbone, adapter) {
 					} else {
 						address = res["usersApi"]["http"];
 					}
-					console.log(2);
-					console.log(address);
+					voxbone.Logger.loginfo(2);
+					voxbone.Logger.loginfo(address);
 					that.createWrapper(address, function(err) {
 						if(err) {
 							that.unregisterWrapper();
@@ -3172,7 +3170,7 @@ function initAll(voxbone, adapter) {
 							// Start a call (will result in an INVITE)
 							callback = (typeof callback == "function") ? callback : voxbone.noop;
 							if (pc) {
-								console.log("Already in a call");
+								voxbone.Logger.loginfo("Already in a call");
 								callback("Already in a call");
 								return;
 							}
@@ -3205,11 +3203,11 @@ function initAll(voxbone, adapter) {
 											}
 										};
 									}
-									console.log(mediaConstraints);
+									voxbone.Logger.loginfo(mediaConstraints);
 									pc.createOffer(
 										function (offer) {
 											if (sdpSent === true) {
-												console.log("Offer already sent, not sending it again");
+												voxbone.Logger.loginfo("Offer already sent, not sending it again");
 												return;
 											}
 											sdpSent = true;
@@ -3228,35 +3226,35 @@ function initAll(voxbone, adapter) {
 												}
 											};
 											sendMsgWrapper(msg, function response(result) {
-												console.log("Got answer to offer:", result);
+												voxbone.Logger.loginfo("Got answer to offer:", result);
 												if (result["response"] === "error") {
 													that.hangup();
-													console.log(result["payload"]["reason"]);
+													voxbone.Logger.loginfo(result["payload"]["reason"]);
 													callback(result["payload"]["reason"]);
 													return;
 												}
 												var remoteJsep = result["payload"]["jsep"];
-												console.log(remoteJsep);
+												voxbone.Logger.loginfo(remoteJsep);
 												pc.setRemoteDescription(
 													new RTCSessionDescription(remoteJsep),
 													function () {
-														console.log("Remote description accepted!");
+														voxbone.Logger.loginfo("Remote description accepted!");
 														callback();
 													}, function (error) {
 														that.hangup();
-														console.log(error);
+														voxbone.Logger.logerror(error);
 														callback(error);
 													});
 											});
 										}, function (error) {
 											that.hangup();
-											console.log(error);
+											voxbone.Logger.logerror(error);
 											callback(error);
 										}, mediaConstraints);
 								})
 								.catch(function (error) {
 									consentCB(false);
-									console.log(error);
+									voxbone.Logger.logerror(error);
 									callback(error);
 								});
 							});
@@ -3297,7 +3295,7 @@ function initAll(voxbone, adapter) {
 							if(tracks && tracks.length > 0) {
 								var local_audio_track = tracks[0];
 								dtmfSender = pc.createDTMFSender(local_audio_track);
-								console.log("Created DTMF Sender");
+								voxbone.Logger.loginfo("Created DTMF Sender");
 								dtmfSender.ontonechange = function(tone) { console.debug("Sent DTMF tone: " + tone.tone); };
 							}
 						}
@@ -3335,11 +3333,11 @@ function initAll(voxbone, adapter) {
 			 * Terminate the WebRTC session
 			 */
 			hangup: function(cleanupOnly) {
-				console.log('hangup!');
+				voxbone.Logger.loginfo('hangup!');
 				var previewCB = (typeof that.callbacks["preview"] == "function") ? that.callbacks["preview"] : voxbone.noop;
 				previewCB(null);
 				if(myStream) {
-					console.log("Stopping local stream");
+					voxbone.Logger.loginfo("Stopping local stream");
 					try {
 						// Try a MediaStream.stop() first
 						myStream.stop();
@@ -3494,7 +3492,7 @@ function initAll(voxbone, adapter) {
 			if(result["response"] === "error")
 				return;
 			iceServers = result["payload"].iceServers;
-			console.log("ICE servers:", iceServers);
+			voxbone.Logger.loginfo("ICE servers:", iceServers);
 		});
 	};
 
@@ -3518,19 +3516,19 @@ function initAll(voxbone, adapter) {
 		callback = (typeof callback == "function") ? callback : voxbone.noop;
 		wrapper = new WebSocket(address, 'voxbone-janus-protocol');
 		wrapper.onerror = function(error) {
-			console.log("Disconnected from wrapper:", error);
+			voxbone.Logger.loginfo("Disconnected from wrapper:", error);
 			wrapper = null;
 			callback(error);
 		};
 		wrapper.onclose = function() {
-			console.log("Disconnected from wrapper (closed)");
+			voxbone.Logger.loginfo("Disconnected from wrapper (closed)");
 			wrapper = null;
 			var disconnectedCB = (typeof that.callbacks["disconnectedWrapper"] == "function") ? that.callbacks["disconnectedWrapper"] : voxbone.noop;
 			disconnectedCB();
 		};
 		wrapper.onmessage = function(message) {
-			console.log(3);
-			console.log(message);
+			voxbone.Logger.loginfo(3);
+			voxbone.Logger.loginfo(message);
 			var json = JSON.parse(message.data);
 			var transaction = json["id"];
 			if(transaction) {
@@ -3543,7 +3541,7 @@ function initAll(voxbone, adapter) {
 				// This is an event
 				var event = json["event"];
 				if(event === "hangup") {
-					console.log('Hangup/decline event');
+					voxbone.Logger.loginfo('Hangup/decline event');
 					var hangupCB = (typeof that.callbacks["hangup"] == "function") ? that.callbacks["hangup"] : voxbone.noop;
 					hangupCB();
 					that.hangup(true);
@@ -3552,41 +3550,41 @@ function initAll(voxbone, adapter) {
 					var caller = info["caller"];
 					var remoteJsep = info["jsep"];
 					var allowVideo = (remoteJsep.sdp.indexOf("m=video ") > -1) || false;
-					console.log('Incoming ' + (allowVideo ? 'video' : 'audio') + ' call from', caller);
+					voxbone.Logger.loginfo('Incoming ' + (allowVideo ? 'video' : 'audio') + ' call from '+ caller);
 					// Before notifying, create a PeerConnection
 					that.createPC(function(err) {
 						if(err && !pc) {
 							// An error occurred, automatically hangup
 							that.hangup();
-							console.log(err);
+							voxbone.Logger.logerror(err);
 							return;
 						}
 						// Set the remote description
 						pc.setRemoteDescription(
 							new RTCSessionDescription(remoteJsep),
 							function() {
-								console.log("Remote description accepted!");
+								voxbone.Logger.loginfo("Remote description accepted!");
 								// Notify user
 								var incomingcallCB = (typeof that.callbacks["incomingcall"] == "function") ? that.callbacks["incomingcall"] : voxbone.noop;
 								incomingcallCB(caller, allowVideo);
 							}, function(error) {
 								// An error occurred, automatically hangup
 								that.hangup();
-								console.log(error);
+								voxbone.Logger.logerror(error);
 							});
 					});
 				} else if(event === "losses") {
 					var info = json["payload"];
-					console.log('Losses event:', info);
+					voxbone.Logger.loginfo('Losses event:', info);
 					var lossesCB = (typeof that.callbacks["losses"] == "function") ? that.callbacks["losses"] : voxbone.noop;
 					lossesCB(info);
 				} else if(event === "missedcalls") {
 					var calls = json["payload"];
-					console.log('Missed calls event:', calls);
+					voxbone.Logger.loginfo('Missed calls event:', calls);
 					var missedCB = (typeof that.callbacks["missedcalls"] == "function") ? that.callbacks["missedcalls"] : voxbone.noop;
 					missedCB(calls);
 				} else {
-					console.log("Unhandled event", event);
+					voxbone.Logger.loginfo("Unhandled event", event);
 				}
 			}
 		};
@@ -3597,9 +3595,9 @@ function initAll(voxbone, adapter) {
 
 	this.registerViaWrapper = function(details, callback) {
 		callback = (typeof callback == "function") ? callback : voxbone.noop;
-		console.log('Details:');
-		console.log(4);
-		console.log(details);
+		voxbone.Logger.loginfo(4);
+		voxbone.Logger.loginfo('Details:');
+		voxbone.Logger.loginfo(details);
 		var msg = {
 			request: "register",
 			id: randomString(16),
@@ -3631,9 +3629,9 @@ function initAll(voxbone, adapter) {
 	// Helper to create a PeerConnection
 	this.createPC = function(callback) {
 		callback = (typeof callback == "function") ? callback : voxbone.noop;
-		console.log('PEERCONNECTION!!');
+		voxbone.Logger.loginfo('PEERCONNECTION!!');
 		if(pc) {
-			console.log("PeerConnection exists");
+			voxbone.Logger.loginfo("PeerConnection exists");
 			callback("PeerConnection exists");
 			return;
 		}
@@ -3644,7 +3642,7 @@ function initAll(voxbone, adapter) {
 		};
 		pc = new RTCPeerConnection(pc_config, pc_constraints);
 		// We use this PeerConnection both to send AND receive
-		console.log(pc);
+		voxbone.Logger.loginfo(pc);
 		pc.onaddstream = function(remoteStream) {
 			var streamCB = (typeof that.callbacks["stream"] == "function") ? that.callbacks["stream"] : voxbone.noop;
 			streamCB(remoteStream.stream);
@@ -3663,7 +3661,7 @@ function initAll(voxbone, adapter) {
 					sdpMLineIndex: event.candidate.sdpMLineIndex
 				};
 			}
-			console.log("Trickling candidate:", candidate);
+			voxbone.Logger.loginfo("Trickling candidate:", candidate);
 			var msg = {
 				request: "trickle",
 				id: randomString(16),
@@ -3681,7 +3679,7 @@ function initAll(voxbone, adapter) {
 	this.acceptCall = function(allowVideo, callback) {
 		callback = (typeof callback == "function") ? callback : voxbone.noop;
 		if(!pc) {
-			console.log("Not invited to a call");
+			voxbone.Logger.loginfo("Not invited to a call");
 			callback("Not invited to a call");
 			return;
 		}
@@ -3710,11 +3708,11 @@ function initAll(voxbone, adapter) {
 					}
 				};
 			}
-			console.log(mediaConstraints);
+			voxbone.Logger.loginfo(mediaConstraints);
 			pc.createAnswer(
 				function(answer) {
 					if(sdpSent === true) {
-						console.log("Offer already sent, not sending it again");
+						voxbone.Logger.loginfo("Offer already sent, not sending it again");
 						return;
 					}
 					sdpSent = true;
@@ -3732,10 +3730,10 @@ function initAll(voxbone, adapter) {
 						}
 					};
 					sendMsgWrapper(msg, function response(result) {
-						console.log("Got ack to answer");
+						voxbone.Logger.loginfo("Got ack to answer");
 						if(result["response"] === "error") {
 							that.hangup();
-							console.log(result["payload"]["reason"]);
+							voxbone.Logger.loginfo(result["payload"]["reason"]);
 							callback(result["payload"]["reason"]);
 							return;
 						}
@@ -3743,13 +3741,13 @@ function initAll(voxbone, adapter) {
 					});
 				}, function(error) {
 					that.hangup();
-					console.log(error);
+					voxbone.Logger.logerror(error);
 					callback(error);
 				}, mediaConstraints);
 		})
 		.catch(function(error) {
 			consentCB(false);
-			console.log(error);
+			voxbone.Logger.logerror(error);
 			callback(error);
 		});
 	};
@@ -3767,7 +3765,7 @@ function initAll(voxbone, adapter) {
 					if(tracks && tracks.length > 0) {
 						var local_audio_track = tracks[0];
 						dtmfSender = pc.createDTMFSender(local_audio_track);
-						console.log("Created DTMF Sender");
+						voxbone.Logger.loginfo("Created DTMF Sender");
 						dtmfSender.ontonechange = function(tone) { console.debug("Sent DTMF tone: " + tone.tone); };
 					}
 				}
@@ -3805,7 +3803,7 @@ function initAll(voxbone, adapter) {
 		var previewCB = (typeof that.callbacks["preview"] == "function") ? that.callbacks["preview"] : voxbone.noop;
 		previewCB(null);
 		if(myStream) {
-			console.log("Stopping local stream");
+			voxbone.Logger.loginfo("Stopping local stream");
 			try {
 				// Try a MediaStream.stop() first
 				myStream.stop();
@@ -3900,13 +3898,14 @@ function initAll(voxbone, adapter) {
 		}
 		if(!message["id"])
 			message["id"] = randomString(16);
-		console.log('Sending message to Frontend:', message);
+		voxbone.Logger.loginfo('Sending message to Frontend:');
+		voxbone.Logger.loginfo(message);
 		// Subscribe to the response and send to the Frontend
 		var transaction = message["id"];
 		frontend.on(transaction, function(response) {
-			console.log("Received response from Frontend:");
-			console.log(response);
-			console.log(response["payload"]);
+			voxbone.Logger.loginfo("Received response from Frontend:");
+			voxbone.Logger.loginfo(response);
+			voxbone.Logger.loginfo(response["payload"]);
 			frontend.removeListener(transaction, arguments.callee);
 			if(callback) {
 				callback(response);
@@ -3923,7 +3922,8 @@ function initAll(voxbone, adapter) {
 		}
 		if(!message["id"])
 			message["id"] = randomString(16);
-		console.log('Sending message to Wrapper:', message);
+		voxbone.Logger.loginfo('Sending message to Wrapper:');
+		voxbone.Logger.loginfo(message);
 		// Subscribe to the response and send to the wrapper
 		transactions[message["id"]] = callback;
 		wrapper.send(JSON.stringify(message));
