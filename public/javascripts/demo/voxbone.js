@@ -2167,7 +2167,7 @@ function configIO(io) {
 	// some overrides
 	io.SESSION_EXPIRES = 3600;
 
-	// first make sure that we enable the verbose mode of io
+	// First make sure that we enable the verbose mode of io
 	// io.debug.enable('io:*');
 
 	// then we monkey patch the debug function to buffer the log messages
@@ -2219,21 +2219,19 @@ function configIO(io) {
 
 requirejs.config({
 	paths: {
-		callstats: "//cdn.voxbone.com/lib/callstats-3.17.10.min",
-		io: [
-			"//cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io"
-		],
-		adapter: "//cdnjs.cloudflare.com/ajax/libs/adapterjs/0.14.3/adapter.min"
+		io: "//cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io",
+		adapter: "//cdnjs.cloudflare.com/ajax/libs/adapterjs/0.14.3/adapter.min",
+		callstats: "//cdn.voxbone.com/lib/callstats-3.17.10.min"
 	}
 });
 
 requirejs([
 	'io',
-	'callstats',
-	'adapter'
-], function(_IO, callstats, adapter) {
-	configIO(_IO);
-	io = _IO;
+	'adapter',
+	'callstats'
+], function(_io, adapter, callstats) {
+	configIO(_io);
+	io = _io;
 	initAll(voxbone,adapter);
 	voxbone.WebRTC.callStats = callstats;
 });
@@ -2243,17 +2241,12 @@ function initAll(voxbone, adapter) {
 
 	var that = this;
 	var wrapper = null;
-
 // WebRTC stuff
 	var myStream = null;
 	var pc = null;
 	var dtmfSender = null;
 	var sdpSent = false;
 	var iceServers = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
-  // Helper method to check whether WebRTC is supported by this browser
-	voxbone.isWebrtcSupported = function() {
-		return window.RTCPeerConnection && navigator.getUserMedia;
-	};
 
 // Helper methods to attach/reattach a stream to a video element (previously part of adapter.js)
 	voxbone.attachMediaStream = function(element, stream) {
@@ -2621,7 +2614,8 @@ function initAll(voxbone, adapter) {
 					this.configuration.register = true;
 					this.setupInboundCalling(this.configuration, function (err) {
 						if (err) {
-							voxbone.Logger.logerror('Registration failed: ' + err);
+							voxbone.Logger.logerror('Registration failed:');
+							voxbone.Logger.logerror(err);
 						}
 					});
 				}
@@ -2937,7 +2931,7 @@ function initAll(voxbone, adapter) {
 							// }
 
 							//voxbone.postLogsToServer();
-							voxbone.cleanUp();
+							voxbone.WebRTC.cleanUp();
 							voxbone.WebRTC.customEventHandler.failed(e);
 						},
 						'accepted': function(e) {
@@ -3005,7 +2999,7 @@ function initAll(voxbone, adapter) {
 			setupInboundCalling: function(details, callback) {
 
 				//HARDCODED REGISTRATION!
-				var details = {uri: "sip:7501@ast.voxboneworkshop.com",authorization_user: voxbone.WebRTC.authorization_user, secret: "1234", auth: "plain"};
+				var details = {uri: "sip:7502@ast.voxboneworkshop.com",authorization_user: voxbone.WebRTC.authorization_user, secret: "1234", auth: "plain"};
 
 				// Registering an account
 				callback = (typeof callback == "function") ? callback : voxbone.noop;
@@ -3041,6 +3035,14 @@ function initAll(voxbone, adapter) {
 								that.unregisterWrapper();
 							callback(err, res);
 
+							that.on('consent', function(accept) {
+								if (accept) {
+									voxbone.WebRTC.customEventHandler.getUserMediaAccepted();
+								} else {
+									voxbone.WebRTC.customEventHandler.getUserMediaFailed();
+								}
+							});
+
 							that.on('incomingcall', function(caller, allowvideo) {
 
 								voxbone.WebRTC.onCall(caller, function (continueCall) {
@@ -3054,7 +3056,7 @@ function initAll(voxbone, adapter) {
 												}
 											});
 										} else {
-											voxbone.hangup();
+											voxbone.WebRTC.hangup();
 										}
 
 							  });
@@ -3136,7 +3138,7 @@ function initAll(voxbone, adapter) {
 
 				//hardcoded for test
 				var destPhone = 'sip:agonza1@sip.linphone.org';
-				voxbone.WebRTC.configuration.uri = 'sip:7501@ast.voxboneworkshop.com';
+				voxbone.WebRTC.configuration.uri = 'sip:7502@ast.voxboneworkshop.com';
 				voxbone.WebRTC.configuration.secret = '1234';
 				voxbone.WebRTC.configuration.display = 'click2vox DEV';
 				that.getWrapper(function(err, res) {
@@ -3183,7 +3185,7 @@ function initAll(voxbone, adapter) {
 								consentCB(true);
 								navigator.mediaDevices.getUserMedia({audio: true, video: allowVideo})
 								.then(function (stream) {
-									consentCB(false);
+									//consentCB(false);
 									myStream = stream;
 									pc.addStream(stream);
 									var previewCB = (typeof that.callbacks["preview"] == "function") ? that.callbacks["preview"] : voxbone.noop;
@@ -3373,6 +3375,8 @@ function initAll(voxbone, adapter) {
 					sendMsgWrapper(msg);
 				}
 				voxbone.WebRTC.customEventHandler.ended('hangup');
+				//line below will make sure that the ringing call ends no matter what
+				voxbone.WebRTC.customEventHandler.failed('hangup');
 			},
 
 			/**
@@ -3629,7 +3633,7 @@ function initAll(voxbone, adapter) {
 	// Helper to create a PeerConnection
 	this.createPC = function(callback) {
 		callback = (typeof callback == "function") ? callback : voxbone.noop;
-		voxbone.Logger.loginfo('PEERCONNECTION!!');
+		voxbone.Logger.loginfo('Creating Peerconnection!');
 		if(pc) {
 			voxbone.Logger.loginfo("PeerConnection exists");
 			callback("PeerConnection exists");
