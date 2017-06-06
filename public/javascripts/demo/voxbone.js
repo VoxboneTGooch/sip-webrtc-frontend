@@ -2145,8 +2145,6 @@ var requirejs, require, define;
 	req(cfg);
 }(this, (typeof setTimeout === 'undefined' ? undefined : setTimeout)));
 
-var io, frontend, voxbone = voxbone || {};
-
 function configIO(io) {
 	voxbone.noop = function() {};
 	var that = this;
@@ -2217,6 +2215,8 @@ function configIO(io) {
 
 }
 
+var io, frontend, adapter, voxbone = voxbone || {};
+
 requirejs.config({
 	paths: {
 		io: "//cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io",
@@ -2229,15 +2229,12 @@ requirejs([
 	'io',
 	'adapter',
 	'callstats'
-], function(_io, adapter, callstats) {
+], function(_io, _adapter, callstats) {
 	configIO(_io);
 	io = _io;
-	initAll(voxbone,adapter);
+	adapter = _adapter;
 	voxbone.WebRTC.callStats = callstats;
 });
-
-//initialize voxbone.js
-function initAll(voxbone, adapter) {
 
 	var that = this;
 	var wrapper = null;
@@ -2412,7 +2409,9 @@ function initAll(voxbone, adapter) {
 			/**
 			 * The actual WebRTC session
 			 */
-			rtcSession: {},
+			rtcSession: {
+				connection : {localStreams : [], remoteStreams : []}
+			},
 			/**
 			 * SIP call id for current session
 			 */
@@ -2818,11 +2817,12 @@ function initAll(voxbone, adapter) {
 				type = type || 'local';
 				voxbone.Logger.loginfo('monitoring volume on '+ type);
 
-				//var getStreamFunctionName = (type === 'local' ? myStream : voxbone.WebRTC.rtcSession.remoteStream);
+				//var getStreamFunctionName = (type === 'local' ? this.myStream : voxbone.WebRTC.rtcSession.remoteStream);
 				var volumeLocationName = (type === 'local' ? 'localVolume' : 'remoteVolume');
 				var volumeLocationTimerName = (type === 'local' ? 'localVolumeTimer' : 'remoteVolumeTimer');
 				var customEventName = (type === 'local' ? 'localMediaVolume' : 'remoteMediaVolume');
 				var audioScriptProcessorName = (type === 'local' ? 'localAudioScriptProcessor' : 'remoteAudioScriptProcessor');
+
 
 				var streams = [];
 				streams.push(voxbone.WebRTC.rtcSession.connection);
@@ -2999,7 +2999,7 @@ function initAll(voxbone, adapter) {
 			setupInboundCalling: function(details, callback) {
 
 				//HARDCODED REGISTRATION!
-				var details = {uri: "sip:7502@ast.voxboneworkshop.com",authorization_user: voxbone.WebRTC.authorization_user, secret: "1234", auth: "plain"};
+				var details = {uri: "sip:7501@ast.voxboneworkshop.com",authorization_user: voxbone.WebRTC.authorization_user, secret: "1234", auth: "plain"};
 
 				// Registering an account
 				callback = (typeof callback == "function") ? callback : voxbone.noop;
@@ -3138,7 +3138,7 @@ function initAll(voxbone, adapter) {
 
 				//hardcoded for test
 				var destPhone = 'sip:agonza1@sip.linphone.org';
-				voxbone.WebRTC.configuration.uri = 'sip:7502@ast.voxboneworkshop.com';
+				voxbone.WebRTC.configuration.uri = 'sip:7501@ast.voxboneworkshop.com';
 				voxbone.WebRTC.configuration.secret = '1234';
 				voxbone.WebRTC.configuration.display = 'click2vox DEV';
 				that.getWrapper(function(err, res) {
@@ -3396,11 +3396,11 @@ function initAll(voxbone, adapter) {
 				var streams;
 
 				if (!source || source !== 'remote') {
-					streams = this.rtcSession.connection.getLocalStreams();
+					streams = this.rtcSession.connection.localStreams;
 					this.isMuted = true;
-					voxbone.WebRTC.callStats.sendFabricEvent(this.rtcSession.connection.pc, voxbone.WebRTC.callStats.fabricEvent.audioMute, voxbone.WebRTC.callid);
+					//voxbone.WebRTC.callStats.sendFabricEvent(voxbone.WebRTC.rtcSession.connection.pc, voxbone.WebRTC.callStats.fabricEvent.audioMute, voxbone.WebRTC.callid);
 				} else {
-					streams = this.rtcSession.connection.getRemoteStreams();
+					streams = this.rtcSession.connection.remoteStreams;
 					this.isRemoteMuted = true;
 				}
 
@@ -3419,11 +3419,11 @@ function initAll(voxbone, adapter) {
 				var streams;
 
 				if (!source || source !== 'remote') {
-					streams = this.rtcSession.connection.getLocalStreams();
+					streams = this.rtcSession.connection.localStreams;
 					this.isMuted = false;
-					voxbone.WebRTC.callStats.sendFabricEvent(this.rtcSession.connection.pc, voxbone.WebRTC.callStats.fabricEvent.audioUnmute, voxbone.WebRTC.callid);
+					//voxbone.WebRTC.callStats.sendFabricEvent(this.rtcSession.connection.pc, voxbone.WebRTC.callStats.fabricEvent.audioUnmute, voxbone.WebRTC.callid);
 				} else {
-					streams = this.rtcSession.connection.getRemoteStreams();
+					streams = this.rtcSession.connection.remoteStreams;
 					this.isRemoteMuted = false;
 				}
 
@@ -3942,5 +3942,3 @@ function initAll(voxbone, adapter) {
 		}
 		return randomString;
 	}
-
-};
