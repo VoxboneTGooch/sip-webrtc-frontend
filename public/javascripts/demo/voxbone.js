@@ -2789,6 +2789,12 @@ requirejs([
 				voxbone.WebRTC.callid = "";
 				voxbone.WebRTC.webrtcLogs = "";
 				voxbone.WebRTC.rtcSession = {};
+				myStream = null;
+				dtmfSender = null;
+				pc = null;
+				sdpSent = false;
+				voxbone.WebRTC.rtcSession.isInProgress = false;
+				voxbone.WebRTC.rtcSession.isEstablished = false;
 
 				if (!voxbone.WebRTC.inboundCalling)
 					delete voxbone.WebRTC.phone;
@@ -2817,7 +2823,7 @@ requirejs([
 				type = type || 'local';
 				voxbone.Logger.loginfo('monitoring volume on '+ type);
 
-				//var getStreamFunctionName = (type === 'local' ? this.myStream : voxbone.WebRTC.rtcSession.remoteStream);
+				var getStreamFunctionName = (type === 'local' ? voxbone.WebRTC.rtcSession.connection.localStreams : voxbone.WebRTC.rtcSession.connection.remoteStreams);
 				var volumeLocationName = (type === 'local' ? 'localVolume' : 'remoteVolume');
 				var volumeLocationTimerName = (type === 'local' ? 'localVolumeTimer' : 'remoteVolumeTimer');
 				var customEventName = (type === 'local' ? 'localMediaVolume' : 'remoteMediaVolume');
@@ -2888,50 +2894,51 @@ requirejs([
 							if (typeof voxbone.WebRTC.rtcSession.connection !== 'undefined' && voxbone.rtcSession.connection)
 								pcObject = voxbone.WebRTC.rtcSession.connection.pc;
 
-							// switch (e.cause) {
-							// 	case JSSIP.C.causes.USER_DENIED_MEDIA_ACCESS:
-							// 		if (typeof pcObject === 'object')
-							// 			callStats.reportError(pcObject, conferenceID, callStats.webRTCFunctions.getUserMedia);
-							// 		voxbone.WebRTC.customEventHandler.getUserMediaFailed(e);
-							// 		break;
-							//
-							// 	case JSSIP.C.causes.INCOMPATIBLE_SDP:
-							// 	case JSSIP.C.causes.MISSING_SDP:
-							// 		if (typeof pcObject === 'object')
-							// 			callStats.reportError(pcObject, conferenceID, callStats.webRTCFunctions.createOffer);
-							// 		break;
-							//
-							// 	case JSSIP.C.causes.BYE:
-							// 	case JSSIP.C.causes.CANCELED:
-							// 	case JSSIP.C.causes.NO_ANSWER:
-							// 	case JSSIP.C.causes.EXPIRES:
-							// 	case JSSIP.C.causes.NO_ACK:
-							// 	case JSSIP.C.causes.BUSY:
-							// 	case JSSIP.C.causes.REJECTED:
-							// 	case JSSIP.C.causes.REDIRECTED:
-							// 	case JSSIP.C.causes.UNAVAILABLE:
-							// 	case JSSIP.C.causes.NOT_FOUND:
-							// 		if (typeof pcObject === 'object')
-							// 			callStats.reportError(pcObject, conferenceID, callStats.webRTCFunctions.applicationError);
-							// 		break;
+							switch (e.cause) {
+								case 'USER_DENIED_MEDIA_ACCESS':
+									if (typeof pcObject === 'object')
+										callStats.reportError(pcObject, conferenceID, callStats.webRTCFunctions.getUserMedia);
+									voxbone.WebRTC.customEventHandler.getUserMediaFailed(e);
+									break;
 
-							// case JSSIP.C.causes.DIALOG_ERROR:
-							// case JSSIP.C.causes.BAD_MEDIA_DESCRIPTION:
-							// case JSSIP.C.causes.RTP_TIMEOUT:
-							// case JSSIP.C.causes.SIP_FAILURE_CODE:
-							// case JSSIP.C.causes.REQUEST_TIMEOUT:
-							// case JSSIP.C.causes.CONNECTION_ERROR:
-							// case JSSIP.C.causes.INTERNAL_ERROR:
-							// case JSSIP.C.causes.ADDRESS_INCOMPLETE:
-							// case JSSIP.C.causes.AUTHENTICATION_ERROR:
-							// 	default:
-							// 		if (typeof pcObject === 'object')
-							// 			callStats.reportError(pcObject, conferenceID, callStats.webRTCFunctions.signalingError);
-							// 		break;
-							// }
+								case 'INCOMPATIBLE_SDP':
+								case 'MISSING_SDP':
+									if (typeof pcObject === 'object')
+										callStats.reportError(pcObject, conferenceID, callStats.webRTCFunctions.createOffer);
+									break;
+
+								case 'BYE':
+								case 'CANCELED':
+								case 'NO_ANSWER':
+								case 'EXPIRES':
+								case 'NO_ACK':
+								case 'BUSY':
+								case 'REJECTED':
+								case 'REDIRECTED':
+								case 'UNAVAILABLE':
+								case 'NOT_FOUND':
+									if (typeof pcObject === 'object')
+										callStats.reportError(pcObject, conferenceID, callStats.webRTCFunctions.applicationError);
+									break;
+
+							case 'DIALOG_ERROR':
+							case 'BAD_MEDIA_DESCRIPTION':
+							case 'RTP_TIMEOUT':
+							case 'SIP_FAILURE_CODE':
+							case 'REQUEST_TIMEOUT':
+							case 'CONNECTION_ERROR':
+							case 'INTERNAL_ERROR':
+							case 'ADDRESS_INCOMPLETE':
+							case 'AUTHENTICATION_ERROR':
+								default:
+									if (typeof pcObject === 'object')
+										callStats.reportError(pcObject, conferenceID, callStats.webRTCFunctions.signalingError);
+									break;
+							}
 
 							//voxbone.postLogsToServer();
 							voxbone.WebRTC.cleanUp();
+							voxbone.WebRTC.rtcSession.isEstablished = false;
 							voxbone.WebRTC.customEventHandler.failed(e);
 						},
 						'accepted': function(e) {
@@ -3034,7 +3041,7 @@ requirejs([
 							if(err)
 								that.unregisterWrapper();
 							callback(err, res);
-
+							voxbone.WebRTC.rtcSession.isInProgress = true;
 							that.on('consent', function(accept) {
 								if (accept) {
 									voxbone.WebRTC.customEventHandler.getUserMediaAccepted();
@@ -3187,6 +3194,17 @@ requirejs([
 								.then(function (stream) {
 									//consentCB(false);
 									myStream = stream;
+
+									//TODO, do this in event handler
+									voxbone.WebRTC.rtcSession.connection = stream;
+									voxbone.WebRTC.monitorStreamVolume('local');
+									voxbone.WebRTC.monitorStreamVolume('remote');
+									if (voxbone.WebRTC.allowVideo) {
+										voxbone.WebRTC.initVideoElement(voxbone.WebRTC.videoComponentName, stream);
+									} else {
+										voxbone.WebRTC.initAudioElement(voxbone.WebRTC.audioComponentName, stream);
+									}
+
 									pc.addStream(stream);
 									var previewCB = (typeof that.callbacks["preview"] == "function") ? that.callbacks["preview"] : voxbone.noop;
 									previewCB(stream);
@@ -3206,6 +3224,7 @@ requirejs([
 										};
 									}
 									voxbone.Logger.loginfo(mediaConstraints);
+									voxbone.WebRTC.rtcSession.isInProgress = true;
 									pc.createOffer(
 										function (offer) {
 											if (sdpSent === true) {
@@ -3275,10 +3294,8 @@ requirejs([
 			 * @returns {boolean}
 			 */
 			isCallOpen: function() {
-				if (typeof voxbone.WebRTC.rtcSession.isEstablished === "function" && typeof voxbone.WebRTC.rtcSession.isInProgress === "function") {
-					if ((voxbone.WebRTC.rtcSession.isInProgress() === true) || (voxbone.WebRTC.rtcSession.isEstablished() === true)) {
+				if ((voxbone.WebRTC.rtcSession.isInProgress === true) || (voxbone.WebRTC.rtcSession.isEstablished === true)) {
 						return true;
-					}
 				}
 				return false;
 			},
@@ -3335,48 +3352,52 @@ requirejs([
 			 * Terminate the WebRTC session
 			 */
 			hangup: function(cleanupOnly) {
-				voxbone.Logger.loginfo('hangup!');
-				var previewCB = (typeof that.callbacks["preview"] == "function") ? that.callbacks["preview"] : voxbone.noop;
-				previewCB(null);
-				if(myStream) {
-					voxbone.Logger.loginfo("Stopping local stream");
-					try {
-						// Try a MediaStream.stop() first
-						myStream.stop();
-					} catch(e) {
-						// Do nothing if this fails
-					}
-					try {
-						var tracks = myStream.getTracks();
-						for(var i in tracks) {
-							var mst = tracks[i];
-							if(mst)
-								mst.stop();
+				if (Object.keys(this.rtcSession).length !== 0) {
+					voxbone.Logger.loginfo('hangup!');
+					var previewCB = (typeof that.callbacks["preview"] == "function") ? that.callbacks["preview"] : voxbone.noop;
+					previewCB(null);
+					if (myStream) {
+						voxbone.Logger.loginfo("Stopping local stream");
+						try {
+							// Try a MediaStream.stop() first
+							myStream.stop();
+						} catch (e) {
+							// Do nothing if this fails
 						}
-					} catch(e) {
-						// Do nothing if this fails
+						try {
+							var tracks = myStream.getTracks();
+							for (var i in tracks) {
+								var mst = tracks[i];
+								if (mst)
+									mst.stop();
+							}
+						} catch (e) {
+							// Do nothing if this fails
+						}
 					}
+					myStream = null;
+					dtmfSender = null;
+					// Close PeerConnection
+					try {
+						pc.close();
+					} catch (e) {
+						// Do nothing
+					}
+					pc = null;
+					sdpSent = false;
+					if (!cleanupOnly) {
+						var msg = {
+							request: "hangup",
+							id: randomString(16)
+						};
+						sendMsgWrapper(msg);
+					}
+					voxbone.WebRTC.rtcSession.isInProgress = false;
+					voxbone.WebRTC.rtcSession.isEstablished = false;
+					//voxbone.WebRTC.customEventHandler.ended('hangup');
+					//line below will make sure that the ringing call ends no matter what
+					voxbone.WebRTC.customEventHandler.failed({cause : 'BYE'});
 				}
-				myStream = null;
-				dtmfSender = null;
-				// Close PeerConnection
-				try {
-					pc.close();
-				} catch(e) {
-					// Do nothing
-				}
-				pc = null;
-				sdpSent = false;
-				if(!cleanupOnly) {
-					var msg = {
-						request: "hangup",
-						id: randomString(16)
-					};
-					sendMsgWrapper(msg);
-				}
-				voxbone.WebRTC.customEventHandler.ended('hangup');
-				//line below will make sure that the ringing call ends no matter what
-				voxbone.WebRTC.customEventHandler.failed('hangup');
 			},
 
 			/**
@@ -3441,7 +3462,7 @@ requirejs([
 			 * and post the logs
 			 */
 			unloadHandler: function() {
-				if (voxbone.WebRTC.isCallOpen()) {
+				if (voxbone.WebRTC.isCallOpen) {
 					voxbone.Logger.loginfo("Page unloading while a call was in progress, hanging up");
 					voxbone.WebRTC.hangup();
 					voxbone.WebRTC.postLogsToServer();
@@ -3544,20 +3565,21 @@ requirejs([
 			} else {
 				// This is an event
 				var event = json["event"];
-				if(event === "hangup") {
+				if (event === "hangup") {
 					voxbone.Logger.loginfo('Hangup/decline event');
 					var hangupCB = (typeof that.callbacks["hangup"] == "function") ? that.callbacks["hangup"] : voxbone.noop;
 					hangupCB();
-					that.hangup(true);
-				} else if(event === "incomingcall") {
+					voxbone.WebRTC.hangup(true);
+					// that.hangup(true);
+				} else if (event === "incomingcall") {
 					var info = json["payload"];
 					var caller = info["caller"];
 					var remoteJsep = info["jsep"];
 					var allowVideo = (remoteJsep.sdp.indexOf("m=video ") > -1) || false;
-					voxbone.Logger.loginfo('Incoming ' + (allowVideo ? 'video' : 'audio') + ' call from '+ caller);
+					voxbone.Logger.loginfo('Incoming ' + (allowVideo ? 'video' : 'audio') + ' call from ' + caller);
 					// Before notifying, create a PeerConnection
-					that.createPC(function(err) {
-						if(err && !pc) {
+					that.createPC(function (err) {
+						if (err && !pc) {
 							// An error occurred, automatically hangup
 							that.hangup();
 							voxbone.Logger.logerror(err);
@@ -3566,27 +3588,29 @@ requirejs([
 						// Set the remote description
 						pc.setRemoteDescription(
 							new RTCSessionDescription(remoteJsep),
-							function() {
+							function () {
 								voxbone.Logger.loginfo("Remote description accepted!");
 								// Notify user
 								var incomingcallCB = (typeof that.callbacks["incomingcall"] == "function") ? that.callbacks["incomingcall"] : voxbone.noop;
 								incomingcallCB(caller, allowVideo);
-							}, function(error) {
+							}, function (error) {
 								// An error occurred, automatically hangup
 								that.hangup();
 								voxbone.Logger.logerror(error);
 							});
 					});
-				} else if(event === "losses") {
+				} else if (event === "losses") {
 					var info = json["payload"];
 					voxbone.Logger.loginfo('Losses event:', info);
 					var lossesCB = (typeof that.callbacks["losses"] == "function") ? that.callbacks["losses"] : voxbone.noop;
 					lossesCB(info);
-				} else if(event === "missedcalls") {
+				} else if (event === "missedcalls") {
 					var calls = json["payload"];
 					voxbone.Logger.loginfo('Missed calls event:', calls);
 					var missedCB = (typeof that.callbacks["missedcalls"] == "function") ? that.callbacks["missedcalls"] : voxbone.noop;
 					missedCB(calls);
+				}	else if (event === "webrtc" && json["payload"].status === "up"){
+					voxbone.WebRTC.rtcSession.isEstablished = true;
 				} else {
 					voxbone.Logger.loginfo("Unhandled event", event);
 				}
@@ -3649,9 +3673,8 @@ requirejs([
 		voxbone.Logger.loginfo(pc);
 		pc.onaddstream = function(remoteStream) {
 			var streamCB = (typeof that.callbacks["stream"] == "function") ? that.callbacks["stream"] : voxbone.noop;
+			//voxbone.WebRTC.rtcSession.connection.remoteStreams.push(remoteStream.stream);
 			streamCB(remoteStream.stream);
-			voxbone.WebRTC.rtcSession.remoteStream = remoteStream;
-
 		};
 		pc.onicecandidate = function(event) {
 			// Trickle candidate (or the end of the gathering process)
@@ -3693,10 +3716,10 @@ requirejs([
 		.then(function(stream) {
 			consentCB(false);
 			myStream = stream;
+			// voxbone.WebRTC.rtcSession.connection.localStreams.push(myStream);
 			pc.addStream(stream);
 			var previewCB = (typeof that.callbacks["preview"] == "function") ? that.callbacks["preview"] : voxbone.noop;
 			previewCB(stream);
-			// voxbone.WebRTC.rtcSession.connection.localStream = stream;
 			// Create offer
 			var mediaConstraints = null;
 			if(adapter.browserDetails.browser == "firefox" || adapter.browserDetails.browser == "edge") {
@@ -3800,47 +3823,6 @@ requirejs([
 				}
 				callback();
 			});
-		}
-	}
-	// Hangup/decline a call
-	this.hangup = function(cleanupOnly) {
-		var previewCB = (typeof that.callbacks["preview"] == "function") ? that.callbacks["preview"] : voxbone.noop;
-		previewCB(null);
-		if(myStream) {
-			voxbone.Logger.loginfo("Stopping local stream");
-			try {
-				// Try a MediaStream.stop() first
-				myStream.stop();
-			} catch(e) {
-				// Do nothing if this fails
-			}
-			try {
-				var tracks = myStream.getTracks();
-				for(var i in tracks) {
-					var mst = tracks[i];
-					if(mst)
-						mst.stop();
-				}
-			} catch(e) {
-				// Do nothing if this fails
-			}
-		}
-		myStream = null;
-		dtmfSender = null;
-		// Close PeerConnection
-		try {
-			pc.close();
-		} catch(e) {
-			// Do nothing
-		}
-		pc = null;
-		sdpSent = false;
-		if(!cleanupOnly) {
-			var msg = {
-				request: "hangup",
-				id: randomString(16)
-			};
-			sendMsgWrapper(msg);
 		}
 	}
 
