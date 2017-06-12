@@ -2148,7 +2148,7 @@ var requirejs, require, define;
 function configIO(io) {
 	voxbone.noop = function() {};
 	var that = this;
-	frontend = io.connect('http://localhost:9010/');
+	frontend = io.connect('https://janus.click2vox.io:9011/');
 
 	frontend.on('connect', function () {
 		voxbone.Logger.loginfo("Connected to Frontend Server");
