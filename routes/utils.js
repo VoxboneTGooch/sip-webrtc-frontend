@@ -85,7 +85,7 @@ module.exports = {
   },
 
   getUnsupportedBrowsers: function() {
-    return ['IE', 'Safari'];
+    return ['IE'];
   },
 
   isSupportedBrowser: function(browserName) {
