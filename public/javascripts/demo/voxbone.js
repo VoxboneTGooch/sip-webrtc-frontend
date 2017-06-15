@@ -2337,9 +2337,6 @@ extend(voxbone, {
 			if (this.currentScript) head.removeChild(currentScript);
 			head.appendChild(newScript);
 		}
-	},
-	Janus:{
-		frontend: undefined
 	}
 });
 
@@ -3000,7 +2997,7 @@ extend(voxbone, {
 		setupInboundCalling: function(details, callback) {
 
 			//HARDCODED REGISTRATION!
-			var details = {uri: "sip:7501@ast.voxboneworkshop.com",authorization_user: voxbone.WebRTC.authorization_user, secret: "1234", auth: "plain"};
+			//var details = {uri: "sip:7501@ast.voxboneworkshop.com",authorization_user: voxbone.WebRTC.authorization_user, secret: "1234", auth: "plain"};
 
 			// Registering an account
 			callback = (typeof callback == "function") ? callback : voxbone.noop;
