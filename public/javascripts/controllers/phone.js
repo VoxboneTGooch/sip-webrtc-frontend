@@ -137,9 +137,10 @@ define([
         $scope.registrar = filterRegistrarURI($scope.user.registrarURI);
         audio = new Audio('/audio/' + ringtone + '.ogg');
         voxbone.WebRTC.configuration.log_level = voxbone.Logger.log_level.INFO;
-        voxbone.WebRTC.username = $scope.user.sipUsername;
-        voxbone.WebRTC.password = $scope.user.sipPassword;
-        voxbone.WebRTC.configuration.uri = 'sip:' + $scope.user.browserUsername + '@' + config.sip_gateway_domain;
+        voxbone.WebRTC.configuration.username = $scope.user.sipUsername;
+	      voxbone.WebRTC.configuration.authuser = $scope.user.sipUsername;
+        voxbone.WebRTC.configuration.secret = $scope.user.sipPassword;
+        voxbone.WebRTC.configuration.uri = 'sip:' + $scope.user.sipUsername + '@' + $scope.registrar;
         voxbone.WebRTC.configuration.ws_servers = [config.ws_server];
 
         //exporting call logs

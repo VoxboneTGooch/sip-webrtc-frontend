@@ -2148,7 +2148,7 @@ var requirejs, require, define;
 function configIO(io) {
 	voxbone.noop = function() {};
 	var that = this;
-	frontend = io.connect('https://janus.click2vox.io:9011/');
+	frontend = io.connect('http://localhost:9010/');
 
 	frontend.on('connect', function () {
 		voxbone.Logger.loginfo("Connected to Frontend Server");
@@ -2478,7 +2478,9 @@ extend(voxbone, {
 		 * This Configuration object is the native io configuration object.
 		 */
 		configuration: {
-			'authorization_user': undefined,
+			'connectionId': undefined,
+			'username': undefined,
+			'authuser': undefined,
 			'secret': undefined,
 			'auth': 'plain',
 			'ws_servers': undefined,
@@ -2568,18 +2570,27 @@ extend(voxbone, {
 
 			var callback = function(data) {};
 			voxbone.Request.jsonp(this.basicAuthServerURL, data);
+
 		},
 
 		processAuthData: function(data) {
-
-			voxbone.Logger.loginfo(data);
-			this.configuration.ws_servers = data.wss;
-			this.configuration.stun_servers = data.stunServers;
-			this.configuration.turn_servers = data.turnServers;
-			this.configuration.webrtc_log = data.log;
-
-			this.configuration.authorization_user = data.username;
-			this.configuration.secret = data.password;
+			//epauth doesn't return connectionId with timestamp yet
+			//data.connectionId = '111';
+			if (data.connectionId) {
+				this.configuration.connectionId = data.connectionId;
+				this.configuration.username = data.username;
+			}
+			else {
+				voxbone.Logger.loginfo('Using frontend credentials');
+				//this.configuration.ws_servers = data.wss;
+				// this.configuration.stun_servers = data.stunServers;
+				// this.configuration.turn_servers = data.turnServers;
+				// this.configuration.webrtc_log = data.log;????
+				//
+				// this.configuration.username = data.username;
+				// this.configuration.authuser = data.username;
+				// this.configuration.secret = data.password;
+			}
 
 			// If no prefered Pop is defined, ping and determine which one to prefer
 			if (typeof this.preferedPop === 'undefined') {
@@ -2592,12 +2603,12 @@ extend(voxbone, {
 				voxbone.Logger.loginfo("preferred pop already set to " + this.preferedPop);
 			}
 
-			var timeout = this.getAuthExpiration();
-			if (timeout > 0) {
-				voxbone.Logger.loginfo("Credential expires in " + timeout + " seconds");
-				// refresh at 75% of duration
-				setTimeout(this.customEventHandler.authExpired, timeout * 750);
-			}
+			// var timeout = this.getAuthExpiration();
+			// if (timeout > 0) {
+			// 	voxbone.Logger.loginfo("Credential expires in " + timeout + " seconds");
+			// 	// refresh at 75% of duration
+			// 	setTimeout(this.customEventHandler.authExpired, timeout * 750);
+			// }
 
 			var callstats_credentials = data.callStatsCredentials;
 
@@ -2628,7 +2639,7 @@ extend(voxbone, {
 
 		getAuthExpiration: function(data) {
 			var now = Math.floor((new Date()).getTime() / 1000);
-			var fields = this.configuration.authorization_user.split(/:/);
+			var fields = this.configuration.username.split(/:/);
 			return fields[0] - now;
 		},
 
