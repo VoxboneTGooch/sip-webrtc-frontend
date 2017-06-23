@@ -141,6 +141,7 @@ define([
 	      voxbone.WebRTC.configuration.authuser = $scope.user.sipUsername;
         voxbone.WebRTC.configuration.secret = $scope.user.sipPassword;
         voxbone.WebRTC.configuration.uri = 'sip:' + $scope.user.sipUsername + '@' + $scope.registrar;
+	      voxbone.WebRTC.configuration.server = 'sip:' + $scope.registrar;
         voxbone.WebRTC.configuration.ws_servers = [config.ws_server];
 
         //exporting call logs

@@ -2482,7 +2482,9 @@ extend(voxbone, {
 			'username': undefined,
 			'authuser': undefined,
 			'secret': undefined,
-			'auth': 'plain',
+			'server': undefined,
+			'uri': 'sip:voxrtc@voxbone.com',
+			// 'auth': 'plain',
 			'ws_servers': undefined,
 			'stun_servers': undefined,
 			'turn_servers': undefined,
@@ -2495,7 +2497,6 @@ extend(voxbone, {
 			 **/
 			'post_logs_nocall': true,
 			'webrtc_log': undefined,
-			'uri': 'sip:voxrtc@voxbone.com',
 			'trace_sip': true,
 			'register': false,
 			/**
