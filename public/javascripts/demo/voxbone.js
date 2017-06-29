@@ -2145,10 +2145,94 @@ var requirejs, require, define;
 	req(cfg);
 }(this, (typeof setTimeout === 'undefined' ? undefined : setTimeout)));
 
+
+var C = {
+	// RTCSession states
+	STATUS_NULL:               0,
+	STATUS_INVITE_SENT:        1,
+	STATUS_1XX_RECEIVED:       2,
+	STATUS_INVITE_RECEIVED:    3,
+	STATUS_WAITING_FOR_ANSWER: 4,
+	STATUS_ANSWERED:           5,
+	STATUS_WAITING_FOR_ACK:    6,
+	STATUS_CANCELED:           7,
+	STATUS_TERMINATED:         8,
+	STATUS_CONFIRMED:          9,
+
+	MIN_DURATION:            70,
+	MAX_DURATION:            6000,
+	DEFAULT_DURATION:        100,
+	MIN_INTER_TONE_GAP:      50,
+	DEFAULT_INTER_TONE_GAP:  500,
+
+	// End and Failure causes
+	causes: {
+		// Generic error causes
+		CONNECTION_ERROR:         'Connection Error',
+		REQUEST_TIMEOUT:          'Request Timeout',
+		SIP_FAILURE_CODE:         'SIP Failure Code',
+		INTERNAL_ERROR:           'Internal Error',
+
+		// SIP error causes
+		BUSY:                     'Busy',
+		REJECTED:                 'Rejected',
+		REDIRECTED:               'Redirected',
+		UNAVAILABLE:              'Unavailable',
+		NOT_FOUND:                'Not Found',
+		ADDRESS_INCOMPLETE:       'Address Incomplete',
+		INCOMPATIBLE_SDP:         'Incompatible SDP',
+		MISSING_SDP:              'Missing SDP',
+		AUTHENTICATION_ERROR:     'Authentication Error',
+
+		// Session error causes
+		BYE:                      'Terminated',
+		WEBRTC_ERROR:             'WebRTC Error',
+		CANCELED:                 'Canceled',
+		NO_ANSWER:                'No Answer',
+		EXPIRES:                  'Expires',
+		NO_ACK:                   'No ACK',
+		DIALOG_ERROR:             'Dialog Error',
+		USER_DENIED_MEDIA_ACCESS: 'User Denied Media Access',
+		BAD_MEDIA_DESCRIPTION:    'Bad Media Description',
+		RTP_TIMEOUT:              'RTP Timeout'
+	},
+
+	SIP_ERROR_CAUSES: {
+		REDIRECTED: [300,301,302,305,380],
+		BUSY: [486,600],
+		REJECTED: [403,603],
+		NOT_FOUND: [404,604],
+		UNAVAILABLE: [480,410,408,430],
+		ADDRESS_INCOMPLETE: [484, 424],
+		INCOMPATIBLE_SDP: [488,606],
+		AUTHENTICATION_ERROR:[401,407]
+	},
+
+	// SIP Methods
+	ACK:        'ACK',
+	BYE:        'BYE',
+	CANCEL:     'CANCEL',
+	INFO:       'INFO',
+	INVITE:     'INVITE',
+	MESSAGE:    'MESSAGE',
+	NOTIFY:     'NOTIFY',
+	OPTIONS:    'OPTIONS',
+	REGISTER:   'REGISTER',
+	REFER:      'REFER',
+	UPDATE:     'UPDATE',
+	SUBSCRIBE:  'SUBSCRIBE',
+
+	SESSION_EXPIRES: 3600
+};
+
 function configIO(io) {
 	voxbone.noop = function() {};
+	/**
+	 * Expose C object.
+	 */
+	voxbone.C = C;
 	var that = this;
-	frontend = io.connect('https://janus.click2vox.io:9011/');
+	frontend = io.connect('http://localhost:9010/');
 
 	frontend.on('connect', function () {
 		voxbone.Logger.loginfo("Connected to Frontend Server");
@@ -2163,7 +2247,7 @@ function configIO(io) {
 	});
 
 	// some overrides
-	io.SESSION_EXPIRES = 3600;
+	io.SESSION_EXPIRES = voxbone.C.SESSION_EXPIRES;
 
 	// First make sure that we enable the verbose mode of io
 	// io.debug.enable('io:*');
@@ -2407,7 +2491,8 @@ extend(voxbone, {
 		 * The actual WebRTC session
 		 */
 		rtcSession: {
-			connection : {localStreams : [], remoteStreams : []}
+			connection : {localStreams : [], remoteStreams : []},
+			status: ""
 		},
 		/**
 		 * SIP call id for current session
@@ -2484,12 +2569,14 @@ extend(voxbone, {
 			'secret': undefined,
 			'server': undefined,
 			'uri': 'sip:voxrtc@voxbone.com',
+
 			// 'auth': 'plain',
+			'customer': 'voxbone_webrtcventures',
 			'ws_servers': undefined,
 			'stun_servers': undefined,
 			'turn_servers': undefined,
 			'log_level': 2,
-			'post_logs': true,
+			'post_logs': false,
 			/**
 			 It controls if we want to push
 			 the logs for a web session where
@@ -2802,7 +2889,8 @@ extend(voxbone, {
 			voxbone.WebRTC.previous_callid = voxbone.WebRTC.callid;
 			voxbone.WebRTC.callid = "";
 			voxbone.WebRTC.webrtcLogs = "";
-			voxbone.WebRTC.rtcSession = {};
+			voxbone.WebRTC.rtcSession.connection.localStreams = [];
+			voxbone.WebRTC.rtcSession.connection.remoteStreams = [];
 			myStream = null;
 			dtmfSender = null;
 			pc = null;
@@ -3059,7 +3147,7 @@ extend(voxbone, {
 									that.acceptCall(allowvideo, function(err) {
 										if (err) {
 											voxbone.Logger.logerror(err);
-											cleanup();
+											voxbone.WebRTC.cleanup();
 											return;
 										}
 									});
@@ -3238,6 +3326,7 @@ extend(voxbone, {
 												jsep: jsep
 											}
 										};
+										voxbone.WebRTC.rtcSession.status = voxbone.C.STATUS_WAITING_FOR_ACK;
 										sendMsgWrapper(msg, function response(result) {
 											voxbone.Logger.loginfo("Got answer to offer:", result);
 											if (result["response"] === "error") {
@@ -3249,12 +3338,14 @@ extend(voxbone, {
 											}
 											var remoteJsep = result["payload"]["jsep"];
 											voxbone.Logger.loginfo(remoteJsep);
+											voxbone.WebRTC.rtcSession.status = voxbone.C.STATUS_ANSWERED;
 											pc.setRemoteDescription(
 												new RTCSessionDescription(remoteJsep),
 												function () {
 													voxbone.Logger.loginfo("Remote description accepted!");
 													var options = voxbone.WebRTC.getOptions();
 													options.eventHandlers.accepted();
+													voxbone.WebRTC.rtcSession.status = voxbone.C.STATUS_CONFIRMED;
 													callback();
 												}, function (error) {
 													voxbone.WebRTC.hangup();
@@ -3362,43 +3453,48 @@ extend(voxbone, {
 		 */
 		hangup: function(cleanupOnly) {
 			if (Object.keys(this.rtcSession).length !== 0) {
-				voxbone.Logger.loginfo('hangup!');
-				var previewCB = (typeof that.callbacks["preview"] == "function") ? that.callbacks["preview"] : voxbone.noop;
-				previewCB(null);
-				if (myStream) {
-					voxbone.Logger.loginfo("Stopping local stream");
-					try {
-						// Try a MediaStream.stop() first
-						myStream.stop();
-					} catch (e) {
-						// Do nothing if this fails
-					}
-					try {
-						var tracks = myStream.getTracks();
-						for (var i in tracks) {
-							var mst = tracks[i];
-							if (mst)
-								mst.stop();
+				if (voxbone.WebRTC.rtcSession.status !== voxbone.C.STATUS_TERMINATED) {
+					voxbone.Logger.loginfo('hangup!');
+					var previewCB = (typeof that.callbacks["preview"] == "function") ? that.callbacks["preview"] : voxbone.noop;
+					previewCB(null);
+					if (myStream) {
+						voxbone.Logger.loginfo("Stopping local stream");
+						try {
+							// Try a MediaStream.stop() first
+							myStream.stop();
+						} catch (e) {
+							// Do nothing if this fails
 						}
-					} catch (e) {
-						// Do nothing if this fails
+						try {
+							var tracks = myStream.getTracks();
+							for (var i in tracks) {
+								var mst = tracks[i];
+								if (mst)
+									mst.stop();
+							}
+						} catch (e) {
+							// Do nothing if this fails
+						}
 					}
-				}
-				// Close PeerConnection
-				try {
-					pc.close();
-				} catch (e) {
-					// Do nothing
-				}
-				if (!cleanupOnly) {
-					var msg = {
-						request: "hangup",
-						id: randomString(16)
-					};
-					sendMsgWrapper(msg);
+					// Close PeerConnection
+					try {
+						pc.close();
+					} catch (e) {
+						// Do nothing
+					}
+					if (!cleanupOnly) {
+						var msg = {
+							request: "hangup",
+							id: randomString(16)
+						};
+						sendMsgWrapper(msg);
+					}
+
+					voxbone.WebRTC.customEventHandler.ended('hangup');
+					voxbone.WebRTC.rtcSession.status = voxbone.C.STATUS_TERMINATED;
 				}
 				voxbone.WebRTC.cleanUp();
-				voxbone.WebRTC.customEventHandler.ended('hangup');
+			}
 				//line below will make sure that the ringing call ends no matter what
 				//voxbone.WebRTC.customEventHandler.failed({cause : 'BYE'});
 			}
@@ -3499,8 +3595,6 @@ extend(voxbone, {
 				return true;
 			}
 		}
-
-	}
 });
 
 // We use this method to register callbacks
@@ -3770,6 +3864,7 @@ this.acceptCall = function(allowVideo, callback) {
 						jsep: jsep
 					}
 				};
+				voxbone.WebRTC.rtcSession.status = voxbone.C.STATUS_ANSWERED;
 				sendMsgWrapper(msg, function response(result) {
 					voxbone.Logger.loginfo("Got ack to answer");
 					if(result["response"] === "error") {
@@ -3778,6 +3873,7 @@ this.acceptCall = function(allowVideo, callback) {
 						callback(result["payload"]["reason"]);
 						return;
 					}
+					voxbone.WebRTC.rtcSession.status = voxbone.C.STATUS_CONFIRMED;
 					callback();
 				});
 			}, function(error) {

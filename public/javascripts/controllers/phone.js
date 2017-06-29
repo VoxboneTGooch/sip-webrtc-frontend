@@ -36,6 +36,7 @@ define([
             $scope.showNotification("Incoming Call. Click to see the phone");
 
           appendMessage('bell', 'Receiving call');
+	        $scope.phoneImg = '/images/vox-ringing-phone.gif';
           $scope.callState = 'receiving';
           $scope.phoneImg = '/images/vox-ringing-phone.gif';
           //$scope.callMsg = "Incoming call from " + callee;
@@ -143,9 +144,10 @@ define([
         voxbone.WebRTC.configuration.uri = 'sip:' + $scope.user.sipUsername + '@' + $scope.registrar;
 	      voxbone.WebRTC.configuration.server = 'sip:' + $scope.registrar;
         voxbone.WebRTC.configuration.ws_servers = [config.ws_server];
+	      voxbone.WebRTC.configuration.customer = config.vox_username || 'voxbone_webrtcventures';
 
         //exporting call logs
-        voxbone.WebRTC.configuration.post_logs = true;
+        voxbone.WebRTC.configuration.post_logs = false;
         now = new Date($.now());
         var call = {
             call: {
