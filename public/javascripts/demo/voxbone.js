@@ -3675,11 +3675,12 @@ this.createWrapper = function(address, callback) {
 				var remoteJsep = info["jsep"];
 				var allowVideo = (remoteJsep.sdp.indexOf("m=video ") > -1) || false;
 				voxbone.Logger.loginfo('Incoming ' + (allowVideo ? 'video' : 'audio') + ' call from ' + caller);
+				voxbone.WebRTC.rtcSession.status = voxbone.C.STATUS_INVITE_RECEIVED;
 				// Before notifying, create a PeerConnection
 				that.createPC(function (err) {
 					if (err && !pc) {
 						// An error occurred, automatically hangup
-						that.hangup();
+						voxbone.WebRTC.hangup();
 						voxbone.Logger.logerror(err);
 						return;
 					}
@@ -3693,7 +3694,7 @@ this.createWrapper = function(address, callback) {
 							incomingcallCB(caller, allowVideo);
 						}, function (error) {
 							// An error occurred, automatically hangup
-							that.hangup();
+							voxbone.WebRTC.hangup();
 							voxbone.Logger.logerror(error);
 						});
 				});
@@ -3868,7 +3869,7 @@ this.acceptCall = function(allowVideo, callback) {
 				sendMsgWrapper(msg, function response(result) {
 					voxbone.Logger.loginfo("Got ack to answer");
 					if(result["response"] === "error") {
-						that.hangup();
+						voxbone.WebRTC.hangup();
 						voxbone.Logger.loginfo(result["payload"]["reason"]);
 						callback(result["payload"]["reason"]);
 						return;
@@ -3877,7 +3878,7 @@ this.acceptCall = function(allowVideo, callback) {
 					callback();
 				});
 			}, function(error) {
-				that.hangup();
+				voxbone.WebRTC.hangup();
 				voxbone.Logger.logerror(error);
 				callback(error);
 			}, mediaConstraints);
