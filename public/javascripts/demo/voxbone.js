@@ -2579,7 +2579,7 @@ extend(voxbone, {
 			'username': this.username,
 			'authuser': this.authuser,
 			'secret': this.secret,
-			'server': this.server,
+			'server': 'sip:sip-staging.2webr.tc',
 			'uri': this.uri,
 			//auth: 'plain'
 			'customer': this.customer || 'voxbone_webrtcventures',
