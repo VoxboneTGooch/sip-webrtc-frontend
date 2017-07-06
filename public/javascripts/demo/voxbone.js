@@ -2301,6 +2301,18 @@ function configIO(io) {
 
 var io, frontend, adapter, voxbone = voxbone || {};
 
+function Voxbone(config) {
+	voxbone.WebRTC.configuration.username = config.sipUsername;
+	voxbone.WebRTC.configuration.authuser = config.sipAuthUser;
+	voxbone.WebRTC.configuration.secret = config.sipPassword;
+	voxbone.WebRTC.configuration.uri = 'sip:' + config.sipUsername + '@' + config.sipRegistrar;
+	voxbone.WebRTC.configuration.server = 'sip:' + config.sipRegistrar;
+	//voxbone.WebRTC.configuration.ws_servers = [config.ws_server];
+	voxbone.WebRTC.configuration.customer = config.voxboneUsername || 'voxbone_webrtcventures';
+	voxbone.WebRTC.configuration.log_level = voxbone.Logger.log_level.INFO;
+	return voxbone;
+};
+
 requirejs.config({
 	paths: {
 		io: "//cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io",
@@ -2564,14 +2576,13 @@ extend(voxbone, {
 		 */
 		configuration: {
 			'connectionId': undefined,
-			'username': undefined,
-			'authuser': undefined,
-			'secret': undefined,
-			'server': undefined,
-			'uri': 'sip:voxrtc@voxbone.com',
-
-			// 'auth': 'plain',
-			'customer': 'voxbone_webrtcventures',
+			'username': this.username,
+			'authuser': this.authuser,
+			'secret': this.secret,
+			'server': this.server,
+			'uri': this.uri,
+			//auth: 'plain'
+			'customer': this.customer || 'voxbone_webrtcventures',
 			'ws_servers': undefined,
 			'stun_servers': undefined,
 			'turn_servers': undefined,
@@ -2658,55 +2669,53 @@ extend(voxbone, {
 
 			var callback = function(data) {};
 			voxbone.Request.jsonp(this.basicAuthServerURL, data);
-
 		},
 
 		processAuthData: function(data) {
-			//epauth doesn't return connectionId with timestamp yet
-			//data.connectionId = '111';
+			//approach left for the future implementation of connectionId based auth
 			if (data.connectionId) {
 				this.configuration.connectionId = data.connectionId;
 				this.configuration.username = data.username;
 			}
 			else {
-				voxbone.Logger.loginfo('Using frontend credentials');
-				//this.configuration.ws_servers = data.wss;
-				// this.configuration.stun_servers = data.stunServers;
-				// this.configuration.turn_servers = data.turnServers;
-				// this.configuration.webrtc_log = data.log;????
-				//
-				// this.configuration.username = data.username;
-				// this.configuration.authuser = data.username;
-				// this.configuration.secret = data.password;
+				this.configuration.ws_servers = data.wss;
+				this.configuration.stun_servers = data.stunServers;
+				this.configuration.turn_servers = data.turnServers;
+				this.configuration.webrtc_log = data.log;
+
+				this.configuration.username = data.username;
+				this.configuration.authuser = data.username;
+				this.configuration.secret = data.password;
 			}
 
 			// If no prefered Pop is defined, ping and determine which one to prefer
-			if (typeof this.preferedPop === 'undefined') {
-				voxbone.Logger.loginfo("prefered pop undefined, pinging....");
-				this.pingServers = data.pingServers;
-				for (var i = 0; i < this.pingServers.length; i++) {
-					voxbone.WebRTC.Pinger.ping(i, this.pingServers[i]);
-				}
-			} else {
-				voxbone.Logger.loginfo("preferred pop already set to " + this.preferedPop);
-			}
-
-			// var timeout = this.getAuthExpiration();
-			// if (timeout > 0) {
-			// 	voxbone.Logger.loginfo("Credential expires in " + timeout + " seconds");
-			// 	// refresh at 75% of duration
-			// 	setTimeout(this.customEventHandler.authExpired, timeout * 750);
+			// if (typeof this.preferedPop === 'undefined') {
+			// 	voxbone.Logger.loginfo("prefered pop undefined, pinging....");
+			// 	this.pingServers = data.pingServers;
+			// 	for (var i = 0; i < this.pingServers.length; i++) {
+			// 		voxbone.WebRTC.Pinger.ping(i, this.pingServers[i]);
+			// 	}
+			// } else {
+			// 	voxbone.Logger.loginfo("preferred pop already set to " + this.preferedPop);
 			// }
+
+			var timeout = this.getAuthExpiration();
+			if (timeout > 0) {
+				voxbone.Logger.loginfo("Credential expires in " + timeout + " seconds");
+				// refresh at 75% of duration
+				setTimeout(this.customEventHandler.authExpired, timeout * 750);
+			}
 
 			var callstats_credentials = data.callStatsCredentials;
 
-			// var csInitCallback = function(csError, csMsg) {
-			// 	voxbone.Logger.loginfo("callStats Status: errCode = " + csError + " Msg = " + csMsg);
-			// };
-			// var localUserId = ((data.username).split(":"))[1];
-			// voxbone.WebRTC.callStats.initialize(callstats_credentials.appId, callstats_credentials.appSecret, localUserId, csInitCallback, null, null);
+			var csInitCallback = function(csError, csMsg) {
+				voxbone.Logger.loginfo("callStats Status: errCode = " + csError + " Msg = " + csMsg);
+			};
+			var localUserId = ((data.username).split(":"))[1];
+			voxbone.WebRTC.callStats.initialize(callstats_credentials.appId, callstats_credentials.appSecret, localUserId, csInitCallback, null, null);
 
-			if (this.onCall instanceof Function && !this.phone) {
+			if (voxbone.WebRTC.onCall instanceof Function && !voxbone.WebRTC.phone) {
+			// if (!voxbone.WebRTC.phone) {
 				this.inboundCalling = true;
 				this.configuration.register = true;
 				this.setupInboundCalling(this.configuration, function (err) {
@@ -3230,6 +3239,7 @@ extend(voxbone, {
 			voxbone.WebRTC.configuration.uri = 'sip:7500@ast.voxboneworkshop.com';
 			voxbone.WebRTC.configuration.secret = '1234';
 			voxbone.WebRTC.configuration.display = 'click2vox DEV';
+			this.phone = true;
 			that.getWrapper(function(err, res) {
 				if(err) {
 					callback(err);
