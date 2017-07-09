@@ -3827,15 +3827,15 @@ this.acceptCall = function(allowVideo, callback) {
 		myStream = stream;
 		voxbone.WebRTC.rtcSession.connection.localStreams.push(myStream);
 		voxbone.WebRTC.monitorStreamVolume('local');
-		if (voxbone.WebRTC.rtcSession.connection.remoteStreams) {
-			if (voxbone.WebRTC.allowVideo) {
-				voxbone.WebRTC.initVideoElement(voxbone.WebRTC.videoComponentName, myStream);
-			} else {
-				voxbone.WebRTC.initAudioElement(voxbone.WebRTC.audioComponentName, myStream);
-			}
-		} else {
-			voxbone.Logger.info('Waiting for remote stream to exist to output audio')
-		}
+		// if (voxbone.WebRTC.rtcSession.connection.remoteStreams) {
+		// 	if (voxbone.WebRTC.allowVideo) {
+		// 		voxbone.WebRTC.initVideoElement(voxbone.WebRTC.videoComponentName, myStream);
+		// 	} else {
+		// 		voxbone.WebRTC.initAudioElement(voxbone.WebRTC.audioComponentName, myStream);
+		// 	}
+		// } else {
+		// 	voxbone.Logger.info('Waiting for remote stream to exist to output audio')
+		// }
 		pc.addStream(stream);
 		var previewCB = (typeof that.callbacks["preview"] == "function") ? that.callbacks["preview"] : voxbone.noop;
 		previewCB(stream);
