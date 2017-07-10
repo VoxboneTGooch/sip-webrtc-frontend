@@ -3170,6 +3170,11 @@ extend(voxbone, {
 						that.on('stream', function(stream) {
 							voxbone.WebRTC.rtcSession.connection.remoteStreams.push(stream);
 							voxbone.WebRTC.monitorStreamVolume('remote');
+							if (voxbone.WebRTC.allowVideo) {
+								voxbone.WebRTC.initVideoElement(voxbone.WebRTC.videoComponentName, stream);
+							} else {
+								voxbone.WebRTC.initAudioElement(voxbone.WebRTC.audioComponentName, stream);
+							}
 						});
 					});
 				});
@@ -3385,7 +3390,7 @@ extend(voxbone, {
 			that.on('stream', function(stream) {
 				voxbone.WebRTC.rtcSession.connection.remoteStreams.push(stream);
 				voxbone.WebRTC.monitorStreamVolume('remote');
-
+				//this out still hears echo local and no remote coming through
 				if (voxbone.WebRTC.allowVideo) {
 					voxbone.WebRTC.initVideoElement(voxbone.WebRTC.videoComponentName, stream);
 				} else {
@@ -3827,6 +3832,8 @@ this.acceptCall = function(allowVideo, callback) {
 		myStream = stream;
 		voxbone.WebRTC.rtcSession.connection.localStreams.push(myStream);
 		voxbone.WebRTC.monitorStreamVolume('local');
+		//with these lines I get localstrem locally too
+		//without I don't get remotestream audio (but yes the volume indicator remote)
 		// if (voxbone.WebRTC.rtcSession.connection.remoteStreams) {
 		// 	if (voxbone.WebRTC.allowVideo) {
 		// 		voxbone.WebRTC.initVideoElement(voxbone.WebRTC.videoComponentName, myStream);
@@ -3836,6 +3843,7 @@ this.acceptCall = function(allowVideo, callback) {
 		// } else {
 		// 	voxbone.Logger.info('Waiting for remote stream to exist to output audio')
 		// }
+		//this out kills  local to remote and remote volume indicator
 		pc.addStream(stream);
 		var previewCB = (typeof that.callbacks["preview"] == "function") ? that.callbacks["preview"] : voxbone.noop;
 		previewCB(stream);
