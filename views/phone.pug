@@ -1,7 +1,20 @@
 extends layout
 
 prepend head
-  script(src=process.env.VOXBONE_JS_LIB_URL)
+  script.
+    var voxbone = voxbone || {};
+    (function (window, document, object) {
+        window['voxboneObject'] = object;
+        var loader = function () {
+            var script = document.createElement("script"),
+                tag = document.getElementsByTagName("script")[0];
+            script.src = 'http://localhost:3000/javascripts/demo/voxbone.js';
+            script.async = 1;
+            tag.parentNode.insertBefore(script, tag);
+        };
+        window.addEventListener ? window.addEventListener("load", loader, false) : window.attachEvent("onload", loader);
+    })(window, document, voxbone);
+
 append head
   script.
     require([

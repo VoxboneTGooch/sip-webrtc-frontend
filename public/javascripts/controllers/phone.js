@@ -8,6 +8,7 @@ define([
     $scope.callState = 'initial';
     $scope.phoneImg = '/images/vox-static-phone.png';
     var audio;
+	  var voxbone = $window.voxbone || {};
 
     function appendMessage(icon, message) {
       var elem = document.getElementById("status-message-list");
@@ -95,7 +96,7 @@ define([
       var now;
       var constraints = {
         video: false,
-        audio: true,
+        audio: true
       };
 
       $scope.gumPermission = false;
@@ -131,18 +132,21 @@ define([
         headers: reqHeaders
       };
 
+	    console.log($window);
+      console.log(voxbone);
+
       $http(get_req)
       .then(function successCallback (response) {
         $scope.user = JSON.parse(response.data);
         $scope.registrar = filterRegistrarURI($scope.user.registrarURI);
         audio = new Audio('/audio/' + ringtone + '.ogg');
-	      var voxbone = new Voxbone({
-	        sipUsername: $scope.user.sipUsername,
-          sipPassword: $scope.user.sipPassword,
+
+	      voxbone.WebRTC.configure({
+		      sipUsername: $scope.user.sipUsername,
+		      sipPassword: $scope.user.sipPassword,
 		      sipAuthUser: $scope.user.sipUsername,
-          sipRegistrar: $scope.registrar,
-		      voxboneUsername: config.vox_username
-        });
+		      sipRegistrar: $scope.registrar
+	      });
 
         voxbone.WebRTC.configuration.log_level = voxbone.Logger.log_level.INFO;
         //voxbone.WebRTC.configuration.ws_servers = [config.ws_server];
@@ -177,51 +181,47 @@ define([
             cb(false);
           };
 
-          voxbone.WebRTC.customEventHandler.failed = function(e) {
-            appendMessage('phone-alt', 'Ended call');
-            appendMessage('time', 'Waiting for incoming call');
-            setState('waiting');
-            audio.pause();
-            audio.currentTime = 0;
-          };
-
         };
+	      eventHandlersActions();
 
         }, function errorCallback (response) {
 
         });
 
-      voxbone.WebRTC.customEventHandler.ended = function(e) {
-        appendMessage('phone-alt', 'Ended call');
-        appendMessage('time', 'Waiting for incoming call');
-        setState('waiting');
-      };
+	    function eventHandlersActions() {
+		    voxbone.WebRTC.customEventHandler.ended = function (e) {
+			    appendMessage('phone-alt', 'Ended call');
+			    appendMessage('time', 'Waiting for incoming call');
+			    setState('waiting');
+		    };
 
-      voxbone.WebRTC.customEventHandler.registered = function(e) {
-        appendMessage('ok', 'Registered');
-        appendMessage('time', 'Waiting for incoming call');
-        setState('waiting');
-      };
+		    voxbone.WebRTC.customEventHandler.registered = function (e) {
+			    appendMessage('ok', 'Registered');
+			    appendMessage('time', 'Waiting for incoming call');
+			    setState('waiting');
+		    };
 
-      voxbone.WebRTC.customEventHandler.remoteMediaVolume = function(e) {
-        clearDevice('phone-earphone');
-        if (e.remoteVolume > 0.01) setEapDot('1');
-        if (e.remoteVolume > 0.10) setEapDot('2');
-        if (e.remoteVolume > 0.20) setEapDot('3');
-      };
+		    voxbone.WebRTC.customEventHandler.remoteMediaVolume = function (e) {
+			    clearDevice('phone-earphone');
+			    if (e.remoteVolume > 0.01) setEapDot('1');
+			    if (e.remoteVolume > 0.10) setEapDot('2');
+			    if (e.remoteVolume > 0.20) setEapDot('3');
+		    };
 
-      voxbone.WebRTC.customEventHandler.localMediaVolume = function(e) {
-        clearDevice('phone-microphone');
-        if (e.localVolume > 0.01) setMicDot('1');
-        if (e.localVolume > 0.10) setMicDot('2');
+		    voxbone.WebRTC.customEventHandler.localMediaVolume = function (e) {
+			    clearDevice('phone-microphone');
+			    if (e.localVolume > 0.01) setMicDot('1');
+			    if (e.localVolume > 0.10) setMicDot('2');
 
-	      $scope.hangCall = function () {
-		      voxbone.WebRTC.hangup();
-		      setState('waiting');
-        if (e.localVolume > 0.20) setMicDot('3');
-      };
-      };
+			    $scope.hangCall = function () {
+				    voxbone.WebRTC.hangup();
+				    setState('waiting');
+				    if (e.localVolume > 0.20) setMicDot('3');
+			    };
+		    };
+	    }
     };
+
   };
   PhoneController.$inject = ['$scope', '$http', '$window', '$timeout', '$controller'];
 
