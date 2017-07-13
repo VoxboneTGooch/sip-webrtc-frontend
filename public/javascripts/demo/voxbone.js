@@ -3515,6 +3515,24 @@ var C = {
 					} else {
 						to.srcObject = from.srcObject;
 					}
+				},
+
+				/**
+				 * Debug method to query a PeerConnection for this user
+				 */
+				mediaInfo: function(callback) {
+					callback = (typeof callback == "function") ? callback : voxbone.noop;
+					var msg = {
+						request: "mediaInfo",
+						id: randomString(16)
+					};
+					sendMsgWrapper(msg, function response(result) {
+						if(result["response"] === "error") {
+							callback(result["payload"]["reason"]);
+							return;
+						}
+						callback(null, result["payload"]["info"]);
+					});
 				}
 
 			},
@@ -3945,24 +3963,8 @@ var C = {
 		}
 	}
 
-	// Debug method to query a PeerConnection for this user
-	this.mediaInfo = function(callback) {
-		callback = (typeof callback == "function") ? callback : voxbone.noop;
-		var msg = {
-			request: "mediaInfo",
-			id: randomString(16)
-		};
-		sendMsgWrapper(msg, function response(result) {
-			if(result["response"] === "error") {
-				callback(result["payload"]["reason"]);
-				return;
-			}
-			callback(null, result["payload"]["info"]);
-		});
-	};
-
 	// Debug method to query the wrapper's internals
-	this.audit = function(callback) {
+	function audit(callback) {
 		callback = (typeof callback == "function") ? callback : voxbone.noop;
 		var msg = {
 			request: "audit",
