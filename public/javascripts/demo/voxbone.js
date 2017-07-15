@@ -2573,13 +2573,15 @@ var C = {
 			},
 
 			configure: function(config) {
-				voxbone.WebRTC.configuration.username = config.sipUsername;
-				voxbone.WebRTC.configuration.authuser = config.sipAuthUser || config.sipUsername;
-				voxbone.WebRTC.configuration.secret = config.sipPassword;
-				voxbone.WebRTC.configuration.uri = 'sip:' + config.sipUsername + '@' + config.sipRegistrar;
-				voxbone.WebRTC.configuration.server = 'sip:' + config.sipRegistrar;
-				voxbone.WebRTC.configuration.log_level = config.log_level || voxbone.Logger.log_level.INFO;
-				voxbone.WebRTC.configuration.post_logs = config.post_logs || voxbone.WebRTC.configuration.post_logs;
+				if (config.sipUsername) voxbone.WebRTC.configuration.username = config.sipUsername;
+				if (config.sipAuthUser) voxbone.WebRTC.configuration.authuser = config.sipAuthUser || config.sipUsername;
+				if (config.sipPassword) voxbone.WebRTC.configuration.secret = config.sipPassword;
+				if (config.sipUsername && config.sipRegistrar) voxbone.WebRTC.configuration.uri = 'sip:' + config.sipUsername + '@' + config.sipRegistrar;
+				if (config.sipURI) voxbone.WebRTC.configuration.uri = config.sipURI;
+				if (config.sipRegistrar) voxbone.WebRTC.configuration.server = 'sip:' + config.sipRegistrar;
+				if (config.log_level) voxbone.WebRTC.configuration.log_level = config.log_level || voxbone.Logger.log_level.INFO;
+				if (config.post_logs) voxbone.WebRTC.configuration.post_logs = config.post_logs || voxbone.WebRTC.configuration.post_logs;
+				if (config.webrtc_log) voxbone.WebRTC.configuration.webrtc_log = voxbone.WebRTC.configuration.webrtc_log + '\n' + config.webrtc_log;
 			},
 
 			customEventHandler: {
@@ -3089,7 +3091,6 @@ var C = {
 						callback(err);
 						return;
 					}
-					voxbone.Logger.loginfo(1);
 					voxbone.Logger.loginfo(res);
 					var address = null;
 					// We can connect to the wrapper either via HTTP or HTTPS
@@ -3098,7 +3099,6 @@ var C = {
 					} else {
 						address = res["usersApi"]["http"];
 					}
-					voxbone.Logger.loginfo(2);
 					voxbone.Logger.loginfo(address);
 					createWrapper(address, function(err) {
 						if(err) {
@@ -3533,6 +3533,29 @@ var C = {
 						}
 						callback(null, result["payload"]["info"]);
 					});
+				},
+				/**
+				 * Checks if the client browser supports WebRTC or not.
+				 *
+				 * @returns {boolean}
+				 */
+				isWebRTCSupported: function() {
+					if (!window.navigator.webkitGetUserMedia && !window.navigator.mozGetUserMedia) {
+						return false;
+					} else {
+						var is_firefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+						if (is_firefox) {
+							var patt = new RegExp("firefox/([0-9])+");
+							var patt2 = new RegExp("([0-9])+");
+							var user_agent = patt.exec(navigator.userAgent.toLowerCase())[0];
+							var version = patt2.exec(user_agent)[0];
+							if (version < 23) {
+								return false;
+							}
+						}
+
+						return true;
+					}
 				}
 
 			},
@@ -3607,30 +3630,6 @@ var C = {
 					/*Don't care if any calls were made, we still want logs*/
 					voxbone.WebRTC.postLogsToServer();
 				}
-			},
-
-			/**
-			 * Checks if the client browser supports WebRTC or not.
-			 *
-			 * @returns {boolean}
-			 */
-			isWebRTCSupported: function() {
-				if (!window.navigator.webkitGetUserMedia && !window.navigator.mozGetUserMedia) {
-					return false;
-				} else {
-					var is_firefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
-					if (is_firefox) {
-						var patt = new RegExp("firefox/([0-9])+");
-						var patt2 = new RegExp("([0-9])+");
-						var user_agent = patt.exec(navigator.userAgent.toLowerCase())[0];
-						var version = patt2.exec(user_agent)[0];
-						if (version < 23) {
-							return false;
-						}
-					}
-
-					return true;
-				}
 			}
 	});
 
@@ -3685,7 +3684,6 @@ var C = {
 			disconnectedCB();
 		};
 		wrapper.onmessage = function(message) {
-			voxbone.Logger.loginfo(3);
 			voxbone.Logger.loginfo(message);
 			var json = JSON.parse(message.data);
 			var transaction = json["id"];
@@ -3757,7 +3755,6 @@ var C = {
 
 	function registerViaWrapper(details, callback) {
 		callback = (typeof callback == "function") ? callback : voxbone.noop;
-		voxbone.Logger.loginfo(4);
 		voxbone.Logger.loginfo('Details:');
 		voxbone.Logger.loginfo(details);
 		var msg = {

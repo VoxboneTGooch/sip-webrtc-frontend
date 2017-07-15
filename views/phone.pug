@@ -2,18 +2,10 @@ extends layout
 
 prepend head
   script.
-    var voxbone = voxbone || {};
-    (function (window, document, object) {
-        window['voxboneObject'] = object;
-        var loader = function () {
-            var script = document.createElement("script"),
-                tag = document.getElementsByTagName("script")[0];
-            script.src = 'https://janus.sip2webr.tc/javascripts/demo/voxbone.js';
-            script.async = 1;
-            tag.parentNode.insertBefore(script, tag);
-        };
-        window.addEventListener ? window.addEventListener("load", loader, false) : window.attachEvent("onload", loader);
-    })(window, document, voxbone);
+    var voxbone = window.voxbone || {};
+    voxboneObject = window.voxboneObject || {};
+  script(async, src=process.env.VOXBONE_JS_LIB_URL)
+
 
 append head
   script.

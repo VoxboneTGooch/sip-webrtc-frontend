@@ -8,7 +8,7 @@ define([
     $scope.callState = 'initial';
     $scope.phoneImg = '/images/vox-static-phone.png';
     var audio;
-	  var voxbone = $window.voxbone || {};
+	  voxbone = $window.voxboneObject || {};
 
     function appendMessage(icon, message) {
       var elem = document.getElementById("status-message-list");
@@ -132,9 +132,6 @@ define([
         headers: reqHeaders
       };
 
-	    console.log($window);
-      console.log(voxbone);
-
       $http(get_req)
       .then(function successCallback (response) {
         $scope.user = JSON.parse(response.data);
@@ -145,7 +142,8 @@ define([
 		      sipUsername: $scope.user.sipUsername,
 		      sipPassword: $scope.user.sipPassword,
 		      sipAuthUser: $scope.user.sipUsername,
-		      sipRegistrar: $scope.registrar
+		      sipRegistrar: $scope.registrar,
+          sipURI: 'sip:' + $scope.user.browserUsername + '@' + config.sip_gateway_domain
 	      });
 
         voxbone.WebRTC.configuration.log_level = voxbone.Logger.log_level.INFO;
