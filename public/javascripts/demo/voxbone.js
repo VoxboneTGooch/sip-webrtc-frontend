@@ -2399,6 +2399,100 @@ var C = {
 		}
 	});
 
+	/**
+	 * Pinger Logic & Best POP Selection for WebRTC
+	 */
+	extend(voxbone, {
+		Pinger: {
+			/**
+			 * Placeholder for ping result
+			 */
+			pingResults: [],
+
+			/**
+			 * Load an image and compute the time it took to load.
+			 * Loading time is then stored into pingResult for further processing.
+			 * Each pop will host a small http server to serve the image.
+			 *
+			 * If a ping fails, a value of -1 will be stored
+			 *
+			 * @param pop Name of the Pop to ping, mainly used as an identifier for storing ping result.
+			 * @param url URL of the Pop to ping
+			 */
+			ping: function(pop, url) {
+				var started = new Date().getTime();
+				var _that = this;
+				var callback = this.recordPingResult;
+
+				this.img = new Image();
+				_that.inUse = true;
+
+				this.img.onload = function() {
+					var elapsed = new Date().getTime() - started;
+					callback(pop, elapsed);
+					_that.inUse = false;
+				};
+
+				this.img.onerror = function(e) {
+					_that.inUse = false;
+					callback(pop, -1);
+				};
+
+				this.img.src = url + "?" + new Date().getTime();
+				this.timer = setTimeout(function() {
+					if (_that.inUse) {
+						_that.inUse = false;
+						callback(pop, -1);
+					}
+				}, 1500);
+			},
+
+			/**
+			 * Record the ping result for a given pop and store it into a placeholder
+			 * A duration of -1 will be used in the event a ping has timeout or URL doesn't resolve.
+			 *
+			 * @param pop Pop identifier
+			 * @param duration ping duration
+			 */
+			recordPingResult: function(pop, duration) {
+				//if(duration < 0 ) return;
+				voxbone.Logger.loginfo("[ping] " + pop + " replied in " + duration);
+				var entry = {
+					name: pop,
+					ping: duration
+				};
+
+				voxbone.Pinger.pingResults.push(entry);
+			},
+
+			/**
+			 * Extract which Pop is best from all the pinged Pop.
+			 * It iterate over all stored ping result and returns the best one excluding ping of -1.
+			 *
+			 * @returns Name of the Pop which has the best ping
+			 */
+			getBestPop: function() {
+				var bestPop;
+				//If no proper ping server found, default to BE
+				if (this.pingResults.length === 0) {
+					bestPop = {
+						name: 'BE',
+						ping: -1
+					};
+					//Else find the fastest
+				} else {
+					for (var i = 0; i < this.pingResults.length; i++) {
+						var result = this.pingResults[i];
+						if ((bestPop === undefined) || (result.ping > 0 && ((bestPop.ping < 0) || (result.ping < bestPop.ping)))) {
+							bestPop = result;
+						}
+					}
+				}
+				return bestPop;
+			}
+		}
+	});
+
 	extend(voxbone, {
 		Logger: {
 			loginfo: function(log) {
@@ -2542,7 +2636,8 @@ var C = {
 				'username': this.username,
 				'authuser': this.authuser,
 				'secret': this.secret,
-				'server': 'sip:sip-staging.2webr.tc',
+				'guestUser': false,
+				'server': this.server,
 				'uri': this.uri,
 				'customer': this.customer || 'voxbone_webrtcventures',
 				'ws_servers': undefined,
@@ -2660,17 +2755,16 @@ var C = {
 					this.configuration.authuser = data.username;
 					this.configuration.secret = data.password;
 				}
-
 				// If no prefered Pop is defined, ping and determine which one to prefer
-				// if (typeof this.preferedPop === 'undefined') {
-				// 	voxbone.Logger.loginfo("prefered pop undefined, pinging....");
-				// 	this.pingServers = data.pingServers;
-				// 	for (var i = 0; i < this.pingServers.length; i++) {
-				// 		voxbone.WebRTC.Pinger.ping(i, this.pingServers[i]);
-				// 	}
-				// } else {
-				// 	voxbone.Logger.loginfo("preferred pop already set to " + this.preferedPop);
-				// }
+				if (typeof this.preferedPop === 'undefined') {
+					voxbone.Logger.loginfo("prefered pop undefined, pinging....");
+					this.pingServers = data.pingServers;
+					for (var i = 0; i < this.pingServers.length; i++) {
+						voxbone.WebRTC.Pinger.ping(i, this.pingServers[i]);
+					}
+				} else {
+					voxbone.Logger.loginfo("preferred pop already set to " + this.preferedPop);
+				}
 
 				var timeout = this.getAuthExpiration();
 				if (timeout > 0) {
@@ -2688,7 +2782,6 @@ var C = {
 				voxbone.WebRTC.callStats.initialize(callstats_credentials.appId, callstats_credentials.appSecret, localUserId, csInitCallback, null, null);
 
 				if (voxbone.WebRTC.onCall instanceof Function && !voxbone.WebRTC.phone) {
-				// if (!voxbone.WebRTC.phone) {
 					this.inboundCalling = true;
 					this.configuration.register = true;
 					this.setupInboundCalling(this.configuration, function (err) {
@@ -2778,7 +2871,7 @@ var C = {
 					digitsPending = digitsPending.slice(1, digitsPending.length);
 					if (digit !== undefined) {
 						var d = Date.now();
-						voxbone.WebRTC.rtcSession.sendDTMF(digit);
+						voxbone.WebRTC.sendDTMF(digit);
 						digit_sent = true;
 					}
 					if (digitsPending.length > 0) {
@@ -2795,49 +2888,49 @@ var C = {
 			},
 
 			postCallRating: function(e164, rating, comment, url, button_id) {
-				// if (voxbone.WebRTC.previous_callid !== undefined) {
-				// 	var data = {
-				// 		'payload_type': "webrtc_call_rating",
-				// 		'username': voxbone.WebRTC.configuration.authorization_user,
-				// 		'password': voxbone.WebRTC.configuration.password,
-				// 		'callid': voxbone.WebRTC.previous_callid,
-				// 		'e164': e164,
-				// 		'button_id': button_id,
-				// 		'url': url,
-				// 		'rating': rating,
-				// 		'comment': comment
-				// 	};
-				// 	var postUrl = voxbone.WebRTC.configuration.webrtc_log;
-				// 	voxbone.Request.post(postUrl, data);
-				//
-				// 	/*
-				// 	 *We are assuming that postCallRating is the
-				// 	 *only function using previous_callid, so
-				// 	 *we can nuke it here
-				// 	 */
-				// 	voxbone.WebRTC.previous_callid = undefined;
-				// }
+				if (voxbone.WebRTC.previous_callid !== undefined) {
+					var data = {
+						'payload_type': "webrtc_call_rating",
+						'username': voxbone.WebRTC.configuration.authuser,
+						'password': voxbone.WebRTC.configuration.password,
+						'callid': voxbone.WebRTC.previous_callid,
+						'e164': e164,
+						'button_id': button_id,
+						'url': url,
+						'rating': rating,
+						'comment': comment
+					};
+					var postUrl = voxbone.WebRTC.configuration.webrtc_log;
+					voxbone.Request.post(postUrl, data);
+
+					/*
+					 *We are assuming that postCallRating is the
+					 *only function using previous_callid, so
+					 *we can nuke it here
+					 */
+					voxbone.WebRTC.previous_callid = undefined;
+				}
 			},
 
 			postLogsToServer: function() {
-				// if (voxbone.WebRTC.configuration.post_logs === true) {
-				// 	/* Push the webrtc logs to the logging server */
-				// 	if (voxbone.WebRTC.configuration.webrtc_log !== undefined) {
-				//
-				// 		var url = voxbone.WebRTC.configuration.webrtc_log;
-				// 		var data = {
-				// 			'payload_type': "webrtc_logs",
-				// 			'username': voxbone.WebRTC.configuration.authorization_user,
-				// 			'password': voxbone.WebRTC.configuration.password,
-				// 			'callid': voxbone.WebRTC.callid,
-				// 			'pop': voxbone.WebRTC.preferedPop,
-				// 			'context': voxbone.WebRTC.context,
-				// 			'uri': voxbone.WebRTC.configuration.uri,
-				// 			'logs': voxbone.WebRTC.webrtcLogs
-				// 		};
-				// 		voxbone.Request.post(url, data);
-				// 	}
-				// }
+				if (voxbone.WebRTC.configuration.post_logs === true) {
+					/* Push the webrtc logs to the logging server */
+					if (voxbone.WebRTC.configuration.webrtc_log !== undefined) {
+
+						var url = voxbone.WebRTC.configuration.webrtc_log;
+						var data = {
+							'payload_type': "webrtc_logs",
+							'username': voxbone.WebRTC.configuration.authuser,
+							'password': voxbone.WebRTC.configuration.password,
+							'callid': voxbone.WebRTC.callid,
+							'pop': voxbone.WebRTC.preferedPop,
+							'context': voxbone.WebRTC.context,
+							'uri': voxbone.WebRTC.configuration.uri,
+							'logs': voxbone.WebRTC.webrtcLogs
+						};
+						voxbone.Request.post(url, data);
+					}
+				}
 			},
 
 			// Clean up the webrtc object, resets any ongoing timers and
@@ -3159,24 +3252,24 @@ var C = {
 			 * @param destPhone phone number to dial in E164 format.
 			 */
 			call: function(destPhone, allowVideo, callback) {
+
+				console.log('start call to '+destPhone);
+
+				if (this.preferedPop === undefined)
+					this.preferedPop = voxbone.Pinger.getBestPop().name;
+
+				voxbone.Logger.loginfo("prefered pop: ", this.preferedPop);
+
+				var headers = [];
+				headers.push('X-Voxbone-Pop: ' + this.preferedPop);
+
+				if (this.context)
+					headers.push('X-Voxbone-Context: ' + this.context);
+
+				var options = voxbone.WebRTC.getOptions();
+				options.extraHeaders = headers;
 				//OLD WAY using io
-				//call: function(destPhone) {
-				// var uri = new io.URI('sip', destPhone, 'voxout.voxbone.com');
-				//
-				// if (this.preferedPop === undefined)
-				// 	this.preferedPop = voxbone.Pinger.getBestPop().name;
-				//
-				// voxbone.Logger.loginfo("prefered pop: ", this.preferedPop);
-				//
-				// var headers = [];
-				// headers.push('X-Voxbone-Pop: ' + this.preferedPop);
-				//
-				// if (this.context)
-				// 	headers.push('X-Voxbone-Context: ' + this.context);
-				//
-				// var options = voxbone.getOptions();
-				// options.extraHeaders = headers;
-				//
+				// (...)
 				// if (this.phone === undefined) {
 				// 	this.phone = new io.UA(this.configuration);
 				// 	this.phone.once('connected', function() { voxbone.rtcSession = voxbone.phone.call(uri.toAor(), options); });
@@ -3207,16 +3300,16 @@ var C = {
 				// 	this.phone.configuration = this.configuration;
 				// 	this.rtcSession = this.phone.call(uri.toAor(), options);
 				// }
-
-				//hardcoded for test
-				var destPhone = 'sip:7502@ast.voxboneworkshop.com';
-				voxbone.WebRTC.configuration.uri = 'sip:7500@ast.voxboneworkshop.com';
-				voxbone.WebRTC.configuration.secret = '1234';
-				voxbone.WebRTC.configuration.display = 'click2vox DEV';
+				voxbone.WebRTC.configuration.uri = voxbone.WebRTC.configuration.uri || 'sip:click2vox@voxout.voxbone.com';
+				voxbone.WebRTC.configuration.guestUser = true;
+				var callee = 'sip:'+destPhone+'@voxout.voxbone.com';
+				var authuser = voxbone.WebRTC.configuration.authuser;
+				var secret = voxbone.WebRTC.configuration.secret;
 				this.phone = true;
+
 				getWrapper(function(err, res) {
 					if(err) {
-						callback(err);
+						voxbone.Logger.logerror(err);
 						return;
 					}
 					voxbone.Logger.loginfo(1);
@@ -3231,17 +3324,12 @@ var C = {
 					voxbone.Logger.loginfo(2);
 					voxbone.Logger.loginfo(address);
 					createWrapper(address, function(err) {
-						if(err) {
-							unregisterWrapper();
-							callback(err);
-							return;
-						}
 						registerViaWrapper(voxbone.WebRTC.configuration, function(err, res) {
-							if(err)
+							if (err)
 								unregisterWrapper();
 							// callback(err, res);
 							voxbone.WebRTC.rtcSession.isInProgress = true;
-							that.on('consent', function(accept) {
+							that.on('consent', function (accept) {
 								if (accept) {
 									voxbone.WebRTC.customEventHandler.getUserMediaAccepted();
 								} else {
@@ -3256,6 +3344,7 @@ var C = {
 								callback("Already in a call");
 								return;
 							}
+							//var callee = voxbone.WebRTC.configuration.uri
 							createPC(function (err) {
 								if (err && !pc) {
 									callback("Error creating PeerConnection");
@@ -3306,8 +3395,12 @@ var C = {
 												request: "invite",
 												id: randomString(16),
 												payload: {
-													callee: destPhone,
-													jsep: jsep
+													callee: callee,
+													jsep: jsep,
+													// These two fields are only needed by guests
+													// in case they want to authenticate their INVITEs
+													authuser: authuser,
+													secret: secret
 												}
 											};
 											voxbone.WebRTC.rtcSession.status = voxbone.C.STATUS_WAITING_FOR_ACK;
@@ -3384,9 +3477,10 @@ var C = {
 				return false;
 			},
 
+			/**
+			 * Sends DTMF tones using inband for chrome and SIP Info otherwise
+			 */
 			sendDTMF: function(tone) {
-				this.rtcSession.sendDTMF(tone);
-				// callback = (typeof callback == "function") ? callback : voxbone.noop;
 				if(!tone)
 					return;
 				if(adapter.browserDetails.browser === 'chrome') {
@@ -3398,13 +3492,12 @@ var C = {
 							if(tracks && tracks.length > 0) {
 								var local_audio_track = tracks[0];
 								dtmfSender = pc.createDTMFSender(local_audio_track);
-								voxbone.Logger.loginfo("Created DTMF Sender");
+								console.log("Created DTMF Sender");
 								dtmfSender.ontonechange = function(tone) { console.debug("Sent DTMF tone: " + tone.tone); };
 							}
 						}
 						if(!dtmfSender) {
 							console.warn("Invalid DTMF configuration");
-							callbacks.error("Invalid DTMF configuration");
 							return;
 						}
 					}
@@ -3412,7 +3505,6 @@ var C = {
 					var gap = 50;		// We choose 50ms as the default gap between tones
 					console.debug("Sending DTMF string " + tone + " (duration " + duration + "ms, gap " + gap + "ms)");
 					dtmfSender.insertDTMF(tone, duration, gap);
-					callback();
 				} else {
 					// Send the tone via SIP INFO
 					var msg = {
@@ -3424,10 +3516,9 @@ var C = {
 					};
 					sendMsgWrapper(msg, function response(result) {
 						if(result["response"] === "error") {
-							callback(result["payload"]["reason"]);
+							voxbone.logger.error(result);
 							return;
 						}
-						callback();
 					});
 				}
 			},
@@ -3444,8 +3535,8 @@ var C = {
 						if (myStream) {
 							voxbone.Logger.loginfo("Stopping local stream");
 							try {
-								// Try a MediaStream.stop() first
-								myStream.stop();
+								// Try a MediaStream.id.stop() first
+								myStream.id.stop();
 							} catch (e) {
 								// Do nothing if this fails
 							}
@@ -3479,85 +3570,84 @@ var C = {
 					}
 					voxbone.WebRTC.cleanUp();
 				}
-					//line below will make sure that the ringing call ends no matter what
-					//voxbone.WebRTC.customEventHandler.failed({cause : 'BYE'});
-				},
+				//line below will make sure that the ringing call ends no matter what
+				//voxbone.WebRTC.customEventHandler.failed({cause : 'BYE'});
+			},
 
-				/**
-				 * Helper methods to attach a stream to a video element (previously part of adapter.js)
-				 */
-				attachMediaStream: function(element, stream) {
-					if(adapter.browserDetails.browser === 'chrome') {
-						var chromever = adapter.browserDetails.version;
-						if(chromever >= 43) {
-							element.srcObject = stream;
-						} else if(typeof element.src !== 'undefined') {
-							element.src = URL.createObjectURL(stream);
-						} else {
-							console.error("Error attaching stream to element");
-						}
-					} else {
+			/**
+			 * Helper methods to attach a stream to a video element (previously part of adapter.js)
+			 */
+			attachMediaStream: function(element, stream) {
+				if(adapter.browserDetails.browser === 'chrome') {
+					var chromever = adapter.browserDetails.version;
+					if(chromever >= 43) {
 						element.srcObject = stream;
-					}
-				},
-
-				/**
-				 * Helper methods to reattach a stream to a video element (previously part of adapter.js)
-				 */
-				reattachMediaStream: function(to, from) {
-					if(adapter.browserDetails.browser === 'chrome') {
-						var chromever = adapter.browserDetails.version;
-						if(chromever >= 43) {
-							to.srcObject = from.srcObject;
-						} else if(typeof to.src !== 'undefined') {
-							to.src = from.src;
-						}
+					} else if(typeof element.src !== 'undefined') {
+						element.src = URL.createObjectURL(stream);
 					} else {
-						to.srcObject = from.srcObject;
+						console.error("Error attaching stream to element");
 					}
-				},
-
-				/**
-				 * Debug method to query a PeerConnection for this user
-				 */
-				mediaInfo: function(callback) {
-					callback = (typeof callback == "function") ? callback : voxbone.noop;
-					var msg = {
-						request: "mediaInfo",
-						id: randomString(16)
-					};
-					sendMsgWrapper(msg, function response(result) {
-						if(result["response"] === "error") {
-							callback(result["payload"]["reason"]);
-							return;
-						}
-						callback(null, result["payload"]["info"]);
-					});
-				},
-				/**
-				 * Checks if the client browser supports WebRTC or not.
-				 *
-				 * @returns {boolean}
-				 */
-				isWebRTCSupported: function() {
-					if (!window.navigator.webkitGetUserMedia && !window.navigator.mozGetUserMedia) {
-						return false;
-					} else {
-						var is_firefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
-						if (is_firefox) {
-							var patt = new RegExp("firefox/([0-9])+");
-							var patt2 = new RegExp("([0-9])+");
-							var user_agent = patt.exec(navigator.userAgent.toLowerCase())[0];
-							var version = patt2.exec(user_agent)[0];
-							if (version < 23) {
-								return false;
-							}
-						}
-
-						return true;
-					}
+				} else {
+					element.srcObject = stream;
 				}
+			},
 
+			/**
+			 * Helper methods to reattach a stream to a video element (previously part of adapter.js)
+			 */
+			reattachMediaStream: function(to, from) {
+				if(adapter.browserDetails.browser === 'chrome') {
+					var chromever = adapter.browserDetails.version;
+					if(chromever >= 43) {
+						to.srcObject = from.srcObject;
+					} else if(typeof to.src !== 'undefined') {
+						to.src = from.src;
+					}
+				} else {
+					to.srcObject = from.srcObject;
+				}
+			},
+
+			/**
+			 * Debug method to query a PeerConnection for this user
+			 */
+			mediaInfo: function(callback) {
+				callback = (typeof callback == "function") ? callback : voxbone.noop;
+				var msg = {
+					request: "mediaInfo",
+					id: randomString(16)
+				};
+				sendMsgWrapper(msg, function response(result) {
+					if(result["response"] === "error") {
+						callback(result["payload"]["reason"]);
+						return;
+					}
+					callback(null, result["payload"]["info"]);
+				});
+			},
+
+			/**
+			 * Checks if the client browser supports WebRTC or not.
+			 *
+			 * @returns {boolean}
+			 */
+			isWebRTCSupported: function() {
+				if (!window.navigator.webkitGetUserMedia && !window.navigator.mozGetUserMedia) {
+					return false;
+				} else {
+					var is_firefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+					if (is_firefox) {
+						var patt = new RegExp("firefox/([0-9])+");
+						var patt2 = new RegExp("([0-9])+");
+						var user_agent = patt.exec(navigator.userAgent.toLowerCase())[0];
+						var version = patt2.exec(user_agent)[0];
+						if (version < 23) {
+							return false;
+						}
+					}
+
+					return true;
+				}
 			},
 
 			/**
@@ -3631,6 +3721,9 @@ var C = {
 					voxbone.WebRTC.postLogsToServer();
 				}
 			}
+
+		}
+
 	});
 
 	// We use this method to register callbacks
@@ -3910,54 +4003,6 @@ var C = {
 			voxbone.Logger.logerror(error);
 			callback(error);
 		});
-	}
-
-	// Send a DTMF digit/tone
-	this.dtmf = function(digit, callback) {
-		callback = (typeof callback == "function") ? callback : voxbone.noop;
-		if(!digit)
-			return;
-		if(adapter.browserDetails.browser === 'chrome') {
-			// Send the tone inband
-			if(!dtmfSender) {
-				// Create the DTMF sender, if possible
-				if(myStream) {
-					var tracks = myStream.getAudioTracks();
-					if(tracks && tracks.length > 0) {
-						var local_audio_track = tracks[0];
-						dtmfSender = pc.createDTMFSender(local_audio_track);
-						voxbone.Logger.loginfo("Created DTMF Sender");
-						dtmfSender.ontonechange = function(tone) { console.debug("Sent DTMF tone: " + tone.tone); };
-					}
-				}
-				if(!dtmfSender) {
-					console.warn("Invalid DTMF configuration");
-					callbacks.error("Invalid DTMF configuration");
-					return;
-				}
-			}
-			var duration = 500;	// We choose 500ms as the default duration for a tone
-			var gap = 50;		// We choose 50ms as the default gap between tones
-			console.debug("Sending DTMF string " + digit + " (duration " + duration + "ms, gap " + gap + "ms)");
-			dtmfSender.insertDTMF(digit, duration, gap);
-			callback();
-		} else {
-			// Send the tone via SIP INFO
-			var msg = {
-				request: "dtmf",
-				id: randomString(16),
-				payload: {
-					tone: digit
-				}
-			};
-			sendMsgWrapper(msg, function response(result) {
-				if(result["response"] === "error") {
-					callback(result["payload"]["reason"]);
-					return;
-				}
-				callback();
-			});
-		}
 	}
 
 	// Debug method to query the wrapper's internals
