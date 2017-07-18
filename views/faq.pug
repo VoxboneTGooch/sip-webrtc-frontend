@@ -1,0 +1,102 @@
+extends layout
+
+prepend head
+  script.
+    voxbone = window.voxbone || {};
+    (function (window, document, object, id) {
+        if (document.getElementById(id)) {return;}
+        window['voxboneObject'] = object || {};
+        var loader = function () {
+            var script = document.createElement("script"),
+                tag = document.getElementsByTagName("script")[0];
+            script.id = id;
+            script.src = 'http://localhost:3000/javascripts/demo/voxbone.js';
+            script.async = 1;
+            tag.parentNode.insertBefore(script, tag);
+        };
+        window.addEventListener ? window.addEventListener("load", loader, false) : window.attachEvent("onload", loader);
+    })(window, document, voxbone, 'voxbone');
+
+    window.onload = function() {
+      setTimeout(function() {
+        console.log(window);
+        console.log(voxbone);
+
+        voxbone.WebRTC.basicAuthInit('voxbone_webrtcventures', 'Clic2178!');
+
+        voxbone.WebRTC.configure({
+          sipUsername: '7502',
+          sipPassword: '1234',
+          sipAuthUser: '7502',
+          sipRegistrar: 'ast.voxboneworkshop.com',
+          sipURI: 'sip:7502@ast.voxboneworkshop.com'
+        });
+
+        voxbone.WebRTC.onCall = function (callee, cb) {
+          var audio = new Audio('/audio/old.ogg');
+          setState('receiving', callee);
+          audio.play();
+
+          this.answerCall = function () {
+              cb(true);
+              setState('ongoing', callee);
+              audio.pause();
+              audio.currentTime = 0;
+          };
+
+          this.declineCall = function () {
+              cb(false);
+          };
+
+        };
+        eventHandlersActions(voxbone);
+
+        function eventHandlersActions(voxbone) {
+          voxbone.WebRTC.customEventHandler.ended = function (e) {
+              alert('Ended call');
+              console.log('time', 'Waiting for incoming call');
+              console.log('waiting');
+          };
+
+          voxbone.WebRTC.customEventHandler.registered = function (e) {
+              console.log('ok', 'Registered');
+              console.log('time', 'Waiting for incoming call');
+              console.log('waiting');
+          };
+
+          voxbone.WebRTC.customEventHandler.remoteMediaVolume = function (e) {
+              clearDevice('phone-earphone');
+              if (e.remoteVolume > 0.01) setEapDot('1');
+              if (e.remoteVolume > 0.10) setEapDot('2');
+              if (e.remoteVolume > 0.20) setEapDot('3');
+          };
+
+          voxbone.WebRTC.customEventHandler.localMediaVolume = function (e) {
+              clearDevice('phone-microphone');
+              if (e.localVolume > 0.01) setMicDot('1');
+              if (e.localVolume > 0.10) setMicDot('2');
+
+              this.hangCall = function () {
+                  voxbone.WebRTC.hangup();
+                  console.log('waiting');
+                  if (e.localVolume > 0.20) setMicDot('3');
+              };
+          };
+        }
+      }, 10000);
+    }
+
+block content
+  .body
+    .site-wrapper-inner.home-wrap
+      .container
+        .call-actions
+          button.btn.btn-answer.call-button(onclick="window.answerCall()")
+            span.glyphicon.glyphicon-ok
+            | Answer
+          button.btn.btn-decline.call-button(onclick="this.declineCall()")
+            span.glyphicon.glyphicon-earphone
+            | Decline
+          button.btn.btn-hangup.call-button(onclick="this.hangCall()")
+            span.glyphicon.glyphicon-earphone
+            | Hang up

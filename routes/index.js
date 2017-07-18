@@ -136,4 +136,26 @@ router.get('/demo', function (req, res, next) {
   });
 });
 
+router.get('/faq', function (req, res, next) {
+	var ringtone = res.locals.currentUser.ringtone;
+	var browserNotifications = res.locals.currentUser.browserNotifications;
+	var uemail = res.locals.currentUser.email;
+	voxrtc_config = voxbone.generate();
+	var config = {
+		vox_username: voxrtc_username,
+		vox_password: voxrtc_secret,
+		voxbone_webrtc_username: voxrtc_username,
+		apiBrowserName: res.locals.currentUser.apiBrowsername,
+		ws_server: process.env.WS_SERVER,
+		sip_gateway_domain: process.env.SIP_GATEWAY_DOMAIN
+	};
+
+	res.render('faq', {
+		config: config,
+		ringtone: ringtone,
+		browserNotifications: browserNotifications,
+		email: uemail
+	});
+});
+
 module.exports = router;

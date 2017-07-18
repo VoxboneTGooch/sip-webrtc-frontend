@@ -8,7 +8,9 @@ define([
     $scope.callState = 'initial';
     $scope.phoneImg = '/images/vox-static-phone.png';
     var audio;
-	  voxbone = $window.voxboneObject || {};
+	  // voxbone = $window.voxboneObject || {};
+	  // voxbone_2 = {};
+	  var vox1 = {};
 
     function appendMessage(icon, message) {
       var elem = document.getElementById("status-message-list");
@@ -138,19 +140,46 @@ define([
         $scope.registrar = filterRegistrarURI($scope.user.registrarURI);
         audio = new Audio('/audio/' + ringtone + '.ogg');
 
-	      voxbone.WebRTC.configure({
+	      var voxbone = new Voxbone([{
 		      sipUsername: $scope.user.sipUsername,
 		      sipPassword: $scope.user.sipPassword,
 		      sipAuthUser: $scope.user.sipUsername,
 		      sipRegistrar: $scope.registrar,
-          sipURI: 'sip:' + $scope.user.browserUsername + '@' + config.sip_gateway_domain
-	      });
+		      sipURI: 'sip:' + $scope.user.browserUsername + '@' + config.sip_gateway_domain
+	      },
+	      {
+		      sipUsername: $scope.user.sipUsername,
+		      sipPassword: $scope.user.sipPassword,
+		      sipAuthUser: $scope.user.sipUsername,
+		      sipRegistrar: $scope.registrar,
+		      sipURI: 'sip:7500@' + config.sip_gateway_domain
+	      }]);
 
-        voxbone.WebRTC.configuration.log_level = voxbone.Logger.log_level.INFO;
+	      console.log('after constructor');
+				console.log(voxbone);
+	      vox1 = voxbone[0];
+	      console.log(vox1);
+	      // voxbone_2 = new Voxbone({
+		     //  sipUsername: $scope.user.sipUsername,
+		     //  sipPassword: $scope.user.sipPassword,
+		     //  sipAuthUser: $scope.user.sipUsername,
+		     //  sipRegistrar: $scope.registrar,
+		     //  sipURI: 'sip:7501@sip-staging.2webr.tc'
+	      // });
+
+	      // voxbone.WebRTC.configure({
+		     //  sipUsername: $scope.user.sipUsername,
+		     //  sipPassword: $scope.user.sipPassword,
+		     //  sipAuthUser: $scope.user.sipUsername,
+		     //  sipRegistrar: $scope.registrar,
+         //  sipURI: 'sip:' + $scope.user.browserUsername + '@' + config.sip_gateway_domain
+	      // });
+
+        vox1.WebRTC.configuration.log_level = vox1.Logger.log_level.INFO;
         //voxbone.WebRTC.configuration.ws_servers = [config.ws_server];
 
         //exporting call logs
-        voxbone.WebRTC.configuration.post_logs = true;
+	      vox1.WebRTC.configuration.post_logs = true;
         now = new Date($.now());
         var call = {
             call: {
@@ -160,11 +189,13 @@ define([
             }
         };
 
-        voxbone.WebRTC.webrtcLogs += JSON.stringify(call);
-        voxbone.WebRTC.basicAuthInit(config.vox_username, config.vox_password);
+	      vox1.WebRTC.webrtcLogs += JSON.stringify(call);
+	      vox1.WebRTC.basicAuthInit(config.vox_username, config.vox_password);
 
-        voxbone.WebRTC.onCall = function (callee, cb) {
+	      //voxbone_2.WebRTC.basicAuthInit(config.vox_username, config.vox_password);
 
+	      vox1.WebRTC.onCall = function (callee, cb) {
+					console.log('ON CALL!');
           setState('receiving', callee);
           audio.play();
 
@@ -187,32 +218,32 @@ define([
         });
 
 	    function eventHandlersActions() {
-		    voxbone.WebRTC.customEventHandler.ended = function (e) {
+		    vox1.WebRTC.customEventHandler.ended = function (e) {
 			    appendMessage('phone-alt', 'Ended call');
 			    appendMessage('time', 'Waiting for incoming call');
 			    setState('waiting');
 		    };
 
-		    voxbone.WebRTC.customEventHandler.registered = function (e) {
+		    vox1.WebRTC.customEventHandler.registered = function (e) {
 			    appendMessage('ok', 'Registered');
 			    appendMessage('time', 'Waiting for incoming call');
 			    setState('waiting');
 		    };
 
-		    voxbone.WebRTC.customEventHandler.remoteMediaVolume = function (e) {
+		    vox1.WebRTC.customEventHandler.remoteMediaVolume = function (e) {
 			    clearDevice('phone-earphone');
 			    if (e.remoteVolume > 0.01) setEapDot('1');
 			    if (e.remoteVolume > 0.10) setEapDot('2');
 			    if (e.remoteVolume > 0.20) setEapDot('3');
 		    };
 
-		    voxbone.WebRTC.customEventHandler.localMediaVolume = function (e) {
+		    vox1.WebRTC.customEventHandler.localMediaVolume = function (e) {
 			    clearDevice('phone-microphone');
 			    if (e.localVolume > 0.01) setMicDot('1');
 			    if (e.localVolume > 0.10) setMicDot('2');
 
 			    $scope.hangCall = function () {
-				    voxbone.WebRTC.hangup();
+				    vox1.WebRTC.hangup();
 				    setState('waiting');
 				    if (e.localVolume > 0.20) setMicDot('3');
 			    };
