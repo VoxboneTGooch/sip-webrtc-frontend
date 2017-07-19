@@ -2399,17 +2399,21 @@ function Voxbone(configs) {
 					request.send(postData);
 				},
 
-				jsonp: function (url, data) {
-					var src = url + (url.indexOf('?') + 1 ? '&' : '?');
-					var head = document.getElementsByTagName('head')[0];
-					var newScript = document.createElement('script');
+				jsonp: function (url, data, callback) {
+					var url_complete = url + (url.indexOf('?') + 1 ? '&' : '?');
+					url_complete += this.param(data);
+					var callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
 
-					src += this.param(data);
-					newScript.type = 'text/javascript';
-					newScript.src = src;
+					window[callbackName] = function(data) {
+						delete window[callbackName];
+						document.body.removeChild(script);
+						callback(data);
+					};
 
-					if (this.currentScript) head.removeChild(currentScript);
-					head.appendChild(newScript);
+					var script = document.createElement('script');
+					script.src = url_complete + '&jsonp=' + callbackName;
+					document.body.appendChild(script);
+
 				}
 			}
 		});
@@ -2739,10 +2743,12 @@ function Voxbone(configs) {
 						'key': credentials.key,
 						'expires': credentials.expires,
 						'timestamp': Date.now(),
-						'jsonp': 'voxbone.WebRTC.processAuthData'
+						//'jsonp': 'voxbone.WebRTC.processAuthData'
 					};
-
-					voxbone.Request.jsonp(this.authServerURL, data);
+					//old approach voxbone.Request.jsonp(this.authServerURL, data);
+					voxbone.Request.jsonp(this.basicAuthServerURL, data, function(data) {
+						voxbone.WebRTC.processAuthData(data);
+					});
 				},
 
 				/**
@@ -2756,14 +2762,17 @@ function Voxbone(configs) {
 					var data = {
 						'username': username,
 						'key': key,
-						'timestamp': Date.now(),
-						'jsonp': 'voxbone.WebRTC.processAuthData'
+						'timestamp': Date.now()
 					};
 
-					voxbone.Request.jsonp(this.basicAuthServerURL, data);
+					voxbone.Request.jsonp(this.basicAuthServerURL, data, function(data) {
+						voxbone.WebRTC.processAuthData(data);
+					});
+
 				},
 
 				processAuthData: function (data) {
+					console.log(data);
 					//approach left for the future implementation of connectionId based auth
 					if (data.connectionId) {
 						this.configuration.connectionId = data.connectionId;
@@ -2804,7 +2813,8 @@ function Voxbone(configs) {
 					var localUserId = ((data.username).split(":"))[1];
 					voxbone.WebRTC.callStats.initialize(callstats_credentials.appId, callstats_credentials.appSecret, localUserId, csInitCallback, null, null);
 
-					if (voxbone.WebRTC.onCall instanceof Function && !voxbone.WebRTC.phone) {
+					//if (voxbone.WebRTC.onCall instanceof Function && !voxbone.WebRTC.phone) {
+					if(!voxbone.WebRTC.phone){
 						this.inboundCalling = true;
 						this.configuration.register = true;
 						this.setupInboundCalling(this.configuration, function (err) {

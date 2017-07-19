@@ -1,6 +1,7 @@
 define([
   'controllers/browserNotifications',
-  'bootstrap'
+  'bootstrap',
+	'require'
   ], function(BrowserNotificationsController) {
 
   var PhoneController = function($scope, $http, $window, $timeout, $controller) {
@@ -140,110 +141,114 @@ define([
         $scope.registrar = filterRegistrarURI($scope.user.registrarURI);
         audio = new Audio('/audio/' + ringtone + '.ogg');
 
-	      var voxbone = new Voxbone([{
-		      sipUsername: $scope.user.sipUsername,
-		      sipPassword: $scope.user.sipPassword,
-		      sipAuthUser: $scope.user.sipUsername,
-		      sipRegistrar: $scope.registrar,
-		      sipURI: 'sip:' + $scope.user.browserUsername + '@' + config.sip_gateway_domain
-	      },
-	      {
-		      sipUsername: $scope.user.sipUsername,
-		      sipPassword: $scope.user.sipPassword,
-		      sipAuthUser: $scope.user.sipUsername,
-		      sipRegistrar: $scope.registrar,
-		      sipURI: 'sip:7500@' + config.sip_gateway_domain
-	      }]);
+	      requirejs.config({
+		      paths: {
+			      voxbone: "http://localhost:3000/javascripts/demo/voxbone"
+		      }
+	      });
 
-	      console.log('after constructor');
-				console.log(voxbone);
-	      vox1 = voxbone[0];
-	      console.log(vox1);
-	      // voxbone_2 = new Voxbone({
-		     //  sipUsername: $scope.user.sipUsername,
-		     //  sipPassword: $scope.user.sipPassword,
-		     //  sipAuthUser: $scope.user.sipUsername,
-		     //  sipRegistrar: $scope.registrar,
-		     //  sipURI: 'sip:7501@sip-staging.2webr.tc'
-	      // });
+	      requirejs(['voxbone'],
+		      function() {
+			      var voxbones = new Voxbone([{
+				      sipUsername: $scope.user.sipUsername,
+				      sipPassword: $scope.user.sipPassword,
+				      sipAuthUser: $scope.user.sipUsername,
+				      sipRegistrar: $scope.registrar,
+				      sipURI: 'sip:' + $scope.user.browserUsername + '@' + config.sip_gateway_domain
+			      },
+			      {
+				      sipUsername: $scope.user.sipUsername,
+				      sipPassword: $scope.user.sipPassword,
+				      sipAuthUser: $scope.user.sipUsername,
+				      sipRegistrar: $scope.registrar,
+				      sipURI: 'sip:7500@' + config.sip_gateway_domain
+			      }]);
 
-	      // voxbone.WebRTC.configure({
-		     //  sipUsername: $scope.user.sipUsername,
-		     //  sipPassword: $scope.user.sipPassword,
-		     //  sipAuthUser: $scope.user.sipUsername,
-		     //  sipRegistrar: $scope.registrar,
-         //  sipURI: 'sip:' + $scope.user.browserUsername + '@' + config.sip_gateway_domain
-	      // });
+			      console.log('after constructor');
+			      console.log(voxbones);
+			      vox1 = voxbones[0];
+			      console.log(vox1);
 
-        vox1.WebRTC.configuration.log_level = vox1.Logger.log_level.INFO;
-        //voxbone.WebRTC.configuration.ws_servers = [config.ws_server];
+			      // voxbone.WebRTC.configure({
+			      //  sipUsername: $scope.user.sipUsername,
+			      //  sipPassword: $scope.user.sipPassword,
+			      //  sipAuthUser: $scope.user.sipUsername,
+			      //  sipRegistrar: $scope.registrar,
+			      //  sipURI: 'sip:' + $scope.user.browserUsername + '@' + config.sip_gateway_domain
+			      // });
 
-        //exporting call logs
-	      vox1.WebRTC.configuration.post_logs = true;
-        now = new Date($.now());
-        var call = {
-            call: {
-              'sip2webr.tc_email': email,
-              'sip2webr.tc_apiBrowsername': $scope.user.browserUsername,
-              'sip2webr.tc_callTime': now
-            }
-        };
+			      vox1.WebRTC.configuration.log_level = vox1.Logger.log_level.INFO;
+			      //voxbone.WebRTC.configuration.ws_servers = [config.ws_server];
 
-	      vox1.WebRTC.webrtcLogs += JSON.stringify(call);
-	      vox1.WebRTC.basicAuthInit(config.vox_username, config.vox_password);
+			      //exporting call logs
+			      vox1.WebRTC.configuration.post_logs = true;
+			      now = new Date($.now());
+			      var call = {
+				      call: {
+					      'sip2webr.tc_email': email,
+					      'sip2webr.tc_apiBrowsername': $scope.user.browserUsername,
+					      'sip2webr.tc_callTime': now
+				      }
+			      };
 
-	      //voxbone_2.WebRTC.basicAuthInit(config.vox_username, config.vox_password);
+			      vox1.WebRTC.webrtcLogs += JSON.stringify(call);
+			      vox1.WebRTC.basicAuthInit(config.vox_username, config.vox_password);
 
-	      vox1.WebRTC.onCall = function (callee, cb) {
-					console.log('ON CALL!');
-          setState('receiving', callee);
-          audio.play();
+			      //voxbone_2.WebRTC.basicAuthInit(config.vox_username, config.vox_password);
 
-          $scope.answerCall = function () {
-            cb(true);
-            setState('ongoing', callee);
-            audio.pause();
-            audio.currentTime = 0;
-          };
+			      vox1.WebRTC.onCall = function (callee, cb) {
+				      console.log('ON CALL!');
+				      setState('receiving', callee);
+				      audio.play();
 
-          $scope.declineCall = function () {
-            cb(false);
-          };
+				      $scope.answerCall = function () {
+					      cb(true);
+					      setState('ongoing', callee);
+					      audio.pause();
+					      audio.currentTime = 0;
+				      };
 
-        };
-	      eventHandlersActions();
+				      $scope.declineCall = function () {
+					      cb(false);
+				      };
+
+			      };
+			      eventHandlersActions(vox1);
+		      }
+	      );
+
 
         }, function errorCallback (response) {
 
         });
 
-	    function eventHandlersActions() {
-		    vox1.WebRTC.customEventHandler.ended = function (e) {
+	    function eventHandlersActions(voxbone) {
+		    voxbone.WebRTC.customEventHandler.ended = function (e) {
 			    appendMessage('phone-alt', 'Ended call');
 			    appendMessage('time', 'Waiting for incoming call');
 			    setState('waiting');
 		    };
 
-		    vox1.WebRTC.customEventHandler.registered = function (e) {
+		    voxbone.WebRTC.customEventHandler.registered = function (e) {
 			    appendMessage('ok', 'Registered');
 			    appendMessage('time', 'Waiting for incoming call');
 			    setState('waiting');
 		    };
 
-		    vox1.WebRTC.customEventHandler.remoteMediaVolume = function (e) {
+		    voxbone.WebRTC.customEventHandler.remoteMediaVolume = function (e) {
 			    clearDevice('phone-earphone');
 			    if (e.remoteVolume > 0.01) setEapDot('1');
 			    if (e.remoteVolume > 0.10) setEapDot('2');
 			    if (e.remoteVolume > 0.20) setEapDot('3');
 		    };
 
-		    vox1.WebRTC.customEventHandler.localMediaVolume = function (e) {
+		    voxbone.WebRTC.customEventHandler.localMediaVolume = function (e) {
 			    clearDevice('phone-microphone');
 			    if (e.localVolume > 0.01) setMicDot('1');
 			    if (e.localVolume > 0.10) setMicDot('2');
 
 			    $scope.hangCall = function () {
-				    vox1.WebRTC.hangup();
+				    voxbone.WebRTC.hangup();
 				    setState('waiting');
 				    if (e.localVolume > 0.20) setMicDot('3');
 			    };

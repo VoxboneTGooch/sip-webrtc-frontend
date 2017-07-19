@@ -3,6 +3,7 @@ extends layout
 prepend head
   script.
     var voxbones = Array(2);
+
     (function (window, document, object, id) {
       if (document.getElementById(id)) {return;}
       window['voxboneObject'] = object;
@@ -11,6 +12,7 @@ prepend head
           var script = document.createElement("script"),
               tag = document.getElementsByTagName("script")[0];
           script.id = id;
+          script.async = 1;
           script.src = 'http://localhost:3000/javascripts/demo/voxbone.js';
           tag.parentNode.insertBefore(script, tag);
       };
