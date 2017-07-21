@@ -143,57 +143,40 @@ define([
 
         requirejs.config({
           paths: {
-            voxbone: "http://localhost:3000/javascripts/demo/voxbone"
+            voxbone: config.voxbone_js_lib.split('.js')[0]
           }
         });
 
         requirejs(['voxbone'],
           function() {
-            var voxbones = new Voxbone([{
+            var voxbone = new Voxbone({
               sipUsername: $scope.user.sipUsername,
               sipPassword: $scope.user.sipPassword,
               sipAuthUser: $scope.user.sipUsername,
               sipRegistrar: $scope.registrar,
               sipURI: 'sip:' + $scope.user.browserUsername + '@' + config.sip_gateway_domain
-            },
-            {
-              sipUsername: 'proud-sound',
-              sipURI: 'sip:proud-sound@sip-staging.2webr.tc'
-            }]);
+            });
 
-            console.log('after constructor');
-            console.log(voxbones);
-            vox1 = voxbones[0];
-            console.log(vox1);
-
-            // voxbone.WebRTC.configure({
-            //  sipUsername: $scope.user.sipUsername,
-            //  sipPassword: $scope.user.sipPassword,
-            //  sipAuthUser: $scope.user.sipUsername,
-            //  sipRegistrar: $scope.registrar,
-            //  sipURI: 'sip:' + $scope.user.browserUsername + '@' + config.sip_gateway_domain
-            // });
-
-	          vox1.WebRTC.configuration.log_level = vox1.Logger.log_level.INFO;
+	          voxbone.WebRTC.configuration.log_level = voxbone.Logger.log_level.INFO;
 	          //voxbone.WebRTC.configuration.ws_servers = [config.ws_server];
 
-          //exporting call logs
-          vox1.WebRTC.configuration.post_logs = true;
-          now = new Date($.now());
-          var call = {
-            call: {
-              'sip2webr.tc_email': email,
-              'sip2webr.tc_apiBrowsername': $scope.user.browserUsername,
-              'sip2webr.tc_callTime': now
-            }
-          };
+            //exporting call logs
+            voxbone.WebRTC.configuration.post_logs = true;
+            now = new Date($.now());
+            var call = {
+              call: {
+                'sip2webr.tc_email': email,
+                'sip2webr.tc_apiBrowsername': $scope.user.browserUsername,
+                'sip2webr.tc_callTime': now
+              }
+            };
 
-	          vox1.WebRTC.webrtcLogs += JSON.stringify(call);
-	          vox1.WebRTC.basicAuthInit(config.vox_username, config.vox_password);
+	          voxbone.WebRTC.webrtcLogs += JSON.stringify(call);
+	          voxbone.WebRTC.basicAuthInit(config.vox_username, config.vox_password);
 
             //voxbone_2.WebRTC.basicAuthInit(config.vox_username, config.vox_password);
 
-            vox1.WebRTC.onCall = function (callee, cb) {
+            voxbone.WebRTC.onCall = function (callee, cb) {
               console.log('ON CALL!');
               setState('receiving', callee);
               audio.play();
@@ -210,7 +193,7 @@ define([
               };
 
             };
-            eventHandlersActions(vox1);
+            eventHandlersActions(voxbone);
           }
         );
 

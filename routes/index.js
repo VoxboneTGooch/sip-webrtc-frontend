@@ -92,7 +92,8 @@ router.get('/phone', utils.isLoggedIn, function (req, res, next) {
     voxbone_webrtc_username: voxrtc_username,
     apiBrowserName: res.locals.currentUser.apiBrowsername,
     ws_server: process.env.WS_SERVER,
-    sip_gateway_domain: process.env.SIP_GATEWAY_DOMAIN
+    sip_gateway_domain: process.env.SIP_GATEWAY_DOMAIN,
+    voxbone_js_lib: process.env.VOXBONE_JS_LIB_URL
   };
 
   res.render('phone', {
@@ -136,7 +137,7 @@ router.get('/demo', function (req, res, next) {
   });
 });
 
-router.get('/faq', function (req, res, next) {
+router.get('/multiple_instances', function (req, res, next) {
 	var ringtone = res.locals.currentUser.ringtone;
 	var browserNotifications = res.locals.currentUser.browserNotifications;
 	var uemail = res.locals.currentUser.email;
@@ -150,7 +151,7 @@ router.get('/faq', function (req, res, next) {
 		sip_gateway_domain: process.env.SIP_GATEWAY_DOMAIN
 	};
 
-	res.render('faq', {
+	res.render('multiple_instances', {
 		config: config,
 		ringtone: ringtone,
 		browserNotifications: browserNotifications,

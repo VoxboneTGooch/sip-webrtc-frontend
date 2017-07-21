@@ -43,47 +43,36 @@ prepend head
             break;
     }
 
-    // if (!$scope.$$phase)
-            //$scope.$apply();
-
     }
 
     var v = function(){
         audio = new Audio('/audio/old.ogg');
-        var that = this;
-        //var voxbone1 = new Voxbone({});
-        //var voxbone2 = new Voxbone({});
-        var voxbones = new Voxbone([{
-            sipUsername: 'proud-sound',
-            sipURI: 'sip:proud-sound@sip-staging.2webr.tc'
-        },
-        {
-            sipUsername: '7502',
-            sipPassword: '1234',
-            sipAuthUser: '7502',
-            sipRegistrar: 'ast.voxboneworkshop.com',
-            sipURI: 'sip:7502@sip-staging.2webr.tc'
-        }]);
+
+        var vox1 = new Voxbone({
+          sipUsername: 'proud-sound',
+          sipURI: 'sip:proud-sound@sip-staging.2webr.tc'
+        });
+
+        var vox2 = new Voxbone({
+          sipUsername: '7502',
+          sipPassword: '1234',
+          sipAuthUser: '7502',
+          sipRegistrar: 'ast.voxboneworkshop.com',
+          sipURI: 'sip:7502@sip-staging.2webr.tc'
+        });
 
         console.log('after constructor');
-        console.log(voxbones);
-        vox1 = voxbones[0];
+
         console.log(vox1);
 
-        vox2 = voxbones[1];
         console.log(vox2)
-
-        vox1.WebRTC.configuration.log_level = vox1.Logger.log_level.INFO;
-        //voxbone.WebRTC.configuration.ws_servers = [config.ws_server];
 
         vox1.WebRTC.basicAuthInit('workshop_webrtcventures', 'Clic2178!');
 
         vox2.WebRTC.basicAuthInit('workshop_webrtcventures', 'Clic2178!');
 
-        //voxbone_2.WebRTC.basicAuthInit(config.vox_username, config.vox_password);
-
         vox1.WebRTC.onCall = function (callee, cb) {
-            console.log('ON CALL!');
+            console.log('Calling voxbone() num.1');
             console.log(this);
             setState('receiving', callee);
             audio.play();
@@ -98,26 +87,24 @@ prepend head
             declineCall = function () {
                 cb(false);
             };
-
         };
 
         vox2.WebRTC.onCall = function (callee, cb) {
-                console.log('ON CALL!2');
-                console.log(this);
-                setState('receiving', callee);
-                audio.play();
+            console.log('Calling voxbone() num.2');
+            console.log(this);
+            setState('receiving', callee);
+            audio.play();
 
-                answerCall = function () {
-                        cb(true);
-                        setState('ongoing', callee);
-                        audio.pause();
-                        audio.currentTime = 0;
-                };
+            answerCall = function () {
+                cb(true);
+                setState('ongoing', callee);
+                audio.pause();
+                audio.currentTime = 0;
+            };
 
-                declineCall = function () {
-                        cb(false);
-                };
-
+            declineCall = function () {
+                cb(false);
+            };
         };
 
         eventHandlersActions(vox1);
