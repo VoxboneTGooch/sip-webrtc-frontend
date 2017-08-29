@@ -17,31 +17,6 @@ var voxbone = new Voxbone({
     voxrtcSecret: voxrtc_secret
 });
 
-// Required for auto Let's Encrypt cert generation
-// https://github.com/dmathieu/sabayon
-router.get('/.well-known/acme-challenge/:acmeToken', function(req, res, next) {
-  var acmeToken = req.params.acmeToken;
-  var acmeKey;
-
-  if (process.env.ACME_KEY && process.env.ACME_TOKEN) {
-    if (acmeToken === process.env.ACME_TOKEN) {
-      acmeKey = process.env.ACME_KEY;
-    }
-  }
-
-  for (var key in process.env) {
-    if (key.startsWith('ACME_TOKEN_')) {
-      var num = key.split('ACME_TOKEN_')[1];
-      if (acmeToken === process.env['ACME_TOKEN_' + num]) {
-        acmeKey = process.env['ACME_KEY_' + num];
-      }
-    }
-  }
-
-  if (acmeKey) res.send(acmeKey);
-  else res.status(404).send();
-});
-
 router.get('*', function (req, res, next) {
   //  Check for unsupported browsers
   var browser = utils.getReqBrowser(req);
@@ -92,7 +67,9 @@ router.get('/phone', utils.isLoggedIn, function (req, res, next) {
     voxbone_webrtc_username: voxrtc_username,
     apiBrowserName: res.locals.currentUser.apiBrowsername,
     ws_server: process.env.WS_SERVER,
-    sip_gateway_domain: process.env.SIP_GATEWAY_DOMAIN
+    sip_gateway_domain: process.env.SIP_GATEWAY_DOMAIN,
+    voxbone_js_lib: process.env.VOXBONE_JS_LIB_URL,
+    voxbone_janus_url: process.env.VOXBONE_JANUS_URL
   };
 
   res.render('phone', {
@@ -123,7 +100,9 @@ router.get('/demo', function (req, res, next) {
         voxbone_webrtc_username: voxrtc_username,
         apiBrowserName: theDemo.name,
         ws_server: process.env.WS_SERVER,
-        sip_gateway_domain: process.env.SIP_GATEWAY_DOMAIN
+        sip_gateway_domain: process.env.SIP_GATEWAY_DOMAIN,
+        voxbone_js_lib: process.env.VOXBONE_JS_LIB_URL,
+        voxbone_janus_url: process.env.VOXBONE_JANUS_URL
       };
 
       res.render('demo', {

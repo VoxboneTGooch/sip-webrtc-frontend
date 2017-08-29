@@ -43,7 +43,7 @@ describe('Utils module', function() {
     var unsupportedBrowsers = utils.getUnsupportedBrowsers();
 
     it('should return the list of unsupported browsers', function() {
-      var expectedArray = ['IE', 'Safari'];
+      var expectedArray = ['IE'];
       expect(unsupportedBrowsers).to.be.an('Array');
       expect(unsupportedBrowsers).be.eql(expectedArray);
     });
@@ -51,13 +51,13 @@ describe('Utils module', function() {
 
   describe('#isSupportedBrowser()', function() {
     it('should detect an supported browser', function() {
-      ['Chrome', 'Mobile Chrome', 'Firefox', 'Opera'].forEach(function (x) {
+      ['Chrome', 'Mobile Chrome', 'Firefox', 'Opera','Safari','Mobile Safari'].forEach(function (x) {
         expect(utils.isSupportedBrowser(x)).be.eql(true);
       });
     });
 
     it('should detect an unsupported browser', function() {
-      ['Safari', 'Mobile Safari', 'IE', '', null].forEach(function (x) {
+      ['IE', '', null].forEach(function (x) {
         expect(utils.isSupportedBrowser(x)).be.eql(false);
       });
     });

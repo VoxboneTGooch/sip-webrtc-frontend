@@ -1,7 +1,10 @@
 extends layout
 
 prepend head
+  script.
+    var voxbone = window.voxbone || {};
   script(src=process.env.VOXBONE_JS_LIB_URL)
+
 append head
   script.
     require([

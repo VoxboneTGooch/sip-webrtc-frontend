@@ -1,6 +1,7 @@
 define([
   'controllers/browserNotifications',
-  'bootstrap'
+  'bootstrap',
+  'require'
   ], function(BrowserNotificationsController) {
 
   var PhoneController = function($scope, $http, $window, $timeout, $controller) {
@@ -95,7 +96,7 @@ define([
       var now;
       var constraints = {
         video: false,
-        audio: true,
+        audio: true
       };
 
       $scope.gumPermission = false;
@@ -136,88 +137,109 @@ define([
         $scope.user = JSON.parse(response.data);
         $scope.registrar = filterRegistrarURI($scope.user.registrarURI);
         audio = new Audio('/audio/' + ringtone + '.ogg');
-        voxbone.WebRTC.configuration.log_level = voxbone.Logger.log_level.INFO;
-        voxbone.WebRTC.username = $scope.user.sipUsername;
-        voxbone.WebRTC.password = $scope.user.sipPassword;
-        voxbone.WebRTC.configuration.uri = 'sip:' + $scope.user.browserUsername + '@' + config.sip_gateway_domain;
-        voxbone.WebRTC.configuration.ws_servers = [config.ws_server];
 
-        //exporting call logs
-        voxbone.WebRTC.configuration.post_logs = true;
-        now = new Date($.now());
-        var call = {
-            call: {
-              'sip2webr.tc_email': email,
-              'sip2webr.tc_apiBrowsername': $scope.user.browserUsername,
-              'sip2webr.tc_callTime': now
-            }
-        };
-
-        voxbone.WebRTC.webrtcLogs += JSON.stringify(call);
-        voxbone.WebRTC.basicAuthInit(config.vox_username, config.vox_password);
-
-        voxbone.WebRTC.onCall = function (data, cb) {
-
-          var callee = data.request.from.display_name;
-          setState('receiving', callee);
-          audio.play();
-
-          $scope.answerCall = function () {
-            cb(true);
-            setState('ongoing', callee);
-            audio.pause();
-            audio.currentTime = 0;
-          };
-
-          $scope.declineCall = function () {
-            cb(false);
-          };
-
-          voxbone.WebRTC.customEventHandler.failed = function(e) {
-            appendMessage('phone-alt', 'Ended call');
-            appendMessage('time', 'Waiting for incoming call');
-            setState('waiting');
-            audio.pause();
-            audio.currentTime = 0;
-          };
-
-        };
-
-        }, function errorCallback (response) {
-
+        requirejs.config({
+          paths: {
+            voxbone: config.voxbone_js_lib.split('.js')[0]
+          }
         });
 
-      voxbone.WebRTC.customEventHandler.ended = function(e) {
-        appendMessage('phone-alt', 'Ended call');
-        appendMessage('time', 'Waiting for incoming call');
-        setState('waiting');
-      };
+        requirejs(['voxbone'],
+          function() {
+            var voxbone = new Voxbone({
+              janusURL : config.voxbone_janus_url,
+              displayName: $scope.user.sipUsername,
+              sipUsername: $scope.user.sipUsername,
+              sipPassword: $scope.user.sipPassword,
+              sipAuthUser: $scope.user.sipUsername,
+              sipRegistrar: $scope.registrar,
+              sipURI: 'sip:' + $scope.user.browserUsername + '@' + config.sip_gateway_domain
+            });
 
-      voxbone.WebRTC.customEventHandler.registered = function(e) {
-        appendMessage('ok', 'Registered');
-        appendMessage('time', 'Waiting for incoming call');
-        setState('waiting');
-      };
+	    voxbone.WebRTC.configuration.log_level = voxbone.Logger.log_level.INFO;
 
-      voxbone.WebRTC.customEventHandler.remoteMediaVolume = function(e) {
-        clearDevice('phone-earphone');
-        if (e.remoteVolume > 0.01) setEapDot('1');
-        if (e.remoteVolume > 0.10) setEapDot('2');
-        if (e.remoteVolume > 0.20) setEapDot('3');
-      };
+            //exporting call logs
+            voxbone.WebRTC.configuration.post_logs = true;
+            now = new Date($.now());
+            var call = {
+              call: {
+                'sip2webr.tc_email': email,
+                'sip2webr.tc_apiBrowsername': $scope.user.browserUsername,
+                'sip2webr.tc_callTime': now
+              }
+            };
 
-      voxbone.WebRTC.customEventHandler.localMediaVolume = function(e) {
-        clearDevice('phone-microphone');
-        if (e.localVolume > 0.01) setMicDot('1');
-        if (e.localVolume > 0.10) setMicDot('2');
-        if (e.localVolume > 0.20) setMicDot('3');
-      };
+	    voxbone.WebRTC.webrtcLogs += JSON.stringify(call);
+	    voxbone.WebRTC.basicAuthInit(config.vox_username, config.vox_password);
 
-      $scope.hangCall = function () {
-        voxbone.WebRTC.hangup();
-        setState('waiting');
-      };
+            voxbone.WebRTC.onCall = function(callee, cb) {
+              setState('receiving', callee);
+              audio.play();
+
+              $scope.answerCall = function() {
+                cb(true);
+                setState('ongoing', callee);
+                audio.pause();
+                audio.currentTime = 0;
+              };
+
+              $scope.declineCall = function() {
+                cb(false);
+                audio.pause();
+              };
+
+              voxbone.WebRTC.customEventHandler.failed = function(e) {
+                appendMessage('phone-alt', 'Ended call');
+                appendMessage('time', 'Waiting for incoming call');
+                setState('waiting');
+                audio.pause();
+                audio.currentTime = 0;
+              };
+
+            };
+            eventHandlersActions(voxbone);
+          }
+        );
+
+      }, function errorCallback(response) {
+
+      });
+
+      function eventHandlersActions(voxbone) {
+        voxbone.WebRTC.customEventHandler.ended = function(e) {
+          appendMessage('phone-alt', 'Ended call');
+          appendMessage('time', 'Waiting for incoming call');
+          setState('waiting');
+        };
+
+        voxbone.WebRTC.customEventHandler.registered = function(e) {
+          appendMessage('ok', 'Registered');
+          appendMessage('time', 'Waiting for incoming call');
+          setState('waiting');
+        };
+
+        voxbone.WebRTC.customEventHandler.remoteMediaVolume = function(e) {
+          clearDevice('phone-earphone');
+          if (e.remoteVolume > 0.01) setEapDot('1');
+          if (e.remoteVolume > 0.10) setEapDot('2');
+          if (e.remoteVolume > 0.20) setEapDot('3');
+        };
+
+        voxbone.WebRTC.customEventHandler.localMediaVolume = function(e) {
+          clearDevice('phone-microphone');
+          if (e.localVolume > 0.01) setMicDot('1');
+          if (e.localVolume > 0.10) setMicDot('2');
+
+          $scope.hangCall = function () {
+            voxbone.WebRTC.hangup();
+            audio.pause();
+            setState('waiting');
+            if (e.localVolume > 0.20) setMicDot('3');
+          };
+        };
+      }
     };
+
   };
   PhoneController.$inject = ['$scope', '$http', '$window', '$timeout', '$controller'];
 
