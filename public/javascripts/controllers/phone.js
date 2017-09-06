@@ -153,13 +153,12 @@ define([
               sipPassword: $scope.user.sipPassword,
               sipAuthUser: $scope.user.sipUsername,
               sipRegistrar: $scope.registrar,
-              sipURI: 'sip:' + $scope.user.browserUsername + '@' + config.sip_gateway_domain
+              sipURI: 'sip:' + $scope.user.browserUsername + '@' + config.sip_gateway_domain,
+              logLevel: 2,
+              postLogs: true
             });
 
-	    voxbone.WebRTC.configuration.log_level = voxbone.Logger.log_level.INFO;
-
             //exporting call logs
-            voxbone.WebRTC.configuration.post_logs = true;
             now = new Date($.now());
             var call = {
               call: {
