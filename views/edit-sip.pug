@@ -27,14 +27,14 @@ block content
               .col-md-6
                 .ng-cloak
                   h4 SIP Settings
-                  p Use our free SIP address or connect to your SIP server
-                  .checkbox
-                    label
-                      input(type="checkbox" ng-model="showInteralSip" disabled)
-                      |Give me a SIP address to test with
-                      span.badge(data-toggle='tooltip' data-placement="right" title="Dial this SIP address from your SIP phone or infrastructure") ?
-                      br
-                  .internalSip(ng-show = "showInteralSip") #{voxbone_webrtc_username}+{{user.browserUsername}}@#{sip_gateway_domain}
+                  //p Use our free SIP address or connect to your SIP server
+                  //.checkbox
+                  //  label
+                  //    input(type="checkbox" ng-model="showInteralSip" disabled)
+                  //    |Give me a SIP address to test with
+                  //    span.badge(data-toggle='tooltip' data-placement="right" title="Dial this SIP address from your SIP phone or infrastructure") ?
+                  //    br
+                  //.internalSip(ng-show = "showInteralSip") #{voxbone_webrtc_username}+{{user.browserUsername}}@#{sip_gateway_domain}
                   .checkbox
                     label
                       input(type="checkbox" ng-model="did2webrtcSignup" ng-disabled="did2webrtcSignup" ng-click="didSignup()")
