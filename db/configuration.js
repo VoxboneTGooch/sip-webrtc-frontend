@@ -4,7 +4,11 @@ var Account = require('../models/account');
 var Demo = require('../models/demo');
 var request = require('request');
 
-mongoose.connect(dbURI);
+mongoose.Promise = global.Promise;
+
+var promise = mongoose.connect(dbURI, {
+  useMongoClient: true
+});
 
 //Check for demo user for testing purposes
 Account.findOne({email: "demo.user@sip2webr.tc"}, function (err, demoAccount) {
