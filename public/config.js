@@ -60,7 +60,7 @@ require.config({
       '//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min',
       '/lib/bootstrap/dist/js/bootstrap.min'
     ],
-    click2vox: 'https://voxbone.com/click2vox/beta/click2vox',
+    click2vox: 'https://cdn.voxbone.com/click2vox/click2vox-3.min',
     jquery: [
       '//code.jquery.com/jquery-2.2.4.min',
       '/lib/jquery/dist/jquery.min'
