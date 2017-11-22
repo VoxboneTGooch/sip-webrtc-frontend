@@ -9,7 +9,7 @@
     "prepush": "npm test && grunt nightwatch"
   },
   "engines": {
-    "node": "^6.11.0"
+    "node": "^8.9.0"
   },
   "dependencies": {
     "async": "^1.5.0",
@@ -23,27 +23,27 @@
     "country-data": "0.0.30",
     "express": "~4.13.1",
     "express-recaptcha": "^2.1.0",
-    "express-session": "^1.14.1",
+    "express-session": "^1.15.6",
     "haikunator": "^2.0.0",
     "lodash": "^4.16.4",
-    "moment": "^2.16.0",
-    "mongoose": "^4.11.11",
+    "moment": "^2.19.2",
+    "mongoose": "^4.13.4",
     "morgan": "~1.6.1",
     "newrelic": "^1.32.0",
     "node-cache": "^4.1.0",
     "passport": "^0.3.2",
-    "passport-github2": "^0.1.10",
+    "passport-github2": "^0.1.11",
     "passport-google-oauth": "^1.0.0",
     "passport-linkedin-oauth2": "^1.4.1",
     "passport-local": "^1.0.0",
     "passport-oauth": "^1.0.0",
     "passport-windowslive": "^1.0.2",
     "pug": "^2.0.0-rc.4",
-    "request": "^2.65.0",
+    "request": "^2.83.0",
     "requestify": "^0.2.3",
     "sendgrid": "^2.0.0",
     "strong-params": "^0.7.0",
-    "ua-parser-js": "latest",
+    "ua-parser-js": "^0.7.17",
     "underscore": "latest",
     "voxbone-webrtc": "~0.0.8"
   },

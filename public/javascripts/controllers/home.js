@@ -1,5 +1,7 @@
 define(['angular', 'jquery'], function(angular, $) {
-  var HomeController = function($scope, $http, $window) {};
+  var HomeController = function($scope, $http, $window) {
+    $('#eolModal').modal('show');
+  };
 
   var clearContactForm = function() {
     $('#newsletterForm .form-group #uname').val('');
